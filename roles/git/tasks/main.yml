@@ -19,6 +19,13 @@
     state: absent
   tags: [git, gitconfig]
 
+- name: Render allowed signers file for SSH commit signing
+  ansible.builtin.template:
+    src: allowed_signers.j2
+    dest: "{{ home_dir }}/.config/git-configs/allowed_signers"
+    mode: "0644"
+  tags: [git, gitconfig, signing]
+
 - name: Render work gitconfig from template
   ansible.builtin.template:
     src: gitconfig-work.j2

@@ -117,17 +117,6 @@ if command -v atuin &>/dev/null; then
 fi
 
 ########################################
-# 7. Smarter directory jumping (zoxide)
-########################################
-
-# zoxide is a smarter `cd`: it tracks frequently used paths and lets you jump via:
-#   cd <pattern>    -> jumps to the most likely directory matching the pattern.
-#   cdi <pattern>   -> interactive fuzzy selection.
-if command -v zoxide &>/dev/null; then
-  eval "$(zoxide init --cmd=cd zsh)"
-fi
-
-########################################
 # 8. Aliases
 ########################################
 
@@ -264,7 +253,7 @@ if [ -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
 ########################################
-# End of ~/.zshrc
+# 10. Additional tools & completions
 ########################################
 
 # Added by Antigravity
@@ -275,3 +264,20 @@ export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 
 # Vite+ bin (https://viteplus.dev)
 [ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
+
+########################################
+# 11. Smarter directory jumping (zoxide) — MUST be last
+########################################
+
+# zoxide is a smarter `cd`: it tracks frequently used paths and lets you jump via:
+#   cd <pattern>    -> jumps to the most likely directory matching the pattern.
+#   cdi <pattern>   -> interactive fuzzy selection.
+# NOTE: zoxide must be initialized at the very end of .zshrc so its chpwd hook
+# is not overwritten by other plugins.
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init --cmd=cd zsh)"
+fi
+
+########################################
+# End of ~/.zshrc
+########################################

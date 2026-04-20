@@ -8,9 +8,7 @@
 [user]
     name = {{ git_user_name }}
     email = {{ git_work_email }}
-
-[commit]
-    # gpgsign = true
+    signingkey = ~/.ssh/{{ ssh_work_key }}.pub
 
 [core]
     excludesFile = ~/.gitignore-work

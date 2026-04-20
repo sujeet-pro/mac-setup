@@ -1,0 +1,5 @@
+# ~/.config/git-configs/allowed_signers — Managed by Ansible
+# Maps email addresses to their SSH signing keys for signature verification.
+# See: https://git-scm.com/docs/git-config#Documentation/git-config.txt-gpgsshallowedSignersFile
+{{ git_personal_email }} namespaces="git" {{ lookup('file', home_dir + '/.ssh/' + ssh_personal_key + '.pub') }}
+{{ git_work_email }} namespaces="git" {{ lookup('file', home_dir + '/.ssh/' + ssh_work_key + '.pub') }}

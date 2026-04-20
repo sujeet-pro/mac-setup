@@ -19,14 +19,33 @@
     email = {{ git_personal_email }}
 
 ########################################
-# 2. Default branch name for new repos
+# 2. Commit signing (SSH)
+########################################
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git-configs/allowed_signers
+
+[user]
+    signingkey = ~/.ssh/{{ ssh_personal_key }}.pub
+
+[commit]
+    gpgsign = true
+
+[tag]
+    gpgsign = true
+
+########################################
+# 3. Default branch name for new repos
 ########################################
 
 [init]
     defaultBranch = main
 
 ########################################
-# 3. Push behavior (common)
+# 4. Push behavior (common)
 ########################################
 
 [push]
@@ -34,7 +53,7 @@
     default = current
 
 ########################################
-# 4. Pull behavior (common)
+# 5. Pull behavior (common)
 ########################################
 
 [pull]
@@ -42,7 +61,7 @@
     ff = only
 
 ########################################
-# 5. Core behavior (common)
+# 6. Core behavior (common)
 ########################################
 
 [core]
@@ -67,7 +86,7 @@
     colorMoved = default
 
 ########################################
-# 6. Colors & pretty output (common)
+# 7. Colors & pretty output (common)
 ########################################
 
 [color]
@@ -77,7 +96,7 @@
     decorate = auto
 
 ########################################
-# 7. Aliases (common)
+# 8. Aliases (common)
 ########################################
 
 [alias]
@@ -90,7 +109,7 @@
     dft = "!f() { GIT_EXTERNAL_DIFF=difft git diff \"$@\"; }; f"
 
 ########################################
-# 8. Conditional includes
+# 9. Conditional includes
 #    - Directory-based: for repos under work and personal folders
 #    - Remote URL-based: for work repos cloned outside work folders
 #

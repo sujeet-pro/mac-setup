@@ -14,3 +14,7 @@ git_work_github_orgs: "{{ lookup('env', 'GIT_WORK_GITHUB_ORGS') }}"
 # Comma-separated list of Bitbucket orgs (workspaces) that should use work git config
 # e.g. "lastbrand,another-workspace"
 git_work_bitbucket_orgs: "{{ lookup('env', 'GIT_WORK_BITBUCKET_ORGS') }}"
+
+# SSH keys for commit signing (reuse SSH role defaults)
+ssh_personal_key: "{{ lookup('env', 'SSH_PERSONAL_KEY') | default('id_ed25519', true) }}"
+ssh_work_key: "{{ lookup('env', 'SSH_WORK_KEY') | default('id_ed25519', true) }}"
