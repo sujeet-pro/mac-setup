@@ -62,7 +62,7 @@ if [ "$CLEANUP_ONLY" = false ]; then
 
 echo ""
 echo "=========================================="
-echo "  Dotfiles Setup"
+echo "  Mac Setup"
 echo "=========================================="
 echo ""
 
@@ -179,13 +179,13 @@ review_unmanaged() {
 
   local count
   count=$(echo "$items" | wc -l | tr -d ' ')
-  echo -e "${YELLOW}Found $count $label not in your dotfiles:${NC}"
+  echo -e "${YELLOW}Found $count $label not tracked by mac-setup:${NC}"
   echo "$items" | while read -r item; do
     echo -e "  ${BLUE}-${NC} $item"
   done
   echo ""
   echo -e "${BOLD}What would you like to do?${NC}"
-  echo "  [a] Add all to dotfiles config ($yaml_key)"
+  echo "  [a] Add all to mac-setup config ($yaml_key)"
   echo "  [r] Remove all from system"
   echo "  [i] Review individually"
   echo "  [s] Skip"
@@ -207,7 +207,7 @@ review_unmanaged() {
       while IFS= read -r item; do
         echo ""
         echo -e "  ${BLUE}$item${NC}"
-        echo "    [a] Add to dotfiles  [r] Remove  [s] Skip"
+        echo "    [a] Add to mac-setup  [r] Remove  [s] Skip"
         read -r -p "    > " action </dev/tty
         case "$action" in
           a|A)
@@ -269,7 +269,7 @@ if command -v code &>/dev/null; then
 fi
 
 if [ "$UNMANAGED_FOUND" = false ]; then
-  echo -e "${GREEN}✓ All installed packages are tracked in dotfiles${NC}"
+  echo -e "${GREEN}✓ All installed packages are tracked by mac-setup${NC}"
 fi
 
 echo ""

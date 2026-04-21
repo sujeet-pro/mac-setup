@@ -1,7 +1,7 @@
 ---
 - name: Symlink .zshrc
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/shell/.zshrc"
+    src: "{{ repo_dir }}/configs/shell/.zshrc"
     dest: "{{ home_dir }}/.zshrc"
     state: link
     force: true
@@ -26,7 +26,7 @@
 
 - name: Symlink starship.toml
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/shell/starship.toml"
+    src: "{{ repo_dir }}/configs/shell/starship.toml"
     dest: "{{ home_dir }}/.config/starship.toml"
     state: link
     force: true
@@ -40,7 +40,7 @@
 
 - name: Copy .zshenv.example to ~/.zshenv if missing
   ansible.builtin.copy:
-    src: "{{ dotfiles_repo }}/configs/shell/.zshenv.example"
+    src: "{{ repo_dir }}/configs/shell/.zshenv.example"
     dest: "{{ home_dir }}/.zshenv"
     mode: "0600"
   when: not zshenv_check.stat.exists

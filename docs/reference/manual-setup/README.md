@@ -17,7 +17,7 @@ These apps are not available via Homebrew and must be installed manually:
 
 ## MDM / Work Apps
 
-Do **not** add these to the dot-files repo. They are managed by your organization:
+Do **not** add these to the mac-setup repo. They are managed by your organization:
 
 - Self Service
 - Okta Verify
@@ -39,7 +39,7 @@ After running the playbook for the first time, complete these manual configurati
 ### Raycast
 
 1. Open Raycast and import settings from backup (if available)
-2. Add the script commands directory: `~/personal/dot-files/configs/raycast/script-commands/`
+2. Add the script commands directory: `~/personal/mac-setup/configs/raycast/script-commands/`
 3. Configure keyboard shortcut (recommended: `Cmd+Space` replacing Spotlight)
 
 ### Logi Options+
@@ -101,7 +101,7 @@ After adding keys, update `~/.zshenv` with the key filenames and re-run `make se
 
 ## Browser Extensions
 
-Browser extensions must be installed manually from the Chrome Web Store or your browser's extension marketplace. These are not managed by the dot-files repo.
+Browser extensions must be installed manually from the Chrome Web Store or your browser's extension marketplace. These are not managed by the mac-setup repo.
 
 ## App Store Apps
 

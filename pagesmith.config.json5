@@ -1,11 +1,11 @@
 {
-  name: 'Dot Files',
-  title: 'Dot Files - macOS Dev Environment',
+  name: 'Mac Setup',
+  title: 'Mac Setup - macOS Dev Environment',
   description: 'Automated macOS development environment setup using Ansible. Installs CLI tools, GUI apps, language runtimes, editor configs, shell setup, and system defaults.',
   origin: 'https://sujeet-pro.github.io',
   contentDir: './docs',
   outDir: './dist',
-  basePath: '/dot-files',
+  basePath: '/mac-setup',
   sidebar: {
     collapsible: true,
   },
@@ -13,11 +13,11 @@
     enabled: true,
   },
   editLink: {
-    repo: 'https://github.com/sujeet-pro/dot-files',
+    repo: 'https://github.com/sujeet-pro/mac-setup',
     branch: 'main',
   },
   lastUpdated: true,
   footerLinks: [
-    { label: 'GitHub', path: 'https://github.com/sujeet-pro/dot-files' },
+    { label: 'GitHub', path: 'https://github.com/sujeet-pro/mac-setup' },
   ],
 }

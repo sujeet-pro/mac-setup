@@ -10,7 +10,7 @@
 
 - name: Symlink VS Code settings.json
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/vscode/settings.json"
+    src: "{{ repo_dir }}/configs/vscode/settings.json"
     dest: "{{ vscode_settings_dir }}/settings.json"
     state: link
     force: true
@@ -36,7 +36,7 @@
 
 - name: Symlink GitHub CLI config
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/gh/config.yml"
+    src: "{{ repo_dir }}/configs/gh/config.yml"
     dest: "{{ home_dir }}/.config/gh/config.yml"
     state: link
     force: true
@@ -53,7 +53,7 @@
 
 - name: Symlink Zed settings
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/zed/settings.json"
+    src: "{{ repo_dir }}/configs/zed/settings.json"
     dest: "{{ home_dir }}/.config/zed/settings.json"
     state: link
     force: true
@@ -70,7 +70,7 @@
 
 - name: Symlink Ghostty config
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/ghostty/config"
+    src: "{{ repo_dir }}/configs/ghostty/config"
     dest: "{{ home_dir }}/.config/ghostty/config"
     state: link
     force: true
@@ -87,7 +87,7 @@
 
 - name: Symlink Claude Code settings.json
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/claude/settings.json"
+    src: "{{ repo_dir }}/configs/claude/settings.json"
     dest: "{{ home_dir }}/.claude/settings.json"
     state: link
     force: true
@@ -104,7 +104,7 @@
 
 - name: Find Raycast script commands in repo
   ansible.builtin.find:
-    paths: "{{ dotfiles_repo }}/configs/raycast/script-commands"
+    paths: "{{ repo_dir }}/configs/raycast/script-commands"
     patterns: ["*.sh", "*.applescript", "*.py", "*.js"]
   register: raycast_scripts
   tags: [apps, raycast]
@@ -137,7 +137,7 @@
 
 - name: Symlink btop config
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/btop/btop.conf"
+    src: "{{ repo_dir }}/configs/btop/btop.conf"
     dest: "{{ home_dir }}/.config/btop/btop.conf"
     state: link
     force: true

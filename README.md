@@ -1,4 +1,4 @@
-# dot-files
+# mac-setup
 
 Automated macOS development environment setup using Ansible. Installs CLI tools, GUI apps, language runtimes, editor configs, shell setup, system defaults, and Raycast scripts — all from a single command.
 
@@ -13,15 +13,15 @@ Re-running is always safe. Everything is idempotent: installed tools are skipped
 Run this from any terminal — it installs Xcode CLI tools and git if needed, clones the repo, and runs the full setup:
 
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/sujeet-pro/dot-files/main/bootstrap-remote.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/sujeet-pro/mac-setup/main/bootstrap-remote.sh)"
 ```
 
-The repo is cloned to `~/personal/dot-files`. From there, all future runs use the local copy.
+The repo is cloned to `~/personal/mac-setup`. From there, all future runs use the local copy.
 
 ### Option B: Repo already cloned
 
 ```sh
-cd ~/personal/dot-files
+cd ~/personal/mac-setup
 ./setup.sh
 ```
 
@@ -200,7 +200,7 @@ For each unmanaged package, you can **add it to the repo**, **remove it from the
 ## Repository Structure
 
 ```
-dot-files/
+mac-setup/
 ├── configs/                        # App config files (symlinked to system)
 │   ├── aws/config
 │   ├── btop/btop.conf

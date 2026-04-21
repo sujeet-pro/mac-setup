@@ -4,7 +4,7 @@ title: Shortcuts & Aliases
 
 # Shortcuts & Aliases
 
-A complete reference of keyboard shortcuts and shell aliases configured by the dot-files repo.
+A complete reference of keyboard shortcuts and shell aliases configured by the mac-setup repo.
 
 ## fzf Shortcuts
 

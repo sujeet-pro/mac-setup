@@ -1,4 +1,4 @@
-Sync the dot-files repo with the current system state. Follow these steps:
+Sync the mac-setup repo with the current system state. Follow these steps:
 
 ## 1. Homebrew packages
 

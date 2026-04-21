@@ -44,7 +44,7 @@
 
 - name: Symlink work gitignore (ignores mise files in ~/work repos)
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/git/gitignore-work"
+    src: "{{ repo_dir }}/configs/git/gitignore-work"
     dest: "{{ home_dir }}/.gitignore-work"
     state: link
     force: true
@@ -59,7 +59,7 @@
 
 - name: Symlink global pre-commit hook
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/git/hooks/pre-commit"
+    src: "{{ repo_dir }}/configs/git/hooks/pre-commit"
     dest: "{{ home_dir }}/.git-hooks/pre-commit"
     state: link
     force: true

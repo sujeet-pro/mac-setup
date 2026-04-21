@@ -4,7 +4,7 @@ title: Raycast Scripts
 
 # Raycast Scripts
 
-[Raycast Script Commands](https://github.com/raycast/script-commands) are standalone scripts with special metadata headers that Raycast can discover and run. Unlike Raycast extensions (which are Node/Swift packages), script commands are simple bash or AppleScript files that live in a directory and are version-controlled with the rest of the dot-files.
+[Raycast Script Commands](https://github.com/raycast/script-commands) are standalone scripts with special metadata headers that Raycast can discover and run. Unlike Raycast extensions (which are Node/Swift packages), script commands are simple bash or AppleScript files that live in a directory and are version-controlled with the rest of the mac-setup.
 
 ## Setup
 
@@ -24,7 +24,7 @@ After this one-time setup, all scripts in the directory are immediately availabl
 
 ## Available scripts
 
-All 11 scripts managed by the dot-files repo:
+All 11 scripts managed by the mac-setup repo:
 
 | Script | What it does | Input |
 |--------|-------------|-------|

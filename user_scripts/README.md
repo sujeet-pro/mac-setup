@@ -1,6 +1,6 @@
 # User Scripts
 
-Portable CLI scripts managed by this dotfiles repo. Each script is symlinked to
+Portable CLI scripts managed by this mac-setup repo. Each script is symlinked to
 `~/.local/bin/<script-name>` so it's available from any directory.
 
 ## Structure

@@ -4,7 +4,7 @@ title: Getting Started
 
 # Getting Started
 
-This guide walks you through setting up the dot-files repo on a new or existing Mac.
+This guide walks you through setting up the mac-setup repo on a new or existing Mac.
 
 ## Setup Paths
 
@@ -13,14 +13,14 @@ This guide walks you through setting up the dot-files repo on a new or existing 
 If you are starting from a brand-new Mac with nothing installed, run this single command in Terminal:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/sujeet-pro/dot-files/main/bootstrap-remote.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/sujeet-pro/mac-setup/main/bootstrap-remote.sh)"
 ```
 
 This script handles everything automatically:
 
 1. Installs Xcode Command Line Tools (needed for `git` and compilers)
 2. Installs `git` if not already present
-3. Clones the repo to `~/personal/dot-files`
+3. Clones the repo to `~/personal/mac-setup`
 4. Runs `setup.sh` to complete the full setup
 
 ### Option B: Repo Already Cloned
@@ -28,7 +28,7 @@ This script handles everything automatically:
 If you already have the repo cloned locally:
 
 ```bash
-cd ~/personal/dot-files && ./setup.sh
+cd ~/personal/mac-setup && ./setup.sh
 ```
 
 ## What setup.sh Does

@@ -1,6 +1,6 @@
 {
   displayName: 'Guide',
-  description: 'Step-by-step guides for setting up and using the dot-files repo.',
+  description: 'Step-by-step guides for setting up and using the mac-setup repo.',
   orderBy: 'manual',
   items: ['getting-started', 'configuration', 'customization'],
 }

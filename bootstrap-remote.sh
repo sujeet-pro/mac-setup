@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-REPO_URL="${DOTFILES_REPO_URL:-https://github.com/sujeet-pro/dot-files.git}"
-DEST_DIR="${DOTFILES_DEST_DIR:-$HOME/personal/dot-files}"
+REPO_URL="${MAC_SETUP_REPO_URL:-https://github.com/sujeet-pro/mac-setup.git}"
+DEST_DIR="${MAC_SETUP_DEST_DIR:-$HOME/personal/mac-setup}"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -11,7 +11,7 @@ NC='\033[0m'
 
 echo ""
 echo "=========================================="
-echo "  Dotfiles Remote Bootstrap"
+echo "  Mac Setup Remote Bootstrap"
 echo "=========================================="
 echo "Repo: $REPO_URL"
 echo "Dest: $DEST_DIR"

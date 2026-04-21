@@ -4,7 +4,7 @@ title: Customization
 
 # Customization
 
-This guide covers common ways to extend or modify the dot-files setup.
+This guide covers common ways to extend or modify the mac-setup setup.
 
 ## Adding a Homebrew Formula
 
@@ -44,14 +44,14 @@ To bring a new application's config under management:
    ```yaml
    - name: Symlink <app> config
      ansible.builtin.file:
-       src: "{{ dotfiles_dir }}/configs/<app>/config-file"
+       src: "{{ repo_dir }}/configs/<app>/config-file"
        dest: "~/.config/<app>/config-file"
        state: link
        force: true
    ```
 3. **Add validation** to `scripts/validate.sh` to verify the symlink is correct:
    ```bash
-   check_symlink "$HOME/.config/<app>/config-file" "$DOTFILES_DIR/configs/<app>/config-file"
+   check_symlink "$HOME/.config/<app>/config-file" "$MAC_SETUP_DIR/configs/<app>/config-file"
    ```
 
 ## Adding a Raycast Script Command

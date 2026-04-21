@@ -24,7 +24,7 @@
 
 - name: Find single-file user scripts
   ansible.builtin.find:
-    paths: "{{ dotfiles_repo }}/user_scripts"
+    paths: "{{ repo_dir }}/user_scripts"
     patterns: ["*.sh", "*.py"]
     depth: 1
   register: single_file_scripts
@@ -43,7 +43,7 @@
 
 - name: Find folder-based user scripts (index.sh)
   ansible.builtin.find:
-    paths: "{{ dotfiles_repo }}/user_scripts"
+    paths: "{{ repo_dir }}/user_scripts"
     patterns: "index.sh"
     recurse: true
     depth: 2
@@ -52,7 +52,7 @@
 
 - name: Find folder-based user scripts (index.py)
   ansible.builtin.find:
-    paths: "{{ dotfiles_repo }}/user_scripts"
+    paths: "{{ repo_dir }}/user_scripts"
     patterns: "index.py"
     recurse: true
     depth: 2

@@ -13,7 +13,7 @@ These apps are NOT available as Homebrew casks and must be installed manually:
 
 ## MDM / Work-Managed Applications
 
-These are deployed by your organization's IT/MDM and should NOT be added to dotfiles:
+These are deployed by your organization's IT/MDM and should NOT be added to mac-setup:
 
 | App | Purpose |
 |-----|---------|

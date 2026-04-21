@@ -4,7 +4,7 @@ title: Ansible Roles
 
 # Ansible Roles
 
-The dot-files repo uses 9 Ansible roles, each responsible for a specific area of system configuration. This page documents what each role does, its tags, and the key files it manages.
+The mac-setup repo uses 9 Ansible roles, each responsible for a specific area of system configuration. This page documents what each role does, its tags, and the key files it manages.
 
 ## Playbook Flow
 
@@ -208,7 +208,7 @@ Applies all macOS system defaults and restarts affected services.
 | Restarts Finder | Applies Finder-related changes |
 | Restarts SystemUIServer | Applies UI-related changes |
 
-See the [macOS System Defaults](/dot-files/reference/macos-defaults) page for the complete list of defaults.
+See the [macOS System Defaults](/mac-setup/reference/macos-defaults) page for the complete list of defaults.
 
 **Key files:**
 - `roles/macos/vars/main.yml` -- all defaults values

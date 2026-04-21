@@ -1,5 +1,5 @@
 ########################################
-# ~/.zshenv - Environment variables for dotfiles setup
+# ~/.zshenv - Environment variables for mac-setup
 #
 # Copy this file to ~/.zshenv and fill in your values:
 #   cp .zshenv.example ~/.zshenv

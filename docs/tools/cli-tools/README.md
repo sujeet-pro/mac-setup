@@ -4,7 +4,7 @@ title: CLI Tools
 
 # CLI Tools
 
-All 28 Homebrew formulae managed by the dot-files repo, organized by category. These are installed automatically when the Ansible playbook runs.
+All 28 Homebrew formulae managed by the mac-setup repo, organized by category. These are installed automatically when the Ansible playbook runs.
 
 Source: `roles/homebrew/vars/main.yml` under `homebrew_formulae`.
 
@@ -47,7 +47,7 @@ Source: `roles/homebrew/vars/main.yml` under `homebrew_formulae`.
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| `ansible` | Configuration management | Runs the dot-files playbook itself; also useful for work automation |
+| `ansible` | Configuration management | Runs the mac-setup playbook itself; also useful for work automation |
 | `mise` | Runtime version manager | Manages Node, Python, Java, Bun, etc. See [Runtimes](../runtimes/) |
 
 ## Container Tools

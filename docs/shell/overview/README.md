@@ -57,4 +57,4 @@ Core environment variables are set in `~/.zshenv` so they are available in all c
 | `EDITOR`  | `zed` | Default editor for git, etc.       |
 | `VISUAL`  | `zed` | Visual editor for interactive use  |
 
-Additional variables like `GIT_USER_NAME`, `GIT_PERSONAL_EMAIL`, and SSH key paths are also set in `.zshenv`. See the [Configuration guide](/dot-files/guide/configuration) for the full list.
+Additional variables like `GIT_USER_NAME`, `GIT_PERSONAL_EMAIL`, and SSH key paths are also set in `.zshenv`. See the [Configuration guide](/mac-setup/guide/configuration) for the full list.

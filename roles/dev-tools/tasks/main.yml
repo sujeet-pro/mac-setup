@@ -28,7 +28,7 @@
 
 - name: Symlink Colima default profile
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/colima/default.yaml"
+    src: "{{ repo_dir }}/configs/colima/default.yaml"
     dest: "{{ home_dir }}/.colima/default.yaml"
     state: link
     force: true

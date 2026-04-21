@@ -1,4 +1,4 @@
-# dot-files
+# mac-setup
 
 Ansible-based macOS development environment setup. Runs on localhost to install
 packages, configure apps, set system defaults, and symlink/template config files.

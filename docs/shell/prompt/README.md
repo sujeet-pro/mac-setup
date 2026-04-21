@@ -24,7 +24,7 @@ The starship configuration file is located at:
 ~/.config/starship.toml
 ```
 
-This file is symlinked from `configs/starship/starship.toml` in the dot-files repo by the `shell` Ansible role.
+This file is symlinked from `configs/starship/starship.toml` in the mac-setup repo by the `shell` Ansible role.
 
 ## Git Status Indicators
 
@@ -48,7 +48,7 @@ Starship shows git repository status using these symbols:
 A prompt showing a modified and staged file on a branch ahead of remote:
 
 ```
-~/personal/dot-files on main [●✚ ⇡1]
+~/personal/mac-setup on main [●✚ ⇡1]
 ❯
 ```
 

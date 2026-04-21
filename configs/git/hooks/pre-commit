@@ -5,7 +5,7 @@
 # Ensures the configured user.email matches what's expected
 # based on the remote URL. Blocks commits on mismatch.
 #
-# This file is managed by dotfiles. Do not edit directly.
+# This file is managed by mac-setup. Do not edit directly.
 # Source: configs/git/hooks/pre-commit
 ########################################
 

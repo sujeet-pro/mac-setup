@@ -8,7 +8,7 @@
 
 - name: Symlink mise config
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/mise/config.toml"
+    src: "{{ repo_dir }}/configs/mise/config.toml"
     dest: "{{ home_dir }}/.config/mise/config.toml"
     state: link
     force: true
@@ -19,7 +19,7 @@
     cmd: "{{ brew_prefix.stdout }}/bin/mise trust {{ item }}"
   loop:
     - "{{ home_dir }}/.config/mise/config.toml"
-    - "{{ dotfiles_repo }}/configs/mise/config.toml"
+    - "{{ repo_dir }}/configs/mise/config.toml"
   changed_when: false
   tags: [mise, config]
 

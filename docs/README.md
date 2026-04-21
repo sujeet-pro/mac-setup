@@ -1,14 +1,14 @@
 ---
 layout: DocHome
-title: Dot Files
+title: Mac Setup
 tagline: Automated macOS development environment setup using Ansible
-install: bash -c "$(curl -fsSL https://raw.githubusercontent.com/sujeet-pro/dot-files/main/bootstrap-remote.sh)"
+install: bash -c "$(curl -fsSL https://raw.githubusercontent.com/sujeet-pro/mac-setup/main/bootstrap-remote.sh)"
 actions:
   - text: Get Started
     link: /guide/getting-started
     theme: brand
   - text: View on GitHub
-    link: https://github.com/sujeet-pro/dot-files
+    link: https://github.com/sujeet-pro/mac-setup
     theme: alt
 features:
   - title: One Command Setup

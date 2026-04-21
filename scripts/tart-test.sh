@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ########################################
-# End-to-end dotfiles test in a clean Tart macOS VM
+# End-to-end mac-setup test in a clean Tart macOS VM
 #
 # Requires: brew install cirruslabs/cli/tart
 #
@@ -26,7 +26,7 @@ YELLOW='\033[1;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-VM_NAME="dotfiles-test-$$"
+VM_NAME="mac-setup-test-$$"
 VM_IMAGE="ghcr.io/cirruslabs/macos-sequoia-base:latest"
 VM_USER="admin"
 VM_PASS="admin"
@@ -99,7 +99,7 @@ wait_for_ssh() {
 
 echo ""
 echo "=========================================="
-echo "  Dotfiles E2E Test (Tart VM)"
+echo "  Mac Setup E2E Test (Tart VM)"
 echo "=========================================="
 echo ""
 
@@ -119,7 +119,7 @@ fi
 # --- Create and boot VM ---
 
 # Clean up any leftover VM with same name pattern
-for old_vm in $(tart list 2>/dev/null | grep "dotfiles-test-" | awk '{print $1}'); do
+for old_vm in $(tart list 2>/dev/null | grep "mac-setup-test-" | awk '{print $1}'); do
   warn "Deleting leftover test VM: $old_vm"
   tart delete "$old_vm" 2>/dev/null || true
 done
@@ -154,8 +154,8 @@ wait_for_ssh
 # --- Run setup inside VM ---
 
 log "Copying repo into VM..."
-ssh_vm "mkdir -p ~/dot-files"
-rsync_to_vm "$REPO_DIR/" "~/dot-files/"
+ssh_vm "mkdir -p ~/mac-setup"
+rsync_to_vm "$REPO_DIR/" "~/mac-setup/"
 ok "Repo synced"
 
 log "Creating test ~/.zshenv..."
@@ -178,7 +178,7 @@ ok "Ansible installed"
 
 log "Running Ansible playbook (this takes a while)..."
 PLAYBOOK_EXIT=0
-ssh_vm 'source ~/.zshenv && eval "$(/opt/homebrew/bin/brew shellenv)" && cd ~/dot-files && ansible-playbook setup.yml' || PLAYBOOK_EXIT=$?
+ssh_vm 'source ~/.zshenv && eval "$(/opt/homebrew/bin/brew shellenv)" && cd ~/mac-setup && ansible-playbook setup.yml' || PLAYBOOK_EXIT=$?
 
 if [ "$PLAYBOOK_EXIT" -ne 0 ]; then
   err "Ansible playbook failed (exit $PLAYBOOK_EXIT)"
@@ -191,7 +191,7 @@ ok "Playbook completed"
 
 log "Running validation..."
 VALIDATE_EXIT=0
-ssh_vm 'source ~/.zshenv && eval "$(/opt/homebrew/bin/brew shellenv)" && cd ~/dot-files && bash scripts/validate.sh' || VALIDATE_EXIT=$?
+ssh_vm 'source ~/.zshenv && eval "$(/opt/homebrew/bin/brew shellenv)" && cd ~/mac-setup && bash scripts/validate.sh' || VALIDATE_EXIT=$?
 
 echo ""
 echo "=========================================="

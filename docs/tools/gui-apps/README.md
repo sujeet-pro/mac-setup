@@ -4,7 +4,7 @@ title: GUI Applications
 
 # GUI Applications
 
-All Homebrew casks managed by the dot-files repo. These are installed automatically when the Ansible playbook runs.
+All Homebrew casks managed by the mac-setup repo. These are installed automatically when the Ansible playbook runs.
 
 Source: `roles/homebrew/vars/main.yml` under `homebrew_casks`.
 

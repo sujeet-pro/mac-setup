@@ -1,6 +1,6 @@
 {
   displayName: 'Tools',
-  description: 'All tools managed by the dot-files repo.',
+  description: 'All tools managed by the mac-setup repo.',
   orderBy: 'manual',
   items: ['cli-tools', 'gui-apps', 'runtimes', 'raycast'],
 }

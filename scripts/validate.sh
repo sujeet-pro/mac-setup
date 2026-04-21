@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Dotfiles Validation Script
+# Mac Setup Validation Script
 # Checks that all tools are installed, configs are in place, and env vars are set.
 
 set -u
@@ -66,7 +66,7 @@ check_env() {
 
 echo ""
 echo "=========================================="
-echo "  Dotfiles Validation"
+echo "  Mac Setup Validation"
 echo "=========================================="
 
 # --- Homebrew formulae ---

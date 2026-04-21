@@ -17,7 +17,7 @@
   gather_facts: true
 
   vars:
-    dotfiles_repo: "{{ playbook_dir }}"
+    repo_dir: "{{ playbook_dir }}"
     home_dir: "{{ ansible_env.HOME }}"
 
   pre_tasks:

@@ -8,7 +8,7 @@
 
 - name: Symlink AWS config
   ansible.builtin.file:
-    src: "{{ dotfiles_repo }}/configs/aws/config"
+    src: "{{ repo_dir }}/configs/aws/config"
     dest: "{{ home_dir }}/.aws/config"
     state: link
     force: true

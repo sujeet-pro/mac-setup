@@ -4,7 +4,7 @@ title: Testing & Validation
 
 # Testing & Validation
 
-The dot-files repo provides multiple levels of testing, from quick local checks to full end-to-end runs in a clean macOS VM.
+The mac-setup repo provides multiple levels of testing, from quick local checks to full end-to-end runs in a clean macOS VM.
 
 ## make validate
 
@@ -86,7 +86,7 @@ After debugging, stop and delete the VM manually.
 
 ## Cleanup Check
 
-The `setup.sh --cleanup` command identifies packages and extensions installed on the system that are not tracked in the dot-files repo.
+The `setup.sh --cleanup` command identifies packages and extensions installed on the system that are not tracked in the mac-setup repo.
 
 ```bash
 ./setup.sh --cleanup
