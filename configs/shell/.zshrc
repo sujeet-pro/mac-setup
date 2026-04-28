@@ -281,3 +281,15 @@ fi
 ########################################
 # End of ~/.zshrc
 ########################################
+
+# >>> Netskope SSL Certificate Trust (v2) >>>
+# Deployed by MDM — do not edit manually
+NETSKOPE_CA="/Library/Application Support/Netskope/Certificates/netskope-ca-bundle.pem"
+NETSKOPE_MERGED_CA="/Library/Application Support/Netskope/Certificates/netskope+certifi-ca-bundle.pem"
+if [ -f "$NETSKOPE_CA" ]; then
+    export NODE_EXTRA_CA_CERTS="$NETSKOPE_CA"
+fi
+if [ -f "$NETSKOPE_MERGED_CA" ]; then
+    export SSL_CERT_FILE="$NETSKOPE_MERGED_CA"
+fi
+# <<< Netskope SSL Certificate Trust (v2) <<<
