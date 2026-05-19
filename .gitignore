@@ -16,3 +16,7 @@ configs/claude/settings.local.json
 # Docs build output
 dist/
 node_modules/
+
+# Python build artifacts
+__pycache__/
+*.pyc

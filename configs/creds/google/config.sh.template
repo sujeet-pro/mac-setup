@@ -3,6 +3,9 @@
 export GOOGLE_CLIENT_ID=PLACEHOLDER_FILL_ME.apps.googleusercontent.com
 export GOOGLE_CREDENTIALS_FILE="$HOME/.config/creds/google/google.token.json"
 
+# Tool-compat alias (adk-mcp-google / workspace-mcp reads GOOGLE_OAUTH_CLIENT_ID).
+export GOOGLE_OAUTH_CLIENT_ID="$GOOGLE_CLIENT_ID"
+
 # Google Workspace MCP (taylorwilsdon/workspace-mcp) — separate from
 # creds_login_google. Manages its own OAuth cache.
 export USER_GOOGLE_EMAIL=you@example.com

@@ -9,3 +9,6 @@
 # to mint a refresh token at ~/.config/creds/google/google.token.json.
 
 export GOOGLE_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
+
+# Tool-compat alias (adk-mcp-google / workspace-mcp reads GOOGLE_OAUTH_CLIENT_SECRET).
+export GOOGLE_OAUTH_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET_CRED"

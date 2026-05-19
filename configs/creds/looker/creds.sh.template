@@ -4,3 +4,6 @@
 # Mint API3 credentials in Looker → Admin → Users → <you> → Edit Keys.
 
 export LOOKER_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
+
+# Tool-compat alias (Looker SDK + adk-mcp-looker read LOOKER_CLIENT_SECRET).
+export LOOKER_CLIENT_SECRET="$LOOKER_CLIENT_SECRET_CRED"

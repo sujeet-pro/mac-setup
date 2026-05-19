@@ -8,3 +8,6 @@ export LOOKER_SITE=https://your-looker-host
 export LOOKER_CLIENT_ID=PLACEHOLDER_FILL_ME
 export LOOKER_VERIFY_SSL=true
 export LOOKER_TIMEOUT=120
+
+# Tool-compat alias (Looker SDK + adk-mcp-looker read LOOKER_BASE_URL).
+export LOOKER_BASE_URL="$LOOKER_SITE"

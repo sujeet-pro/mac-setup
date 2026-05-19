@@ -7,3 +7,7 @@
 
 export DATADOG_API_KEY_CRED=PLACEHOLDER_FILL_ME
 export DATADOG_APP_KEY_CRED=PLACEHOLDER_FILL_ME
+
+# Tool-compat aliases (Datadog SDK + adk-mcp-datadog read DD_*).
+export DD_API_KEY="$DATADOG_API_KEY_CRED"
+export DD_APPLICATION_KEY="$DATADOG_APP_KEY_CRED"
