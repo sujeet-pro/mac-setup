@@ -3,13 +3,13 @@ CLIs work even when invoked from a non-login context (cron, GUI launchers,
 IDE runners) where zsh has not exported variables yet.
 
 Layout (since 2026-05-19):
-    ~/.zshenv                       — non-secret config (URLs, usernames, paths,
-                                       MCP env vars). Inline.
-    ~/.config/creds/<svc>/creds.sh  — per-service secrets (mode 600). Sourced
-                                       by .zshenv via a `for f in *; do source
-                                       $f; done` loop, which the regex parser
-                                       cannot follow — so we glob+load them
-                                       separately here.
+    ~/.zshenv                       — identity + pointer to creds loader.
+    ~/.config/creds/<svc>/config.sh — per-service non-secret config (mode 644).
+    ~/.config/creds/<svc>/creds.sh  — per-service secrets (mode 600).
+    Both are sourced by ~/.config/creds/loader.sh via a `for f in *; do
+    source $f; done` loop, which the regex parser cannot follow — so we
+    glob+load them separately here. config.sh first (URLs, hosts) so
+    creds.sh aliases like `export X="$BASE_URL"` can resolve.
 
 We only read simple `export FOO=BAR` / `export FOO="BAR"` / `FOO=BAR`
 assignments. Anything with command substitution or conditionals is ignored —
@@ -27,7 +27,7 @@ from pathlib import Path
 
 _LINE = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
 
-CREDS_GLOB = "*/creds.sh"
+CREDS_GLOBS = ("*/config.sh", "*/creds.sh")
 
 
 def _expand(value: str) -> str:
@@ -80,7 +80,8 @@ def load_zshenv(path: Path | None = None) -> dict[str, str]:
 
     creds_root = Path(os.environ.get("CREDS_DIR") or (Path.home() / ".config" / "creds"))
     if creds_root.is_dir():
-        for f in sorted(creds_root.glob(CREDS_GLOB)):
-            out.update(_load_file(f))
+        for pattern in CREDS_GLOBS:
+            for f in sorted(creds_root.glob(pattern)):
+                out.update(_load_file(f))
 
     return out

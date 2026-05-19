@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""Unified `creds` CLI — see `creds --help` for usage."""
+from __future__ import annotations
+
+import pathlib
+import sys
+
+_HERE = pathlib.Path(__file__).resolve().parent.parent  # → _lib/
+sys.path.insert(0, str(_HERE))
+
+from creds_lib.driver import main  # noqa: E402
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

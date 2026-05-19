@@ -95,16 +95,38 @@ The Ansible role (`roles/creds/`) is **never-overwrite**:
 
 ## Commands
 
+The unified `creds` CLI is the preferred entry point. Service names
+accept aliases — `creds login jira` resolves to `atlassian`, `creds
+validate dd gh` resolves to `datadog` + `github`. Run `creds status`
+(or just `creds`) to see every service alongside its aliases.
+
 ```bash
-creds_login_google                          # mint a refresh token
-creds_login_slack                           # mint bot + user tokens
-creds_validate                              # probe every connector
-creds_validate slack google                 # probe a subset
-creds_validate --list                       # print connector names
-~/.config/creds/slack/scripts/rotate.sh     # rotate Slack app-config tokens
+creds                                       # status table (services × auth × aliases)
+creds status                                # same as above
+creds validate                              # probe every service that has a connector
+creds validate slack google                 # probe a subset
+creds validate jira --json                  # JSON output (alias resolves to atlassian)
+creds validate --list                       # connector names, one per line
+creds validate --list-json                  # all services + aliases (shell completion / /adk-setup --check)
+
+creds login google                          # OAuth — refresh-token flow
+creds login slack                           # OAuth — bot/user-token flow
+creds login github                          # token — opens mint URL, prompts with no echo, writes to creds.sh
+creds login jira                            # token — alias resolution works on login too
+
+creds rotate slack                          # invokes ~/.config/creds/slack/scripts/rotate.sh
 ```
 
-## Exit codes (`creds_validate`)
+The legacy entrypoints stay for muscle memory and back-compat:
+`creds_validate`, `creds_login_google`, `creds_login_slack`.
+
+The guided `creds login <token-svc>` flow uses `getpass.getpass` — the
+value is read with no echo and written directly to
+`~/.config/creds/<svc>/creds.sh` (0600). The value never enters
+stdout/stderr, never appears in the log file, and is not exposed to
+any agent reading the conversation.
+
+## Exit codes (`creds validate` and legacy `creds_validate`)
 
 | code | meaning                                                  |
 | ---- | -------------------------------------------------------- |
@@ -119,8 +141,9 @@ creds_validate --list                       # print connector names
 2. Edit `~/.config/creds/<svc>/creds.sh` and replace the value (the
    file is `0600`; the merger never overwrites you).
 3. `source ~/.zshenv` to reload (or open a new shell).
-4. For OAuth services, re-run the matching `creds_login_*` flow.
-5. `creds_validate <svc>` to confirm green.
+4. For OAuth services, re-run `creds login <svc>` (or the legacy
+   `creds_login_<svc>` wrapper).
+5. `creds validate <svc>` to confirm green.
 
 For Slack app-config tokens specifically, `scripts/rotate.sh` performs
 the entire flow programmatically (uses the current refresh token to
