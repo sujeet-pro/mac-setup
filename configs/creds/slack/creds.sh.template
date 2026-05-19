@@ -1,19 +1,9 @@
-# slack — credentials + config. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# CLIENT_SECRET: Slack app → Basic Information → App Credentials.
-# APP_CONFIG tokens: used to manage app configuration via the
-#   tooling.tokens.rotate API. Mint the initial pair at
-#   https://api.slack.com/authentication/config-tokens (workspace admin
-#   only); the rotate script under scripts/ keeps them fresh.
-#
-# After filling these in, run `creds login slack` to mint bot + user
-# tokens at $SLACK_CREDENTIALS_FILE.
-
-export SLACK_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
-export SLACK_APP_CONFIG_ACCESS_TOKEN_CRED=PLACEHOLDER_FILL_ME
-export SLACK_APP_CONFIG_REFRESH_TOKEN_CRED=PLACEHOLDER_FILL_ME
-
 export SLACK_APP_ID=PLACEHOLDER_FILL_ME
 export SLACK_CLIENT_ID=PLACEHOLDER_FILL_ME
 export SLACK_CREDENTIALS_FILE="$HOME/.config/creds/slack/slack.token.json"
+
+# CLIENT_SECRET: Slack app → Basic Information → App Credentials
+# APP_CONFIG tokens: https://api.slack.com/authentication/config-tokens
+export SLACK_APP_CONFIG_ACCESS_TOKEN_CRED=PLACEHOLDER_FILL_ME
+export SLACK_APP_CONFIG_REFRESH_TOKEN_CRED=PLACEHOLDER_FILL_ME
+export SLACK_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME

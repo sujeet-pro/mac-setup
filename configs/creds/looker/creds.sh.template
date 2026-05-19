@@ -1,20 +1,7 @@
-# looker — credentials + config. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# Mint API3 credentials in Looker → Admin → Users → <you> → Edit Keys.
-# Both CLIENT_ID and CLIENT_SECRET are treated as secrets here — the ID
-# alone is enough to impersonate the user against /login.
+export LOOKER_BASE_URL=https://your-looker-host
+export LOOKER_TIMEOUT=120
+export LOOKER_VERIFY_SSL=true
 
+# Mint API3 keys in Looker → Admin → Users → <you> → Edit Keys
 export LOOKER_CLIENT_ID_CRED=PLACEHOLDER_FILL_ME
 export LOOKER_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
-
-# LOOKER_BASE_URL = https://<host>  (no /api/4.0 suffix; the connector appends it).
-# LOOKER_VERIFY_SSL = false to disable TLS verification (self-signed proxies).
-# LOOKER_TIMEOUT seconds for the validator probe.
-export LOOKER_BASE_URL=https://your-looker-host
-export LOOKER_VERIFY_SSL=true
-export LOOKER_TIMEOUT=120
-
-# No LOOKER_CLIENT_ID / LOOKER_CLIENT_SECRET aliases — the agents-devkit
-# MCP json (mcp/adk-mcp-looker.json) maps these to our `_CRED` names at
-# subprocess startup.

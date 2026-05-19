@@ -1,11 +1,2 @@
-# github — credentials. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# Personal access token at https://github.com/settings/tokens
-# (fine-grained or classic).
-#
-# Consumers read $GITHUB_TOKEN_CRED directly. The `gh` CLI reads
-# `GITHUB_TOKEN` natively — invoke as
-# `GITHUB_TOKEN=$GITHUB_TOKEN_CRED gh ...` when needed.
-
+# Mint: https://github.com/settings/tokens
 export GITHUB_TOKEN_CRED=PLACEHOLDER_FILL_ME

@@ -1,11 +1,2 @@
-# anthropic — credentials. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# Mint API key at https://console.anthropic.com/settings/keys
-#
-# Consumers (Anthropic SDK, claude CLI, etc.) read this directly via
-# $ANTHROPIC_API_KEY_CRED — no un-suffixed alias is exported. If a
-# tool insists on the legacy name `ANTHROPIC_API_KEY`, invoke it as
-# `ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY_CRED <command>`.
-
+# Mint: https://console.anthropic.com/settings/keys
 export ANTHROPIC_API_KEY_CRED=PLACEHOLDER_FILL_ME

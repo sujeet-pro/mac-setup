@@ -1,7 +1,2 @@
-# statsig — credentials. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# Mint a Console API key at https://console.statsig.com/api_keys
-# (type=Console, scope=omni_read_only is enough for adk's read-only skills).
-
+# Mint Console API key: https://console.statsig.com/api_keys (type=Console)
 export STATSIG_CONSOLE_API_KEY_CRED=PLACEHOLDER_FILL_ME

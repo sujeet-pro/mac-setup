@@ -1,11 +1,6 @@
-# okta — credentials + config. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# Sample-app OAuth (Authorization Code + PKCE). Find the values in your
-# Okta admin → Applications → <app> → General.
-
-export OKTA_APP_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
-
 export OKTA_APP_CLIENT_ID=PLACEHOLDER_FILL_ME
 export OKTA_ISSUER=https://YOUR-ORG.okta.com
 export OKTA_REDIRECT_URLS_LOCAL=http://localhost:3000/callback
+
+# From the Okta admin → Applications → <app> → General → Client Credentials
+export OKTA_APP_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME

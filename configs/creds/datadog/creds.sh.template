@@ -1,24 +1,9 @@
-# datadog — credentials + config. Sourced by ~/.config/creds/loader.sh.
-# Mode 0600. Never commit.
-#
-# API key:  https://app.datadoghq.com/organization-settings/api-keys
-# App key:  https://app.datadoghq.com/organization-settings/application-keys
-#   App key needs scope mcp_read (+ mcp_write only if muting monitors).
-
-export DATADOG_API_KEY_CRED=PLACEHOLDER_FILL_ME
-export DATADOG_APP_KEY_CRED=PLACEHOLDER_FILL_ME
-
-# Key identifiers — the short id Datadog shows next to each key in the UI.
-# Non-secret; lets you tell two API keys apart at a glance.
 export DATADOG_API_KEY_ID=PLACEHOLDER_FILL_ME
 export DATADOG_APP_KEY_ID=PLACEHOLDER_FILL_ME
-
-# Site + hosted MCP URL. Sites: datadoghq.com (US1), datadoghq.eu,
-# us3.datadoghq.com, us5.datadoghq.com, ap1.datadoghq.com.
-export DATADOG_SITE=datadoghq.com
 export DATADOG_MCP_URL=https://mcp.datadoghq.com/api/unstable/mcp-server/mcp
+export DATADOG_SITE=datadoghq.com
 
-# No DD_* aliases — the agents-devkit MCP json interpolates DATADOG_*
-# at subprocess startup, and the connector code reads DATADOG_* directly.
-# If a third-party tool insists on DD_API_KEY, invoke as
-# `DD_API_KEY=$DATADOG_API_KEY_CRED <command>`.
+# Mint API key: https://app.datadoghq.com/organization-settings/api-keys
+# Mint App key: https://app.datadoghq.com/organization-settings/application-keys
+export DATADOG_API_KEY_CRED=PLACEHOLDER_FILL_ME
+export DATADOG_APP_KEY_CRED=PLACEHOLDER_FILL_ME
