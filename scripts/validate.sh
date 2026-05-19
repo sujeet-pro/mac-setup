@@ -140,6 +140,39 @@ echo "VS Code:"
 VSCODE_DIR="$HOME/Library/Application Support/Code/User"
 check_symlink "$VSCODE_DIR/settings.json" "VS Code settings.json"
 
+# --- Credentials system (~/.config/creds) ---
+echo ""
+echo "Credentials system:"
+check_symlink "$HOME/.config/creds/loader.sh" "creds/loader.sh"
+check_symlink "$HOME/.config/creds/_lib" "creds/_lib"
+check_symlink "$HOME/.local/bin/creds" "~/.local/bin/creds"
+check_symlink "$HOME/.local/bin/creds_validate" "~/.local/bin/creds_validate (legacy)"
+check_symlink "$HOME/.local/bin/creds_login_google" "~/.local/bin/creds_login_google (legacy)"
+check_symlink "$HOME/.local/bin/creds_login_slack" "~/.local/bin/creds_login_slack (legacy)"
+
+# Per-service file modes — creds.sh must be 0600, config.sh 0644.
+for _csh in "$HOME/.config/creds"/*/creds.sh; do
+  [ -f "$_csh" ] || continue
+  _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
+  _rel="${_csh#$HOME/.config/}"
+  if [ "$_mode" = "600" ]; then
+    pass "$_rel mode=0600"
+  else
+    fail "$_rel mode=$_mode (expected 0600)"
+  fi
+done
+for _csh in "$HOME/.config/creds"/*/config.sh; do
+  [ -f "$_csh" ] || continue
+  _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
+  _rel="${_csh#$HOME/.config/}"
+  if [ "$_mode" = "644" ]; then
+    pass "$_rel mode=0644"
+  else
+    fail "$_rel mode=$_mode (expected 0644)"
+  fi
+done
+unset _csh _mode _rel
+
 # --- Env vars ---
 echo ""
 echo "Environment variables:"

@@ -36,16 +36,10 @@ test-vm-debug: ## Same as test-vm but keeps VM alive for debugging
 CREDS_BIN_DIR := $(HOME)/.local/bin
 CREDS_REPO_BIN := $(CURDIR)/configs/creds/_lib/bin
 
-install-creds: ## Symlink creds_login_* / creds_validate into ~/.local/bin (manual fallback; the `creds` Ansible role does this automatically)
-	@mkdir -p $(CREDS_BIN_DIR)
-	@for f in $(CREDS_REPO_BIN)/*; do \
-		name=$$(basename $$f); \
-		ln -sfn $$f $(CREDS_BIN_DIR)/$$name; \
-		echo "  linked $(CREDS_BIN_DIR)/$$name -> $$f"; \
-	done
-	@echo "Done. Make sure $(CREDS_BIN_DIR) is on your PATH."
+install-creds: ## Run only the creds Ansible role (scaffolds ~/.config/creds + ~/.local/bin/creds*)
+	@ansible-playbook setup.yml --tags creds
 
-uninstall-creds: ## Remove creds_* symlinks from ~/.local/bin
+uninstall-creds: ## Remove every creds-related symlink from ~/.local/bin (leaves ~/.config/creds/ in place)
 	@for f in $(CREDS_REPO_BIN)/*; do \
 		name=$$(basename $$f); \
 		target=$(CREDS_BIN_DIR)/$$name; \

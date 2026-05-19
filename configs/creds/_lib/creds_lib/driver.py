@@ -1,10 +1,11 @@
 """Top-level `creds` CLI dispatcher.
 
 Subcommands:
-  validate [svc ...] [--json|--list|--list-json]   — probe one/many/all
-  login    <svc>                                   — OAuth or guided token mint
+  validate   [svc ...] [--json|--list|--list-json] — probe one/many/all
+  login      <svc>                                 — OAuth or guided token mint
   status                                           — services table (also default)
-  rotate   <svc>                                   — invoke per-svc scripts/rotate.sh
+  rotate     <svc>                                 — invoke per-svc scripts/rotate.sh
+  completion <shell>                               — emit shell completion script
 
 Service names accept aliases: `jira` → `atlassian`, `gh` → `github`, etc.
 """
@@ -13,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import subprocess
 import sys
 
@@ -118,6 +120,51 @@ def _do_login(svc: str) -> int:
     return 64
 
 
+def _emit_zsh_completion() -> int:
+    services = _meta.all_names()
+    all_aliases = sorted(_aliases.ALIASES.keys())
+    rotate_services = [s for s in services if _meta.get(s).rotate_script]
+    services_arr = " ".join(shlex.quote(s) for s in services)
+    aliases_arr = " ".join(shlex.quote(a) for a in all_aliases)
+    rotate_arr = " ".join(shlex.quote(s) for s in rotate_services)
+    print(f"""#compdef creds
+
+_creds() {{
+  local -a subcommands services aliases rotate_services
+  subcommands=(
+    'validate:Probe connectors'
+    'login:Run login flow for one service'
+    'status:Print services table'
+    'list:Alias for status'
+    'rotate:Run rotation script for one service'
+    'completion:Emit shell completion script'
+  )
+  services=({services_arr})
+  aliases=({aliases_arr})
+  rotate_services=({rotate_arr})
+
+  if (( CURRENT == 2 )); then
+    _describe -t commands 'creds subcommand' subcommands
+    return
+  fi
+  case "$words[2]" in
+    validate|login)
+      _values 'service' $services $aliases
+      ;;
+    rotate)
+      _values 'service' $rotate_services
+      ;;
+    completion)
+      _values 'shell' zsh
+      ;;
+  esac
+}}
+
+compdef _creds creds
+""")
+    return 0
+
+
 def _do_rotate(svc: str) -> int:
     m = _meta.get(svc)
     if not m.rotate_script:
@@ -163,6 +210,9 @@ def main(argv: list[str] | None = None) -> int:
     pr = sub.add_parser("rotate", help="Run rotation script for one service")
     pr.add_argument("service", help="Service name (canonical or alias)")
 
+    pc = sub.add_parser("completion", help="Emit shell completion script")
+    pc.add_argument("shell", choices=["zsh"], help="Shell to generate completion for")
+
     args = p.parse_args(argv)
 
     if args.cmd in (None, "list", "status"):
@@ -207,5 +257,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "rotate":
         svc = _resolve_or_exit(args.service)
         return _do_rotate(svc)
+
+    if args.cmd == "completion":
+        if args.shell == "zsh":
+            return _emit_zsh_completion()
+        return 64
 
     return 0

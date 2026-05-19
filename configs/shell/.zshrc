@@ -258,6 +258,13 @@ fi
 # bun completions (tab completion only — no env injection)
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
+# creds CLI completion (mac-setup creds system).
+# Subcommands + service names + aliases come from the meta registry, so
+# tab-completion stays in sync with whatever services are configured.
+if command -v creds >/dev/null 2>&1; then
+  eval "$(creds completion zsh 2>/dev/null)" 2>/dev/null || true
+fi
+
 ########################################
 # 11. Smarter directory jumping (zoxide) — MUST be last
 ########################################
