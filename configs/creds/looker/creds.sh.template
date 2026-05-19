@@ -15,7 +15,6 @@ export LOOKER_BASE_URL=https://your-looker-host
 export LOOKER_VERIFY_SSL=true
 export LOOKER_TIMEOUT=120
 
-# Tool-compat aliases (Looker SDK + adk-mcp-looker read LOOKER_CLIENT_ID /
-# LOOKER_CLIENT_SECRET unsuffixed).
-export LOOKER_CLIENT_ID="$LOOKER_CLIENT_ID_CRED"
-export LOOKER_CLIENT_SECRET="$LOOKER_CLIENT_SECRET_CRED"
+# No LOOKER_CLIENT_ID / LOOKER_CLIENT_SECRET aliases — the agents-devkit
+# MCP json (mcp/adk-mcp-looker.json) maps these to our `_CRED` names at
+# subprocess startup.

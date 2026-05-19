@@ -5,3 +5,7 @@
 # (Pipelines, Repositories: read are usually enough for read-only use).
 
 export BITBUCKET_TOKEN_CRED=PLACEHOLDER_FILL_ME
+
+export BITBUCKET_URL=https://bitbucket.org
+export BITBUCKET_USERNAME=you@example.com
+export BITBUCKET_WORKSPACE=YOUR-WORKSPACE

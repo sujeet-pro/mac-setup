@@ -1,12 +1,13 @@
 """Datadog — env-only validate.
 
-Uses DATADOG_API_KEY_CRED (+ DATADOG_APP_KEY_CRED for app-key-scoped probes).
-Site defaults to `datadoghq.com`; override with DATADOG_SITE or DD_SITE
-(the adk-aligned name, e.g. `datadoghq.eu`, `us3.datadoghq.com`).
+Uses DATADOG_API_KEY_CRED (+ DATADOG_APP_KEY_CRED for app-key-scoped
+probes). Site defaults to `datadoghq.com`; override with DATADOG_SITE
+(e.g. `datadoghq.eu`, `us3.datadoghq.com`).
 
-Note: the agents-devkit Datadog MCP (Bits AI) also reads DD_MCP_URL — that's
-the hosted MCP endpoint, not the public Datadog API base used here. If you
-switch DD_SITE you should update DD_MCP_URL accordingly.
+Note: the agents-devkit Datadog MCP (Bits AI) reads DATADOG_MCP_URL —
+that's the hosted MCP endpoint, separate from the public Datadog API
+base used here. If you switch DATADOG_SITE you should update
+DATADOG_MCP_URL accordingly.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ def validate() -> Result:
     if missing:
         return Result(NAME, "MISCONFIGURED", "missing env", missing=missing)
 
-    site = (os.environ.get("DD_SITE") or os.environ.get("DATADOG_SITE") or "datadoghq.com").strip("/")
+    site = (os.environ.get("DATADOG_SITE") or "datadoghq.com").strip("/")
     base = f"https://api.{site}"
     api_key = env["DATADOG_API_KEY_CRED"]
     app_key = os.environ.get("DATADOG_APP_KEY_CRED")

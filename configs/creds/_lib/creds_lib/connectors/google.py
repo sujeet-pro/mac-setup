@@ -117,9 +117,7 @@ def _mcp_env_warning() -> str:
     mcp_missing: list[str] = []
     if not os.environ.get("USER_GOOGLE_EMAIL"):
         mcp_missing.append("USER_GOOGLE_EMAIL")
-    # Accept either the new canonical name or the legacy alias.
-    if not (os.environ.get("GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR")
-            or os.environ.get("WORKSPACE_MCP_CREDENTIALS_DIR")):
+    if not os.environ.get("GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR"):
         mcp_missing.append("GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR")
     if mcp_missing:
         return f"  [adk-mcp-google missing: {', '.join(mcp_missing)}]"

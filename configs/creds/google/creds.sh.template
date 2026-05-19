@@ -19,8 +19,6 @@ export GOOGLE_CREDENTIALS_FILE="$HOME/.config/creds/google/google.token.json"
 # creds_login_google. Manages its own OAuth cache.
 export GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR="$HOME/.config/creds/google/workspace-mcp"
 
-# Tool-compat aliases (adk-mcp-google / workspace-mcp read GOOGLE_OAUTH_*
-# and WORKSPACE_MCP_CREDENTIALS_DIR unsuffixed).
-export GOOGLE_OAUTH_CLIENT_ID="$GOOGLE_CLIENT_ID_CRED"
-export GOOGLE_OAUTH_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET_CRED"
-export WORKSPACE_MCP_CREDENTIALS_DIR="$GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR"
+# No GOOGLE_OAUTH_* / WORKSPACE_MCP_CREDENTIALS_DIR aliases — the
+# agents-devkit MCP json (mcp/adk-mcp-google.json) maps these third-
+# party names to our `_CRED` / canonical names at subprocess startup.

@@ -1,11 +1,11 @@
 # npm — credentials. Sourced by ~/.config/creds/loader.sh.
 # Mode 0600. Never commit.
 #
-# Mint at https://www.npmjs.com/settings/<user>/tokens. `npm` reads
-# this via ~/.npmrc rather than env; the env var is conventional for
-# CI / pre-commit hooks.
+# Mint at https://www.npmjs.com/settings/<user>/tokens.
+#
+# Consumers read $NPM_TOKEN_CRED directly. `npm` reads `NPM_TOKEN`
+# natively (via ~/.npmrc or env) — invoke as
+# `NPM_TOKEN=$NPM_TOKEN_CRED npm ...` when needed, or write
+# ~/.npmrc with `//registry.npmjs.org/:_authToken=${NPM_TOKEN_CRED}`.
 
 export NPM_TOKEN_CRED=PLACEHOLDER_FILL_ME
-
-# Tool-compat alias.
-export NPM_TOKEN="$NPM_TOKEN_CRED"
