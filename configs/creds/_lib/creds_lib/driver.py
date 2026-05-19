@@ -215,7 +215,17 @@ def main(argv: list[str] | None = None) -> int:
 
     args = p.parse_args(argv)
 
-    if args.cmd in (None, "list", "status"):
+    if args.cmd is None:
+        # No subcommand: launch the interactive TUI when on a TTY, else
+        # fall back to the plain status table. The TUI module handles its
+        # own textual-not-installed degradation.
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            from .tui import run as _tui_run
+            return _tui_run()
+        print(_services_table())
+        return 0
+
+    if args.cmd in ("list", "status"):
         print(_services_table())
         return 0
 

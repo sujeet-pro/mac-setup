@@ -117,6 +117,19 @@ creds login jira                            # token — alias resolution works o
 creds rotate slack                          # invokes ~/.config/creds/slack/scripts/rotate.sh
 ```
 
+Run `creds` with no subcommand on a TTY for an interactive textual TUI
+(services table + login/validate/refresh actions + streaming log).
+Requires `textual`:
+
+```bash
+uv tool install textual    # preferred
+pipx install textual       # alternative
+pip install --user textual # last resort
+```
+
+If `textual` isn't installed, `creds` falls back to the same table that
+`creds status` prints.
+
 The legacy entrypoints stay for muscle memory and back-compat:
 `creds_validate`, `creds_login_google`, `creds_login_slack`.
 
