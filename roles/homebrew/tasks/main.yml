@@ -12,14 +12,6 @@
   ignore_errors: true
   tags: [homebrew, formulae]
 
-- name: Remove deprecated Homebrew formulae
-  community.general.homebrew:
-    name: "{{ item }}"
-    state: absent
-  loop: "{{ homebrew_formulae_absent | default([]) }}"
-  ignore_errors: true
-  tags: [homebrew, formulae, cleanup]
-
 - name: Install Homebrew casks
   community.general.homebrew_cask:
     name: "{{ item }}"
@@ -28,12 +20,4 @@
   loop: "{{ homebrew_casks }}"
   ignore_errors: true
   tags: [homebrew, casks]
-
-- name: Remove deprecated Homebrew casks
-  community.general.homebrew_cask:
-    name: "{{ item }}"
-    state: absent
-  loop: "{{ homebrew_casks_absent | default([]) }}"
-  ignore_errors: true
-  tags: [homebrew, casks, cleanup]
 

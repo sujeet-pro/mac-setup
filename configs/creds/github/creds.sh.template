@@ -1,0 +1,9 @@
+# github — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# Personal access token at https://github.com/settings/tokens (fine-grained
+# or classic). The `gh` CLI reads GITHUB_TOKEN natively, so we also export
+# the un-suffixed alias.
+
+export GITHUB_TOKEN_CRED=PLACEHOLDER_FILL_ME
+export GITHUB_TOKEN="$GITHUB_TOKEN_CRED"

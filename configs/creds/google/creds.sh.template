@@ -1,0 +1,11 @@
+# google — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# OAuth Desktop client at console.cloud.google.com. The CLIENT_ID is
+# considered public (it's in the OAuth flow URL) and stays in config.sh;
+# only the secret lives here.
+#
+# After filling these in, run `~/.config/creds/google/scripts/login.sh`
+# to mint a refresh token at ~/.config/creds/google/google.token.json.
+
+export GOOGLE_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME

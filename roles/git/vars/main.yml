@@ -1,20 +1,11 @@
 ---
 git_user_name: "{{ lookup('env', 'GIT_USER_NAME') }}"
-git_personal_email: "{{ lookup('env', 'GIT_PERSONAL_EMAIL') }}"
-git_work_email: "{{ lookup('env', 'GIT_WORK_EMAIL') }}"
 
-# Comma-separated list of directories that contain work repos
-# Defaults to "~/work,~/workspace" if not set
-git_work_folders: "{{ lookup('env', 'GIT_WORK_FOLDERS') | default('~/work,~/workspace', true) }}"
+# Single source of truth for org → folder → email mapping.
+# Format: CSV of "<github-org>:<folder>:<email>" triples. The FIRST entry is
+# the default identity used by commits outside any mapped folder/remote.
+#   GIT_ORGS="sujeet-pro:~/personal:sujeet@personal.com,Quince-Engineering:~/work:sujeet@quince.com"
+git_orgs_raw: "{{ lookup('env', 'GIT_ORGS') | default('', true) }}"
 
-# Comma-separated list of GitHub orgs that should use work git config
-# e.g. "Quince-Engineering,AnotherOrg"
-git_work_github_orgs: "{{ lookup('env', 'GIT_WORK_GITHUB_ORGS') }}"
-
-# Comma-separated list of Bitbucket orgs (workspaces) that should use work git config
-# e.g. "lastbrand,another-workspace"
-git_work_bitbucket_orgs: "{{ lookup('env', 'GIT_WORK_BITBUCKET_ORGS') }}"
-
-# SSH keys for commit signing (reuse SSH role defaults)
-ssh_personal_key: "{{ lookup('env', 'SSH_PERSONAL_KEY') | default('id_ed25519', true) }}"
-ssh_work_key: "{{ lookup('env', 'SSH_WORK_KEY') | default('id_ed25519', true) }}"
+# Same single SSH key default as the ssh role.
+ssh_key: "{{ lookup('env', 'SSH_KEY') | default('id_ed25519', true) }}"

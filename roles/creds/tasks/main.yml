@@ -1,0 +1,158 @@
+---
+# Installs the credentials layout under ~/.config/creds/.
+#
+# Source of truth: mac-setup/configs/creds/. Per-3P templates live under
+# configs/creds/<svc>/*.template; the shared loader + Python lib live under
+# configs/creds/{loader.sh,_lib/}. This role:
+#
+#   1. Symlinks the loader + lib + per-service script helpers into
+#      ~/.config/creds/ so updates flow through without re-running merges.
+#   2. Symlinks the bin/ entrypoints into ~/.local/bin/ (PATH).
+#   3. For each per-svc template, runs configs/creds/_lib/merge_template.py
+#      against the live ~/.config/creds/<svc>/<file> — never overwriting
+#      existing values, only adding missing keys + tagging untracked ones.
+#   4. Copies app.json templates once on first install; never overwrites
+#      after that (the user may have edited their scope superset).
+
+- name: Ensure ~/.config/creds exists
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config/creds"
+    state: directory
+    mode: "0700"
+  tags: [creds]
+
+- name: Symlink loader.sh into ~/.config/creds/
+  ansible.builtin.file:
+    src: "{{ repo_dir }}/configs/creds/loader.sh"
+    dest: "{{ home_dir }}/.config/creds/loader.sh"
+    state: link
+    force: true
+  tags: [creds]
+
+- name: Symlink _lib/ into ~/.config/creds/
+  ansible.builtin.file:
+    src: "{{ repo_dir }}/configs/creds/_lib"
+    dest: "{{ home_dir }}/.config/creds/_lib"
+    state: link
+    force: true
+  tags: [creds]
+
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.local/bin"
+    state: directory
+    mode: "0755"
+  tags: [creds]
+
+- name: Symlink bin entrypoints into ~/.local/bin
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ home_dir }}/.local/bin/{{ item | basename }}"
+    state: link
+    force: true
+  with_fileglob:
+    - "{{ repo_dir }}/configs/creds/_lib/bin/*"
+  tags: [creds]
+
+# --- Per-3P templates --------------------------------------------------------
+
+- name: Discover configured 3P services (any folder containing a *.template)
+  ansible.builtin.find:
+    paths: "{{ repo_dir }}/configs/creds"
+    patterns: "*.template"
+    recurse: true
+    depth: 2
+    excludes: "_lib"
+  register: creds_templates
+  tags: [creds]
+
+- name: Group templates by service folder
+  ansible.builtin.set_fact:
+    creds_services: "{{ creds_templates.files | map(attribute='path') | map('dirname') | map('basename') | unique | sort | reject('equalto', '_lib') | list }}"
+  tags: [creds]
+
+- name: Ensure per-svc directories exist under ~/.config/creds/
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config/creds/{{ item }}"
+    state: directory
+    mode: "0700"
+  loop: "{{ creds_services }}"
+  tags: [creds]
+
+- name: Merge creds.sh.template into ~/.config/creds/<svc>/creds.sh (mode 0600)
+  ansible.builtin.command:
+    cmd: >-
+      python3 {{ repo_dir }}/configs/creds/_lib/merge_template.py
+      {{ repo_dir }}/configs/creds/{{ item }}/creds.sh.template
+      {{ home_dir }}/.config/creds/{{ item }}/creds.sh
+      --mode 0600 --quiet
+  loop: "{{ creds_services }}"
+  register: creds_merge_secrets
+  changed_when: "'created' in creds_merge_secrets.stdout or 'updated' in creds_merge_secrets.stdout"
+  failed_when: creds_merge_secrets.rc != 0
+  when: "(creds_templates.files | selectattr('path', 'search', '/' ~ item ~ '/creds.sh.template') | list | length) > 0"
+  tags: [creds]
+
+- name: Merge config.sh.template into ~/.config/creds/<svc>/config.sh (mode 0644)
+  ansible.builtin.command:
+    cmd: >-
+      python3 {{ repo_dir }}/configs/creds/_lib/merge_template.py
+      {{ repo_dir }}/configs/creds/{{ item }}/config.sh.template
+      {{ home_dir }}/.config/creds/{{ item }}/config.sh
+      --mode 0644 --quiet
+  loop: "{{ creds_services }}"
+  register: creds_merge_config
+  changed_when: "'created' in creds_merge_config.stdout or 'updated' in creds_merge_config.stdout"
+  failed_when: creds_merge_config.rc != 0
+  when: "(creds_templates.files | selectattr('path', 'search', '/' ~ item ~ '/config.sh.template') | list | length) > 0"
+  tags: [creds]
+
+# --- Per-3P scripts/ (login.sh, rotate.sh, ...) ------------------------------
+
+- name: Discover per-svc scripts/ directories
+  ansible.builtin.find:
+    paths: "{{ repo_dir }}/configs/creds"
+    patterns: "scripts"
+    file_type: directory
+    recurse: true
+    depth: 2
+  register: creds_scripts_dirs
+  tags: [creds]
+
+- name: Symlink per-svc scripts/ into ~/.config/creds/<svc>/scripts
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ home_dir }}/.config/creds/{{ item.path | dirname | basename }}/scripts"
+    state: link
+    force: true
+  loop: "{{ creds_scripts_dirs.files }}"
+  tags: [creds]
+
+# --- Per-3P static JSON (app.json) — copy once, never overwrite -------------
+
+- name: Discover per-svc app.json templates (first-install only)
+  ansible.builtin.find:
+    paths: "{{ repo_dir }}/configs/creds"
+    patterns: "app.json.template"
+    recurse: true
+    depth: 2
+  register: creds_appjson_templates
+  tags: [creds]
+
+- name: Stat live app.json files
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/.config/creds/{{ item.path | dirname | basename }}/app.json"
+  loop: "{{ creds_appjson_templates.files }}"
+  register: creds_appjson_stat
+  tags: [creds]
+
+- name: Install app.json from template (only if absent)
+  ansible.builtin.copy:
+    src: "{{ item.0.path }}"
+    dest: "{{ home_dir }}/.config/creds/{{ item.0.path | dirname | basename }}/app.json"
+    mode: "0644"
+  loop: "{{ creds_appjson_templates.files | zip(creds_appjson_stat.results) | list }}"
+  when: not item.1.stat.exists
+  loop_control:
+    label: "{{ item.0.path | dirname | basename }}/app.json"
+  tags: [creds]

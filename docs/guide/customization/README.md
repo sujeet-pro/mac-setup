@@ -80,15 +80,14 @@ The Ansible playbook uses a `find` task to auto-discover all script files in tha
 
 ## Removing Packages
 
-To remove a formula or cask that was previously managed:
+To stop managing a formula or cask:
 
-1. Remove it from `homebrew_formulae` or `homebrew_casks`
-2. Add it to the corresponding removal list:
-   - `homebrew_formulae_absent` for formulae
-   - `homebrew_casks_absent` for casks
-3. Run `make setup`
+1. Remove it from `homebrew_formulae` or `homebrew_casks` in `roles/homebrew/vars/main.yml`
+2. Uninstall it manually:
+   - `brew uninstall <formula>`
+   - `brew uninstall --cask <cask>`
 
-The playbook will uninstall the package on the next run.
+The playbook only installs; it never uninstalls. Run `make cleanup` afterwards if you want to confirm nothing is left untracked.
 
 ## Adding Mise Runtimes
 

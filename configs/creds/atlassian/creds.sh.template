@@ -1,0 +1,6 @@
+# atlassian — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# Mint at https://id.atlassian.com/manage-profile/security/api-tokens
+
+export ATLASSIAN_API_TOKEN_CRED=PLACEHOLDER_FILL_ME

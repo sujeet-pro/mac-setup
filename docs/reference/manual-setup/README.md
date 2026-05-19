@@ -95,9 +95,8 @@ ssh-keygen -t ed25519 -C "your-email@example.com"
 Then add the public key to your accounts:
 
 1. **GitHub** -- Settings > SSH and GPG keys > New SSH key
-2. **Bitbucket** -- Personal settings > SSH keys > Add key
 
-After adding keys, update `~/.zshenv` with the key filenames and re-run `make setup` to render the SSH and git configs.
+After adding the key, set `SSH_KEY` in `~/.zshenv` to its filename (default: `id_ed25519`) and re-run `make setup` to render the SSH and git configs.
 
 ## Browser Extensions
 

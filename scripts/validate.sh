@@ -144,10 +144,8 @@ check_symlink "$VSCODE_DIR/settings.json" "VS Code settings.json"
 echo ""
 echo "Environment variables:"
 check_env GIT_USER_NAME
-check_env GIT_PERSONAL_EMAIL
-check_env GIT_WORK_EMAIL
-check_env SSH_PERSONAL_KEY
-check_env SSH_WORK_KEY
+check_env GIT_ORGS
+check_env SSH_KEY
 
 # --- Git config resolution ---
 echo ""
@@ -164,18 +162,21 @@ echo ""
 echo "Directories:"
 check_file "$HOME/personal" "~/personal"
 
-# Check work folders (from GIT_WORK_FOLDERS env var, defaults to ~/work,~/workspace)
-GIT_WORK_FOLDERS_VAL="${GIT_WORK_FOLDERS:-~/work,~/workspace}"
-IFS=',' read -ra WORK_DIRS <<< "$GIT_WORK_FOLDERS_VAL"
-for dir in "${WORK_DIRS[@]}"; do
-  dir=$(echo "$dir" | xargs)  # trim whitespace
-  expanded_dir="${dir/#\~/$HOME}"
-  if [ -d "$expanded_dir" ]; then
-    pass "$dir (work folder)"
-  else
-    warn "$dir — work folder does not exist yet"
-  fi
-done
+# Check each org's mapped folder (from GIT_ORGS).
+if [ -n "${GIT_ORGS:-}" ]; then
+  IFS=',' read -ra _ORGS <<< "$GIT_ORGS"
+  for entry in "${_ORGS[@]}"; do
+    IFS=':' read -r _name _folder _email <<< "$entry"
+    _folder=$(echo "$_folder" | xargs)
+    [ -z "$_folder" ] && continue
+    expanded_dir="${_folder/#\~/$HOME}"
+    if [ -d "$expanded_dir" ]; then
+      pass "$_folder (org: $(echo "$_name" | xargs))"
+    else
+      warn "$_folder — folder for org '$(echo "$_name" | xargs)' does not exist yet"
+    fi
+  done
+fi
 
 # --- Docker runtime ---
 echo ""

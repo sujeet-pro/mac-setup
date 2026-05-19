@@ -1,0 +1,9 @@
+# google — non-secret config. Sourced by ~/.config/creds/loader.sh.
+
+export GOOGLE_CLIENT_ID=PLACEHOLDER_FILL_ME.apps.googleusercontent.com
+export GOOGLE_CREDENTIALS_FILE="$HOME/.config/creds/google/google.token.json"
+
+# Google Workspace MCP (taylorwilsdon/workspace-mcp) — separate from
+# creds_login_google. Manages its own OAuth cache.
+export USER_GOOGLE_EMAIL=you@example.com
+export WORKSPACE_MCP_CREDENTIALS_DIR="$HOME/.config/creds/google/workspace-mcp"

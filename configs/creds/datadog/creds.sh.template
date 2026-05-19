@@ -1,0 +1,9 @@
+# datadog — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# API key:  https://app.datadoghq.com/organization-settings/api-keys
+# App key:  https://app.datadoghq.com/organization-settings/application-keys
+#   App key needs scope mcp_read (+ mcp_write only if muting monitors).
+
+export DATADOG_API_KEY_CRED=PLACEHOLDER_FILL_ME
+export DATADOG_APP_KEY_CRED=PLACEHOLDER_FILL_ME

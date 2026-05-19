@@ -1,100 +1,51 @@
 ########################################
-# ~/.zshenv - Environment variables for mac-setup
+# ~/.zshenv.example — canonical template for ~/.zshenv (mac-setup).
+#
+# Layout (since 2026-05-19):
+#   1. ~/.zshenv is minimal — identity + pointer to the creds loader.
+#   2. Per-service secrets live in ~/.config/creds/<svc>/creds.sh   (chmod 600).
+#   3. Per-service non-secret config in ~/.config/creds/<svc>/config.sh (chmod 644).
+#   4. Both are auto-sourced by ~/.config/creds/loader.sh (the line at the bottom).
+#   5. Every secret env var is suffixed `_CRED`, so `grep _CRED` lists them all.
 #
 # Copy this file to ~/.zshenv and fill in your values:
-#   cp .zshenv.example ~/.zshenv
+#   cp configs/shell/.zshenv.example ~/.zshenv
+#   chmod 600 ~/.zshenv
 #
-# This file is sourced by zsh before .zshrc and is used by
-# Ansible templates to generate git and SSH configs.
+# This file is sourced by zsh before .zshrc and read by Ansible templates
+# (roles/git, roles/ssh) when rendering ~/.gitconfig and ~/.ssh/config.
 #
-# NEVER commit ~/.zshenv — it contains personal data and secrets.
+# NEVER commit ~/.zshenv or anything under ~/.config/creds/.
 ########################################
 
 # --- mise shims (makes mise-managed tools available to GUI apps) ---
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
-########################################
-# REQUIRED — Fill these BEFORE running setup
-#
-# These are used by Ansible templates to generate .gitconfig
-# and .ssh/config. Setup will produce broken configs without them.
-########################################
-
-# --- Default editor & visual ---
+# --- Default editor ---
 export EDITOR="zed --wait"
 export VISUAL="zed --wait"
 
-# --- Git Identity ---
+########################################
+# REQUIRED — fill BEFORE running `make setup`
+########################################
+
+# Display name on every commit.
 export GIT_USER_NAME="Your Name"
-export GIT_PERSONAL_EMAIL="you@example.com"
-export GIT_WORK_EMAIL="you@company.com"
 
-# --- SSH Key Filenames (just the filename, not the full path) ---
-export SSH_PERSONAL_KEY="id_ed25519_personal"
-export SSH_WORK_KEY="id_ed25519_work"
+# Multi-org identity mapping. CSV of `<github-org>:<folder>:<email>` triples.
+# The FIRST entry is the default identity (used outside any mapped folder/remote).
+# Examples:
+#   - "sujeet-pro:~/personal:sujeet@personal.com,Quince-Engineering:~/work:sujeet@quince.com"
+export GIT_ORGS="sujeet-pro:~/personal:you@personal.com,YourOrg:~/work:you@work.com"
+
+# Single SSH key for every host. Default: id_ed25519.
+export SSH_KEY="id_ed25519"
 
 ########################################
-# RECOMMENDED — Fill these for full work/personal separation
+# Per-service config + secrets (managed by mac-setup/configs/creds/).
 #
-# These control which repos get work git config applied.
-# Safe to leave defaults initially, but fill in for proper setup.
+# Layout: ~/.config/creds/<svc>/{config.sh,creds.sh}
+# The loader walks every service folder and sources config.sh then creds.sh.
+# Run `make setup` to scaffold each service's templates the first time.
 ########################################
-
-# --- Work Folders (comma-separated paths where work repos live) ---
-# Git work config (work email, etc.) applies to repos in these directories.
-# Defaults to ~/work,~/workspace if not set.
-# export GIT_WORK_FOLDERS="~/work,~/workspace"
-
-# --- Git Work Orgs (comma-separated, for remote URL-based config matching) ---
-# These ensure work git config applies even for repos cloned outside work folders
-export GIT_WORK_GITHUB_ORGS="Quince-Engineering"
-export GIT_WORK_BITBUCKET_ORGS="lastbrand"
-
-########################################
-# OPTIONAL — Configure later as needed
-#
-# These are for API tokens, MCP servers, and other integrations.
-# They are NOT required for the initial setup to work.
-########################################
-
-# --- API Tokens ---
-# export ANTHROPIC_API_KEY=""
-# export OPENAI_API_KEY=""
-# export GEMINI_API_KEY=""
-
-# === GitHub ===
-# export GITHUB_PAT=""
-
-# === NPM ===
-# export NPM_TOKEN=""
-
-# --- AWS ---
-# export AWS_DEFAULT_REGION="ap-south-1"
-
-# === Confluence MCP (mcp-atlassian) ===
-# export CONFLUENCE_URL=""
-# export CONFLUENCE_USERNAME=""
-# export CONFLUENCE_API_TOKEN=""
-
-# === Bitbucket MCP (bitbucket-mcp) ===
-# export BITBUCKET_URL="https://api.bitbucket.org/2.0"
-# export BITBUCKET_USERNAME=""
-# export BITBUCKET_WORKSPACE=""
-# export BITBUCKET_TOKEN=""
-
-# === Google Drive MCP (google-drive-mcp) ===
-# export GOOGLE_MCP_CLIENT_ID=""
-# export GOOGLE_MCP_CLIENT_SECRET=""
-# export GOOGLE_DRIVE_OAUTH_CREDENTIALS="$HOME/.config/google-drive-mcp/gcp-oauth.keys.json"
-
-# --- Statsig ---
-# export STATSIG_CONSOLE_API_KEY=""
-
-# --- Claude Code Configuration ---
-# export CLAUDE_CODE_MAX_OUTPUT_TOKENS=64000
-# export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
-
-# --- Datadog ---
-# export DATADOG_APP_KEY=""
-# export DATADOG_API_KEY=""
-# export DATADOG_KEY_ID=""
+[ -r "$HOME/.config/creds/loader.sh" ] && . "$HOME/.config/creds/loader.sh"

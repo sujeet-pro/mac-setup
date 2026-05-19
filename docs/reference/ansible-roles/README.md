@@ -111,7 +111,7 @@ Configures git with personal and work profiles using Jinja2 templates.
 | Renders `.gitconfig-work` | Work profile (name, email, SSH key) |
 | Symlinks `.gitignore-work` | Work-specific gitignore rules |
 
-Templates use environment variables (`GIT_USER_NAME`, `GIT_PERSONAL_EMAIL`, `GIT_WORK_EMAIL`, etc.) to populate personal data without committing secrets.
+Templates use environment variables (`GIT_USER_NAME`, `GIT_ORGS`, `SSH_KEY`, etc.) to populate personal data without committing secrets.
 
 **Key files:**
 - `roles/git/templates/` -- Jinja2 templates for git configs

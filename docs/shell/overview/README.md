@@ -4,7 +4,7 @@ title: Shell Overview
 
 # Shell Overview
 
-The shell environment is built on **zsh** with a curated set of plugins and tools: Homebrew-managed plugins, starship prompt, fzf fuzzy finder, atuin shell history, and zoxide smart navigation.
+The shell environment is built on **zsh** with a curated set of plugins and tools: Homebrew-managed plugins, starship prompt, fzf fuzzy finder, atuin shell history, zoxide smart navigation, and lazy completions for `kubectl`/`helm`.
 
 ## Architecture
 
@@ -12,27 +12,35 @@ The shell environment is built on **zsh** with a curated set of plugins and tool
 zsh
  ├── Homebrew plugins (autosuggestions, syntax-highlighting, completions)
  ├── Starship prompt
- ├── fzf (fuzzy finder)
+ ├── fzf (fuzzy finder, with bat preview)
  ├── Atuin (searchable shell history)
- └── Zoxide (smart cd)
+ ├── Zoxide (smart cd, bound as `cd`)
+ ├── bat / eza / ripgrep (modern CLI replacements)
+ ├── mise (runtime version manager)
+ └── bun, vite-plus, Antigravity, Coursier (per-tool env hooks)
 ```
 
 ## How .zshrc Is Organized
 
 The `.zshrc` file is split into numbered sections that load in order. Each section has a single responsibility:
 
-| Section | Name                  | What it does                                                        |
-| ------- | --------------------- | ------------------------------------------------------------------- |
-| 0       | Homebrew setup        | Sources Homebrew shell environment                                  |
-| 1       | PATH                  | Adds custom directories to `$PATH`                                  |
-| 2       | mise activation       | Activates mise for runtime version management                       |
-| 3       | History               | Configures 1M lines, deduplication, shared across sessions          |
-| 4       | Completions           | Case-insensitive matching, menu-select UI                           |
-| 5       | fzf integration       | Loads fzf keybindings and completion                                |
-| 6       | Atuin                 | Initializes atuin for searchable history                            |
-| 7       | Zoxide                | Initializes zoxide for smart directory jumping                      |
-| 8       | Aliases               | All shell aliases (files, git, docker, kubernetes, etc.)            |
-| 9       | Plugins & prompt      | Loads autosuggestions, syntax highlighting, and starship prompt      |
+| Section | Name                              | What it does                                                                 |
+| ------- | --------------------------------- | ---------------------------------------------------------------------------- |
+| 0       | Early environment / Homebrew      | Detects and caches `BREW_PREFIX` (Apple Silicon or Intel)                    |
+| 1       | General `PATH`                    | Prepends `~/.local/bin`, Homebrew bins, and Coursier bin                     |
+| 2       | Language & version managers       | Activates `mise` (no direnv — mise handles project env via `.mise.toml`)     |
+| 3       | Core zsh behavior & history       | 1M-line history, dedup, shared sessions, prefix-based up/down history search |
+| 4       | Completion system                 | `compinit` + `bashcompinit`, menu-select, case-insensitive matching          |
+| 5       | fzf + fd integration              | `Ctrl+R`/`Ctrl+T` keybindings, `bat` preview, git-aware default command      |
+| 6       | Atuin (enhanced shell history)    | Replaces `Ctrl+R` with full-text history search                              |
+| 8       | Aliases                           | File listing (eza), git, kubectl, docker, frontend (jq), bat, claude, etc.  |
+| 8.1     | Lazy-loaded completions           | `kubectl`/`helm` completions sourced on first call (~200 ms saved at start)  |
+| 9       | Visual / UX plugins & prompt      | `zsh-autosuggestions`, `starship`, then `zsh-syntax-highlighting` last       |
+| 10      | Additional tools & completions    | Antigravity bin, `bun`, `vite-plus` env                                      |
+| 11      | Smarter directory jumping         | Initializes `zoxide` last with `--cmd=cd` so `cd` does smart jumping         |
+| MDM     | Netskope SSL trust                | Exports `NODE_EXTRA_CA_CERTS` / `SSL_CERT_FILE` when the bundles exist       |
+
+> Numbering matches the comment headers in `configs/shell/.zshrc`. Section 7 is intentionally absent — `zoxide` was moved to the end (section 11) so its `chpwd` hook is not overwritten by other plugins.
 
 ## Key Design Decisions
 
@@ -52,9 +60,12 @@ zsh-syntax-highlighting is loaded as the last plugin. This is required for compa
 
 Core environment variables are set in `~/.zshenv` so they are available in all contexts (not just interactive shells):
 
-| Variable  | Value | Purpose                            |
-| --------- | ----- | ---------------------------------- |
-| `EDITOR`  | `zed` | Default editor for git, etc.       |
-| `VISUAL`  | `zed` | Visual editor for interactive use  |
+| Variable                                       | Purpose                                                                          |
+| ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| `PATH` (prepends `~/.local/share/mise/shims`)  | Makes mise-managed runtimes available to GUI apps and login shells               |
+| `GIT_USER_NAME`                                | Used by Ansible templates to render `~/.gitconfig`                               |
+| `GIT_ORGS`                                     | CSV `<org>:<folder>:<email>` — drives per-org includeIf in `~/.gitconfig`        |
+| `SSH_KEY`                                      | Filename of the single SSH key (default: `id_ed25519`)                           |
+| `*_CRED` (per service)                         | Secrets — set in `~/.config/creds/<svc>/creds.sh`, not in `~/.zshenv` directly   |
 
-Additional variables like `GIT_USER_NAME`, `GIT_PERSONAL_EMAIL`, and SSH key paths are also set in `.zshenv`. See the [Configuration guide](/mac-setup/guide/configuration) for the full list.
+See `configs/shell/.zshenv.example` and the [Configuration guide](/mac-setup/guide/configuration) for the full list. `~/.zshenv` itself is **never committed**.

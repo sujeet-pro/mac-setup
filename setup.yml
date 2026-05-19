@@ -48,10 +48,8 @@
       when: lookup('env', item) == ''
       loop:
         - GIT_USER_NAME
-        - GIT_PERSONAL_EMAIL
-        - GIT_WORK_EMAIL
-        - SSH_PERSONAL_KEY
-        - SSH_WORK_KEY
+        - GIT_ORGS
+        - SSH_KEY
       tags: [always]
 
   roles:
@@ -65,6 +63,8 @@
       tags: [git, config]
     - role: ssh
       tags: [ssh, config]
+    - role: creds
+      tags: [creds, config]
     - role: apps
       tags: [apps, config]
     - role: aws
@@ -86,7 +86,7 @@
             source ~/.zshrc
 
           You may also need to:
-            - Set up SSH keys for GitHub/Bitbucket
+            - Set up your SSH key for GitHub (one key for all orgs)
             - Configure AWS credentials
             - Add personal SSH hosts to ~/.ssh/config.local
             - Sign in to applications (Zoom, Slack, Bitwarden, etc.)

@@ -25,7 +25,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Add Homebrew's binary directories to PATH so all brew-installed tools are available.
 export PATH="$BREW_PREFIX/bin:$BREW_PREFIX/sbin:$PATH"
-
+export PATH="$PATH:/Users/sujeet/Library/Application Support/Coursier/bin"
 ########################################
 # 2. Language & version managers
 ########################################
@@ -179,12 +179,11 @@ if command -v jq &>/dev/null; then
   alias devdeps="jq '.devDependencies' package.json"
   alias json="jq '.'"
 fi
-killport() { lsof -ti:"$1" | xargs kill -9; }
+killport() { lsof -ti "tcp:$1" | xargs kill -9; }
 
 # --- Tools shortcuts ---
 if command -v claude &>/dev/null; then
-  alias cc="claude --dangerously-skip-permissions"
-  alias cc-dev='claude --dangerously-skip-permissions --plugin-dir ~/personal/agents-devkit'
+  alias cc="claude --dangerously-skip-permissions --chrome"
 fi
 if command -v agents &>/dev/null; then
   alias cursor-cli="agents"
@@ -253,17 +252,11 @@ if [ -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
 ########################################
-# 10. Additional tools & completions
+# 10. Additional completions
 ########################################
 
-# Added by Antigravity
-export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
-
-# bun completions
+# bun completions (tab completion only — no env injection)
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-
-# Vite+ bin (https://viteplus.dev)
-[ -f "$HOME/.vite-plus/env" ] && . "$HOME/.vite-plus/env"
 
 ########################################
 # 11. Smarter directory jumping (zoxide) — MUST be last
@@ -283,7 +276,8 @@ fi
 ########################################
 
 # >>> Netskope SSL Certificate Trust (v2) >>>
-# Deployed by MDM — do not edit manually
+# Deployed by MDM — re-injected on every device sync. Removing it manually
+# only sticks until the next MDM check-in. Left in place intentionally.
 NETSKOPE_CA="/Library/Application Support/Netskope/Certificates/netskope-ca-bundle.pem"
 NETSKOPE_MERGED_CA="/Library/Application Support/Netskope/Certificates/netskope+certifi-ca-bundle.pem"
 if [ -f "$NETSKOPE_CA" ]; then

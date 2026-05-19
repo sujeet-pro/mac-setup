@@ -13,12 +13,6 @@
     mode: "0644"
   tags: [git, gitconfig]
 
-- name: Remove old personal gitconfig (no longer needed)
-  ansible.builtin.file:
-    path: "{{ home_dir }}/.config/git-configs/personal.gitconfig"
-    state: absent
-  tags: [git, gitconfig]
-
 - name: Render allowed signers file for SSH commit signing
   ansible.builtin.template:
     src: allowed_signers.j2
@@ -26,29 +20,47 @@
     mode: "0644"
   tags: [git, gitconfig, signing]
 
-- name: Render work gitconfig from template
+# --- Per-org gitconfigs (one file per GIT_ORGS entry) ---
+
+- name: Render per-org gitconfigs
   ansible.builtin.template:
-    src: gitconfig-work.j2
-    dest: "{{ home_dir }}/.config/git-configs/work.gitconfig"
+    src: gitconfig-org.j2
+    dest: "{{ home_dir }}/.config/git-configs/{{ org.name }}.gitconfig"
     mode: "0644"
+  vars:
+    org:
+      name: "{{ entry.split(':')[0] | trim }}"
+      folder: "{{ entry.split(':')[1] | trim }}"
+      email: "{{ entry.split(':')[2] | trim }}"
+  loop: "{{ git_orgs_raw.split(',') | map('trim') | select | list }}"
+  loop_control:
+    loop_var: entry
+    label: "{{ entry.split(':')[0] | trim }}.gitconfig"
+  when: (entry.split(':') | length) == 3
   tags: [git, gitconfig]
 
-- name: Remove old gitconfig files from home directory
+# --- Cleanup of pre-multi-org artifacts ---
+
+- name: Remove legacy gitconfig files from home directory
   ansible.builtin.file:
     path: "{{ home_dir }}/{{ item }}"
     state: absent
   loop:
     - .gitconfig-personal
     - .gitconfig-work
-  tags: [git, gitconfig]
+    - .gitignore-work
+  tags: [git, gitconfig, cleanup]
 
-- name: Symlink work gitignore (ignores mise files in ~/work repos)
+- name: Remove legacy work.gitconfig + personal.gitconfig + symlinks
   ansible.builtin.file:
-    src: "{{ repo_dir }}/configs/git/gitignore-work"
-    dest: "{{ home_dir }}/.gitignore-work"
-    state: link
-    force: true
-  tags: [git, gitconfig]
+    path: "{{ home_dir }}/.config/git-configs/{{ item }}"
+    state: absent
+  loop:
+    - work.gitconfig
+    - personal.gitconfig
+  tags: [git, gitconfig, cleanup]
+
+# --- Global pre-commit hook ---
 
 - name: Ensure ~/.git-hooks directory exists
   ansible.builtin.file:

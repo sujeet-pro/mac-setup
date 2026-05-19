@@ -1,3 +1,4 @@
 ---
-ssh_personal_key: "{{ lookup('env', 'SSH_PERSONAL_KEY') | default('id_ed25519', true) }}"
-ssh_work_key: "{{ lookup('env', 'SSH_WORK_KEY') | default('id_ed25519', true) }}"
+# Single SSH key for the whole machine. Override the filename via $SSH_KEY in
+# ~/.zshenv if your key is named differently.
+ssh_key: "{{ lookup('env', 'SSH_KEY') | default('id_ed25519', true) }}"

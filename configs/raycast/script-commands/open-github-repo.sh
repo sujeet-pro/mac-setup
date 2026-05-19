@@ -29,9 +29,8 @@ if [ -z "$url" ]; then
   exit 1
 fi
 
-# Normalize SSH/HTTPS URLs
+# Normalize SSH → HTTPS
 url=$(echo "$url" | sed -e 's|git@github.com:|https://github.com/|' \
-                         -e 's|git@bitbucket.org:|https://bitbucket.org/|' \
                          -e 's|\.git$||')
 
 open "$url"

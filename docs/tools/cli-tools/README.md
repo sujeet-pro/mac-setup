@@ -4,7 +4,7 @@ title: CLI Tools
 
 # CLI Tools
 
-All 28 Homebrew formulae managed by the mac-setup repo, organized by category. These are installed automatically when the Ansible playbook runs.
+All Homebrew formulae managed by the mac-setup repo, organized by category. These are installed automatically when the Ansible playbook runs.
 
 Source: `roles/homebrew/vars/main.yml` under `homebrew_formulae`.
 
@@ -16,8 +16,10 @@ Source: `roles/homebrew/vars/main.yml` under `homebrew_formulae`.
 | `zsh-autosuggestions` | Fish-like suggestions as you type | -- | Loaded in `.zshrc`; suggests from history |
 | `zsh-completions` | Additional completion definitions | -- | Extends built-in completions for common tools |
 | `zsh-syntax-highlighting` | Colors valid/invalid commands as you type | -- | Red = not found, green = valid; catches typos before hitting Enter |
-| `starship` | Cross-shell prompt | `configs/starship/starship.toml` | TOML config; shows git branch, runtime versions, exit codes, duration |
+| `starship` | Cross-shell prompt | `configs/shell/starship.toml` | TOML config; shows git branch, runtime versions, exit codes, duration |
 | `fzf` | Fuzzy finder | -- | Powers `Ctrl-R` history search and `Ctrl-T` file picker in the shell |
+| `git` | Distributed VCS | `configs/git/` (rendered via Jinja) | Homebrew keeps git ahead of the macOS-bundled version |
+| `git-filter-repo` | Rewrite git history | -- | Used by `user_scripts/git-rewrite-emails` to fix author emails in bulk |
 
 ## Modern CLI Replacements
 
@@ -59,6 +61,15 @@ Source: `roles/homebrew/vars/main.yml` under `homebrew_formulae`.
 | `docker-buildx` | Extended builds | BuildKit-based builder; multi-platform images, cache mounts |
 | `docker-compose` | Multi-container apps | Compose v2 plugin; define services in `docker-compose.yml` |
 
+> **Colima caveat.** The Ansible run only **installs** `colima` and symlinks its profile from `configs/colima/default.yaml` to `~/.colima/default.yaml`; it does **not** start the VM. The Linux VM (and therefore the Docker daemon) does not always come up automatically after install or reboot. If `docker ps` fails or `validate.sh` warns that the docker context is not `colima`, start it manually:
+>
+> ```bash
+> colima start            # or: colima start --cpu 4 --memory 8
+> docker context use colima
+> ```
+>
+> Run `colima status` to confirm it is running. Use `colima stop` to free resources when you are done. To have it start at login, see the [Colima docs on auto-starting](https://github.com/abiosoft/colima#starting-colima-on-login).
+
 ## Cloud & Infra
 
 | Tool | Purpose | Notes |
@@ -72,6 +83,21 @@ Source: `roles/homebrew/vars/main.yml` under `homebrew_formulae`.
 | Tool | Purpose | Notes |
 |------|---------|-------|
 | `atuin` | Shell history manager | Full-text search across sessions, per-directory filtering, sync across machines |
+
+## Repo-managed CLIs (`user_scripts/`)
+
+These CLIs ship with this repo rather than Homebrew. They get symlinked
+into `~/.local/bin/` automatically (Ansible `user-scripts` role, or
+`make install-creds` for the credentials bundle).
+
+| Command                                  | Source                                | Purpose                                                                       |
+|------------------------------------------|---------------------------------------|-------------------------------------------------------------------------------|
+| `git-rewrite-emails`                     | `user_scripts/git-rewrite-emails/`    | Bulk-rewrite git author/committer emails across a repo's history              |
+| `git-status-all`                         | `user_scripts/git-status-all/`        | Multi-repo git status summary                                                 |
+| `creds_login_slack` / `creds_login_google` | `configs/creds/_lib/bin/`           | OAuth login for Slack / Google; saves tokens under `~/.config/creds/<svc>/`   |
+| `creds_validate`                         | `configs/creds/_lib/bin/`             | Probe every credentials connector (Slack, Google, Atlassian, Datadog, Looker, Mixpanel, Snowflake, Statsig) and report **OK / MISCONFIGURED / FAIL** with a sampled list-API entry as evidence |
+
+See [`configs/creds/README.md`](https://github.com/sujeet-pro/mac-setup/blob/main/configs/creds/README.md) for the full env-var matrix and exit-code semantics.
 
 ## Tools intentionally not included
 

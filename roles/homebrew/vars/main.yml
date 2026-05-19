@@ -14,11 +14,13 @@ homebrew_formulae:
   # Modern CLI replacements
   - bat
   - eza
+  - fd
   - ripgrep
   - tlrc
   - zoxide
 
   # Dev tools
+  - actionlint
   - btop
   - difftastic
   - gh
@@ -27,11 +29,13 @@ homebrew_formulae:
   - jq
   - lazygit
   - shellcheck
+  - tree
   - yq
 
   # Infra & automation
   - ansible
   - mise
+  - opentofu
 
   # Container tools
   - colima
@@ -41,21 +45,23 @@ homebrew_formulae:
 
   # Cloud & infra
   - awscli
+  - cloudflared
   - helm
   - kubernetes-cli
+  - okta-aws-cli
+
+  # Database
+  - libpq
+  - postgresql@18
+
+  # JVM tooling
+  - coursier
+
+  # Local AI
+  - ollama
 
   # Shell history
   - atuin
-
-# Formulae to remove as part of migration/cleanup
-homebrew_formulae_absent:
-  - go         # managed by mise if needed
-  - uv         # managed by mise, not brew
-  - direnv     # mise handles env vars natively
-  - tree       # aliased via eza --tree
-  - fd         # fzf works without it
-  - aichat     # using claude CLI instead
-  - gemini-cli # using claude CLI instead
 
 # Homebrew GUI applications (casks)
 homebrew_casks:
@@ -90,15 +96,11 @@ homebrew_casks:
   - zoom
 
   # Utilities
+  - aws-vpn-client
   - logi-options+
   - notion
   - raycast
+  - stats
 
   # Fonts
   - font-jetbrains-mono-nerd-font
-
-# Casks to remove as part of migration/cleanup
-homebrew_casks_absent:
-  - httpie-desktop
-  - wave            # using ghostty + cmux
-  - font-jetbrains-mono  # nerd font variant covers this

@@ -1,0 +1,14 @@
+########################################
+# ~/.config/git-configs/{{ org.name }}.gitconfig
+#
+# Per-org overrides applied when repo is under {{ org.folder }} OR has a
+# remote pointing at github.com:{{ org.name }}/*.
+#
+# Managed by Ansible. Edit roles/git/templates/gitconfig-org.j2 + GIT_ORGS,
+# or extend per-org via:
+#     git config --file ~/.config/git-configs/{{ org.name }}.local.gitconfig user.foo bar
+# and include it manually below.
+########################################
+
+[user]
+    email = {{ org.email }}

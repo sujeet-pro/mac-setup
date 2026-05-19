@@ -110,6 +110,11 @@ Quick reference for all productivity tools and keybindings configured in this sh
 | `klo` | `kubectl logs -f` | Follow logs |
 | `kctx` | `kubectl config use-context` | Switch context |
 | `kns` | `kubectl config set-context --current --namespace` | Switch namespace |
+| `kdesc` | `kubectl describe` | Describe a resource |
+| `kaf` | `kubectl apply -f` | Apply from file |
+
+> `kubectl` and `helm` are wrapped in lazy-loading functions: their completions
+> are only sourced on first invocation, saving ~200 ms of shell startup.
 
 ### Docker
 
@@ -135,9 +140,12 @@ Quick reference for all productivity tools and keybindings configured in this sh
 
 | Alias | Command | Description |
 |-------|---------|-------------|
-| `cc` | `claude --dangerously-skip-permissions` | Quick Claude Code session |
+| `cc` | `claude --dangerously-skip-permissions --chrome` | Quick Claude Code session (only if `claude` is installed) |
+| `cursor-cli` | `agents` | Cursor CLI (only if `agents` is on PATH) |
 | `aws-whoami` | `aws sts get-caller-identity` | Check current AWS identity |
 | `reload` | `source ~/.zshrc` | Reload shell config |
+| `zshrc` | `$EDITOR ~/.zshrc` | Edit shell config in `$EDITOR` |
+| `grep` | `grep --color=auto` | Grep with color output |
 
 ## Git Integration (delta + difftastic)
 
@@ -215,3 +223,15 @@ Language versions (Node, Bun, Python, Java) appear automatically when relevant p
 8. **Search code fast**: `rg "TODO" --type ts` or `rg "function.*fetch" -g "*.tsx"`
 9. **Structural diff**: `git dft` to see meaningful changes, ignoring whitespace/formatting
 10. **Test APIs in CI**: Create `.hurl` files with request/response assertions
+
+## Corporate / Machine-specific Integrations
+
+The end of `.zshrc` includes a few hooks that activate only when the matching
+files or binaries are present, so the same config works on personal and
+work laptops:
+
+- **Netskope SSL trust** — when `/Library/Application Support/Netskope/Certificates/netskope+certifi-ca-bundle.pem` exists, it is exported as `SSL_CERT_FILE` and the plain Netskope CA as `NODE_EXTRA_CA_CERTS`. Managed by MDM, do not edit.
+- **Bun** — `~/.bun/_bun` completions are sourced if present.
+- **Vite+** — `~/.vite-plus/env` is sourced if present.
+- **Antigravity** — `~/.antigravity/antigravity/bin` is added to `PATH`.
+- **Coursier** — `~/Library/Application Support/Coursier/bin` is added to `PATH` for Scala tooling.

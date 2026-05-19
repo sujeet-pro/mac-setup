@@ -1,0 +1,8 @@
+# snowflake — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# Mint a Programmatic Access Token (PAT) in Snowflake → Admin → Users → PATs.
+# Account / user / warehouse / role live in connections.toml, not here —
+# only the PAT is secret.
+
+export SNOWFLAKE_ACCESS_TOKEN_CRED=PLACEHOLDER_FILL_ME

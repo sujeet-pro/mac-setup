@@ -122,7 +122,7 @@ source "$HOME/.zshenv"
 
 # Verify required vars
 MISSING_VARS=()
-for var in GIT_USER_NAME GIT_PERSONAL_EMAIL GIT_WORK_EMAIL SSH_PERSONAL_KEY SSH_WORK_KEY; do
+for var in GIT_USER_NAME GIT_ORGS SSH_KEY; do
   if [ -z "${!var:-}" ]; then
     MISSING_VARS+=("$var")
   fi
@@ -229,13 +229,10 @@ review_unmanaged() {
 
 # --- Homebrew formulae ---
 # Use `brew leaves` to get only explicitly installed formulae (not deps).
-# Also exclude packages already in the "absent" lists (Ansible handles those).
 CONFIGURED_FORMULAE=$(parse_yaml_list "$HOMEBREW_VARS" "homebrew_formulae" | sort)
-ABSENT_FORMULAE=$(parse_yaml_list "$HOMEBREW_VARS" "homebrew_formulae_absent" | sort)
-KNOWN_FORMULAE=$(printf '%s\n%s' "$CONFIGURED_FORMULAE" "$ABSENT_FORMULAE" | sort -u)
 INSTALLED_FORMULAE=$(brew leaves 2>/dev/null | sort)
 
-UNMANAGED_FORMULAE=$(comm -23 <(echo "$INSTALLED_FORMULAE") <(echo "$KNOWN_FORMULAE"))
+UNMANAGED_FORMULAE=$(comm -23 <(echo "$INSTALLED_FORMULAE") <(echo "$CONFIGURED_FORMULAE"))
 
 if [ -n "$UNMANAGED_FORMULAE" ]; then
   UNMANAGED_FOUND=true
@@ -244,11 +241,9 @@ fi
 
 # --- Homebrew casks ---
 CONFIGURED_CASKS=$(parse_yaml_list "$HOMEBREW_VARS" "homebrew_casks" | sort)
-ABSENT_CASKS=$(parse_yaml_list "$HOMEBREW_VARS" "homebrew_casks_absent" | sort)
-KNOWN_CASKS=$(printf '%s\n%s' "$CONFIGURED_CASKS" "$ABSENT_CASKS" | sort -u)
 INSTALLED_CASKS=$(brew list --cask 2>/dev/null | sort)
 
-UNMANAGED_CASKS=$(comm -23 <(echo "$INSTALLED_CASKS") <(echo "$KNOWN_CASKS"))
+UNMANAGED_CASKS=$(comm -23 <(echo "$INSTALLED_CASKS") <(echo "$CONFIGURED_CASKS"))
 
 if [ -n "$UNMANAGED_CASKS" ]; then
   UNMANAGED_FOUND=true

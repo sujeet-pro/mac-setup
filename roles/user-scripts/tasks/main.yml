@@ -1,10 +1,12 @@
 ---
 # Symlinks user_scripts/ entries to ~/.local/bin/ so they're available globally.
 #
-# Supports two patterns:
+# Supports three patterns:
 #   - user_scripts/<name>.sh        → symlink as ~/.local/bin/<name>
 #   - user_scripts/<name>/index.sh  → symlink as ~/.local/bin/<name>
 #   - user_scripts/<name>/index.py  → symlink as ~/.local/bin/<name>
+#   - user_scripts/<name>/bin/*     → symlink every file under bin/ as ~/.local/bin/<basename>
+#                                     (use for multi-binary tools like `creds_*`)
 
 - name: Ensure ~/.local/bin directory exists
   ansible.builtin.file:
@@ -75,4 +77,29 @@
     state: link
     force: true
   loop: "{{ folder_scripts_py.files }}"
+  tags: [user-scripts]
+
+# --- Multi-binary scripts (user_scripts/<name>/bin/*) ---
+
+- name: Find multi-binary user scripts (bin/*)
+  ansible.builtin.find:
+    paths: "{{ repo_dir }}/user_scripts"
+    patterns: "*"
+    file_type: file
+    recurse: true
+    # depth: 3 → user_scripts/<name>/bin/<file>
+    depth: 3
+    use_regex: false
+  register: multi_bin_candidates
+  tags: [user-scripts]
+
+- name: Symlink multi-binary user scripts (bin/*)
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ home_dir }}/.local/bin/{{ item.path | basename }}"
+    state: link
+    force: true
+  # Only files that live in a `<script-name>/bin/` directory.
+  when: (item.path | dirname | basename) == "bin"
+  loop: "{{ multi_bin_candidates.files }}"
   tags: [user-scripts]

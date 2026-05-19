@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Validate every configured credentials connector.
+
+Symlink-friendly: when this file is invoked via a symlink in
+~/.local/bin, `Path(__file__).resolve()` follows the link back to the
+repo, so the `creds_lib` package is always discoverable.
+"""
+from __future__ import annotations
+
+import pathlib
+import sys
+
+_HERE = pathlib.Path(__file__).resolve().parent.parent  # → user_scripts/creds
+sys.path.insert(0, str(_HERE))
+
+from creds_lib.cli import validate_main  # noqa: E402
+
+if __name__ == "__main__":
+    raise SystemExit(validate_main(sys.argv[1:]))

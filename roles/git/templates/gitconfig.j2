@@ -1,22 +1,31 @@
 ########################################
-# ~/.gitconfig - Global Git config
+# ~/.gitconfig — Global Git config
 #
 # This file is managed by Ansible. Do not edit directly.
 # To change, update roles/git/templates/gitconfig.j2 and re-run the playbook.
 #
-# Directory conventions:
-#   - All personal repos under: ~/personal/
-#   - All work repos under configured work folders (GIT_WORK_FOLDERS env var)
-#     Defaults to: ~/work/, ~/workspace/
+# GIT_ORGS env var maps each GitHub org to a folder + email. The FIRST org
+# is the default identity. Per-org overrides live in
+# ~/.config/git-configs/<org>.gitconfig.
 ########################################
 
+{# Parse GIT_ORGS into a list of {name, folder, email}. #}
+{% set orgs = [] %}
+{% for entry in git_orgs_raw.split(',') %}
+{%   set parts = entry.strip().split(':') %}
+{%   if parts | length == 3 %}
+{%     set _ = orgs.append({"name": parts[0].strip(), "folder": parts[1].strip(), "email": parts[2].strip()}) %}
+{%   endif %}
+{% endfor %}
+
 ########################################
-# 1. Base identity (common)
+# 1. Base identity (first org wins)
 ########################################
 
 [user]
     name = {{ git_user_name }}
-    email = {{ git_personal_email }}
+    email = {{ orgs[0].email }}
+    signingkey = ~/.ssh/{{ ssh_key }}.pub
 
 ########################################
 # 2. Commit signing (SSH)
@@ -27,9 +36,6 @@
 
 [gpg "ssh"]
     allowedSignersFile = ~/.config/git-configs/allowed_signers
-
-[user]
-    signingkey = ~/.ssh/{{ ssh_personal_key }}.pub
 
 [commit]
     gpgsign = true
@@ -45,23 +51,19 @@
     defaultBranch = main
 
 ########################################
-# 4. Push behavior (common)
+# 4. Push / pull behavior (common)
 ########################################
 
 [push]
     autoSetupRemote = true
     default = current
 
-########################################
-# 5. Pull behavior (common)
-########################################
-
 [pull]
     rebase = false
     ff = only
 
 ########################################
-# 6. Core behavior (common)
+# 5. Core behavior (common)
 ########################################
 
 [core]
@@ -86,7 +88,7 @@
     colorMoved = default
 
 ########################################
-# 7. Colors & pretty output (common)
+# 6. Colors & pretty output (common)
 ########################################
 
 [color]
@@ -96,7 +98,7 @@
     decorate = auto
 
 ########################################
-# 8. Aliases (common)
+# 7. Aliases (common)
 ########################################
 
 [alias]
@@ -109,41 +111,21 @@
     dft = "!f() { GIT_EXTERNAL_DIFF=difft git diff \"$@\"; }; f"
 
 ########################################
-# 9. Conditional includes
-#    - Directory-based: for repos under work and personal folders
-#    - Remote URL-based: for work repos cloned outside work folders
-#
-#    Work folders (from GIT_WORK_FOLDERS env var):
-{% for folder in git_work_folders.split(',') | map('trim') | select %}
-#      {{ folder }}/
-{% endfor -%}
+# 8. Per-org conditional includes
+#    - gitdir:<folder>/  — match by working tree
+#    - hasconfig:remote.*.url:...:<org>/** — match by remote (ssh + https)
 ########################################
+{% for org in orgs %}
 
-# --- Directory-based includes (work) ---
-{% for folder in git_work_folders.split(',') | map('trim') | select %}
+# --- {{ org.name }} ({{ org.folder }}) ---
+[includeIf "gitdir:{{ org.folder }}/"]
+    path = ~/.config/git-configs/{{ org.name }}.gitconfig
 
-[includeIf "gitdir:{{ folder }}/"]
-    path = ~/.config/git-configs/work.gitconfig
-{% endfor %}
+[includeIf "hasconfig:remote.*.url:git@github.com:{{ org.name }}/**"]
+    path = ~/.config/git-configs/{{ org.name }}.gitconfig
 
-# --- Remote URL-based includes (GitHub orgs) ---
-{% for org in git_work_github_orgs.split(',') | map('trim') | select %}
-
-[includeIf "hasconfig:remote.*.url:git@github.com:{{ org }}/**"]
-    path = ~/.config/git-configs/work.gitconfig
-
-[includeIf "hasconfig:remote.*.url:https://github.com/{{ org }}/**"]
-    path = ~/.config/git-configs/work.gitconfig
-{% endfor %}
-
-# --- Remote URL-based includes (Bitbucket orgs) ---
-{% for org in git_work_bitbucket_orgs.split(',') | map('trim') | select %}
-
-[includeIf "hasconfig:remote.*.url:git@bitbucket.org:{{ org }}/**"]
-    path = ~/.config/git-configs/work.gitconfig
-
-[includeIf "hasconfig:remote.*.url:https://bitbucket.org/{{ org }}/**"]
-    path = ~/.config/git-configs/work.gitconfig
+[includeIf "hasconfig:remote.*.url:https://github.com/{{ org.name }}/**"]
+    path = ~/.config/git-configs/{{ org.name }}.gitconfig
 {% endfor %}
 
 ########################################

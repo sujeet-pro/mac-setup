@@ -3,7 +3,7 @@
 # To switch default, update the values below to match the desired profile
 
 [default]
-# Currently pointing to: integ
+# Currently pointing to: dev
 region = ap-south-1
 output = json
 

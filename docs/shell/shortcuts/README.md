@@ -33,15 +33,16 @@ A complete reference of keyboard shortcuts and shell aliases configured by the m
 
 ## File Aliases
 
-| Alias   | Expands to          | Description                        |
-| ------- | -------------------- | ---------------------------------- |
-| `ls`    | `eza`                | Modern `ls` replacement with color |
-| `ll`    | `eza -l`             | Long listing                       |
-| `la`    | `eza -la`            | Long listing including hidden      |
-| `lt`    | `eza --tree`         | Tree view                          |
-| `tree`  | `eza --tree`         | Tree view (replaces `tree`)        |
-| `cat`   | `bat`                | Syntax-highlighted file viewer     |
-| `catp`  | `bat --plain`        | Plain output (no line numbers)     |
+| Alias   | Expands to                                | Description                                |
+| ------- | ----------------------------------------- | ------------------------------------------ |
+| `ls`    | `eza`                                     | Modern `ls` replacement with color & icons |
+| `ll`    | `eza -lah --icons --git`                  | Long listing with hidden files + git info  |
+| `la`    | `eza -a --icons`                          | All files with icons                       |
+| `l`     | `eza -a --icons --git`                    | All files with icons + git info            |
+| `lt`    | `eza -lah --icons --sort=modified`        | Long listing sorted by modification time   |
+| `tree`  | `eza --tree --level=2 --icons`            | Tree view (2 levels deep)                  |
+| `cat`   | `bat --paging=never`                      | Syntax-highlighted file viewer             |
+| `catp`  | `bat --plain --paging=never`              | Plain output (no decorations)              |
 
 ## Navigation
 
@@ -50,7 +51,8 @@ A complete reference of keyboard shortcuts and shell aliases configured by the m
 | `..`    | `cd ..`                               |
 | `...`   | `cd ../..`                            |
 | `....`  | `cd ../../..`                         |
-| `cd`    | Uses zoxide (`z`) for smart jumping   |
+| `cd`    | `zoxide` (initialized with `--cmd=cd`); fall back to plain `cd` on no match |
+| `cdi`   | Interactive fuzzy directory jump via zoxide |
 
 ## Git Aliases
 
@@ -62,9 +64,9 @@ A complete reference of keyboard shortcuts and shell aliases configured by the m
 | `gc`    | `git commit`                   | Commit                                 |
 | `ga`    | `git add`                      | Stage files                            |
 | `gd`    | `git diff`                     | Diff unstaged changes                  |
-| `gds`   | `git diff --staged`            | Diff staged changes                    |
-| `gdc`   | `git diff --cached`            | Diff cached changes                    |
-| `glog`  | `git log --oneline --graph`    | Compact log with graph                 |
+| `gds`   | `git diff --stat`              | Diff summary (files changed)           |
+| `gdc`   | `git diff --cached`            | Diff staged (cached) changes           |
+| `glog`  | `git log --oneline --graph --decorate` | Compact log with graph             |
 | `gcl`   | fzf branch selector            | Checkout local branch (fuzzy)          |
 | `gcr`   | fzf remote branch selector     | Checkout remote branch (fuzzy)         |
 | `gbd`   | fzf branch delete              | Delete branch (fuzzy select)           |
@@ -79,8 +81,8 @@ A complete reference of keyboard shortcuts and shell aliases configured by the m
 | `kg`    | `kubectl get`                      | Get resources              |
 | `kga`   | `kubectl get all`                  | Get all resources          |
 | `klo`   | `kubectl logs`                     | View pod logs              |
-| `kctx`  | `kubectx`                          | Switch cluster context     |
-| `kns`   | `kubens`                           | Switch namespace           |
+| `kctx`  | `kubectl config use-context`              | Switch cluster context     |
+| `kns`   | `kubectl config set-context --current --namespace` | Switch namespace |
 | `kdesc` | `kubectl describe`                 | Describe a resource        |
 | `kaf`   | `kubectl apply -f`                 | Apply from file            |
 
@@ -96,20 +98,35 @@ A complete reference of keyboard shortcuts and shell aliases configured by the m
 
 ## Frontend Aliases
 
-| Alias      | Description                                          |
-| ---------- | ---------------------------------------------------- |
-| `scripts`  | List scripts from `package.json` via jq              |
-| `deps`     | List dependencies from `package.json` via jq         |
-| `devdeps`  | List devDependencies from `package.json` via jq      |
-| `killport` | Kill process on a given port                         |
-| `json`     | Pretty-print JSON via jq                             |
+| Alias        | Description                                                |
+| ------------ | ---------------------------------------------------------- |
+| `scripts`    | List scripts from `package.json` via jq                    |
+| `deps`       | List dependencies from `package.json` via jq               |
+| `devdeps`    | List devDependencies from `package.json` via jq            |
+| `json`       | Pretty-print JSON via jq                                   |
+| `killport N` | Kill the process listening on TCP port `N` (`lsof` + kill) |
+
+## AWS Aliases
+
+| Alias         | Expands to                       | Description                |
+| ------------- | -------------------------------- | -------------------------- |
+| `aws-whoami`  | `aws sts get-caller-identity`    | Check current AWS identity |
 
 ## Tool Aliases
 
-| Alias    | Expands to                                  | Description                        |
-| -------- | ------------------------------------------- | ---------------------------------- |
-| `cc`     | `claude --dangerously-skip-permissions`     | Claude Code (skip permissions)     |
-| `cc-dev` | Claude Code in dev mode                     | Claude Code for development        |
-| `reload` | `source ~/.zshrc`                           | Reload shell config                |
-| `zshrc`  | `$EDITOR ~/.zshrc`                          | Edit shell config                  |
-| `grep`   | `grep --color`                              | Grep with color output             |
+| Alias        | Expands to                                            | Description                                  |
+| ------------ | ----------------------------------------------------- | -------------------------------------------- |
+| `cc`         | `claude --dangerously-skip-permissions --chrome`      | Quick Claude Code session (only if `claude`) |
+| `cursor-cli` | `agents`                                              | Cursor CLI (only if `agents` is on PATH)     |
+| `lg`         | `lazygit`                                             | Terminal UI for git                          |
+| `reload`     | `source ~/.zshrc`                                     | Reload shell config                          |
+| `zshrc`      | `$EDITOR ~/.zshrc`                                    | Edit shell config                            |
+| `grep`       | `grep --color=auto`                                   | Grep with color output                       |
+
+## Lazy-Loaded Completions
+
+`kubectl` and `helm` completions are not sourced at startup. They are wrapped
+in small functions that source the completion script on first invocation, then
+delegate to the real command. This saves roughly **200 ms** of shell startup
+time. `aws_completer` is wired up via `complete -C aws_completer aws` when the
+binary is present.

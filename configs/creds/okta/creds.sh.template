@@ -1,0 +1,4 @@
+# okta — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+
+export OKTA_APP_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME

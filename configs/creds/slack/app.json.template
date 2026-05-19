@@ -1,0 +1,21 @@
+{
+  "_comment": "OAuth scope superset + loopback redirect URI requested by creds_login_slack. The redirect_uri MUST exactly match the URL registered on your Slack app's OAuth & Permissions page, otherwise Slack returns invalid_redirect_uri. Edit this file freely; it is copied once on first install and never overwritten.",
+  "redirect_uri": "http://127.0.0.1:8787/slack/oauth/callback",
+  "bot_scopes": [
+    "channels:history",
+    "channels:read",
+    "chat:write",
+    "emoji:read",
+    "groups:history",
+    "groups:read",
+    "reactions:read",
+    "reactions:write"
+  ],
+  "user_scopes": [
+    "channels:history",
+    "channels:read",
+    "groups:history",
+    "groups:read",
+    "search:read"
+  ]
+}

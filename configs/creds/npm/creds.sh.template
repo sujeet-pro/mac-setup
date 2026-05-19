@@ -1,0 +1,9 @@
+# npm — credentials. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# Mint at https://www.npmjs.com/settings/<user>/tokens. `npm` reads
+# this via ~/.npmrc rather than env; the env var is conventional for
+# CI / pre-commit hooks.
+
+export NPM_TOKEN_CRED=PLACEHOLDER_FILL_ME
+export NPM_TOKEN="$NPM_TOKEN_CRED"

@@ -48,17 +48,13 @@ After setup completes, do these before anything else:
 
 1. **Edit `~/.zshenv`** -- the file is organized into sections. Fill in the **REQUIRED** section first:
    - `GIT_USER_NAME` -- your full name for git commits
-   - `GIT_PERSONAL_EMAIL` -- personal email for git
-   - `GIT_WORK_EMAIL` -- work email for git
-   - `SSH_PERSONAL_KEY` -- filename for your personal SSH key
-   - `SSH_WORK_KEY` -- filename for your work SSH key
+   - `GIT_ORGS` -- CSV of `<github-org>:<folder>:<email>` triples; first entry is the default identity. Example:
+     ```bash
+     export GIT_ORGS="sujeet-pro:~/personal:sujeet@personal.com,Quince-Engineering:~/work:sujeet@quince.com"
+     ```
+   - `SSH_KEY` -- filename of the single SSH key used everywhere (defaults to `id_ed25519`)
 
-   Then fill in the **RECOMMENDED** section for work/personal separation:
-   - `GIT_WORK_FOLDERS` -- comma-separated paths where work repos live (defaults to `~/work,~/workspace`)
-   - `GIT_WORK_GITHUB_ORGS` -- your work GitHub org names
-   - `GIT_WORK_BITBUCKET_ORGS` -- your work Bitbucket workspace names
-
-   The **OPTIONAL** section (API tokens, MCP configs, etc.) can be filled in later as needed.
+   API tokens / MCP configs are NOT set in `~/.zshenv`. They live under `~/.config/creds/<svc>/{creds.sh,config.sh}` and are auto-sourced by `~/.config/creds/loader.sh`. After `make setup`, those files are scaffolded with placeholders — fill them in per service as you need them.
 
 2. **Generate SSH keys** if you have not already:
    ```bash

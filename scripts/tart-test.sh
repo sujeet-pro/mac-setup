@@ -161,10 +161,8 @@ ok "Repo synced"
 log "Creating test ~/.zshenv..."
 ssh_vm 'cat > ~/.zshenv << '"'"'ZSHENV'"'"'
 export GIT_USER_NAME="Test User"
-export GIT_PERSONAL_EMAIL="test@example.com"
-export GIT_WORK_EMAIL="test@company.com"
-export SSH_PERSONAL_KEY="id_ed25519_personal"
-export SSH_WORK_KEY="id_ed25519_work"
+export GIT_ORGS="test-personal:~/personal:test@example.com,test-work:~/work:test@company.com"
+export SSH_KEY="id_ed25519"
 ZSHENV'
 ok "~/.zshenv created"
 

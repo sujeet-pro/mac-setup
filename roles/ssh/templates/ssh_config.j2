@@ -1,20 +1,18 @@
 # ~/.ssh/config — Managed by Ansible
 # Do not edit directly. Update roles/ssh/templates/ssh_config.j2 and re-run the playbook.
 
+# Includes must come before any Host block — Include inside a Host block
+# is conditional on that Host pattern matching, and would silently skip
+# for unrelated lookups (e.g. `ssh dev`).
+
 # --- Colima (container runtime, glob pattern silently skips if file missing) ---
 Include {{ home_dir }}/.colima/ssh_confi?
 
-# --- GitHub ---
+# --- Personal hosts (EC2, etc.) ---
+Include ~/.ssh/config.local
+
+# --- GitHub (single key for all orgs) ---
 Host github.com
   HostName github.com
   User git
-  IdentityFile ~/.ssh/{{ ssh_personal_key }}
-
-# --- Bitbucket ---
-Host bitbucket.org
-  HostName bitbucket.org
-  User git
-  IdentityFile ~/.ssh/{{ ssh_work_key }}
-
-# --- Personal hosts (EC2, etc.) ---
-Include ~/.ssh/config.local
+  IdentityFile ~/.ssh/{{ ssh_key }}
