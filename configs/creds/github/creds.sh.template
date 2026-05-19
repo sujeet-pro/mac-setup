@@ -6,4 +6,6 @@
 # the un-suffixed alias.
 
 export GITHUB_TOKEN_CRED=PLACEHOLDER_FILL_ME
+
+# Tool-compat alias.
 export GITHUB_TOKEN="$GITHUB_TOKEN_CRED"

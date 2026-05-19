@@ -6,6 +6,11 @@ WHO each service is: display name, auth flavor, where to mint a token,
 which env-var keys it owns. The `creds login <svc>` flow uses this to
 prompt for the right secrets without coupling that flow to per-connector
 code.
+
+Single-file layout (since 2026-05-19): every key (secret + non-secret)
+lives in ~/.config/creds/<svc>/creds.sh. `secret_vars` and `config_vars`
+remain logically distinct so the guided-login flow only prompts for the
+former — but they share one file.
 """
 
 from __future__ import annotations
@@ -46,13 +51,25 @@ REGISTRY: dict[str, ServiceMeta] = {
         config_vars=("ATLASSIAN_SITE", "ATLASSIAN_USERNAME"),
         has_connector=True,
     ),
+    "bitbucket": ServiceMeta(
+        name="bitbucket",
+        display="Bitbucket",
+        auth="token",
+        mint_url="https://bitbucket.org/account/settings/app-passwords/",
+        secret_vars=("BITBUCKET_TOKEN_CRED",),
+    ),
     "datadog": ServiceMeta(
         name="datadog",
         display="Datadog",
         auth="token",
         mint_url="https://app.datadoghq.com/organization-settings/api-keys",
         secret_vars=("DATADOG_API_KEY_CRED", "DATADOG_APP_KEY_CRED"),
-        config_vars=("DD_SITE", "DD_MCP_URL"),
+        config_vars=(
+            "DATADOG_API_KEY_ID",
+            "DATADOG_APP_KEY_ID",
+            "DATADOG_SITE",
+            "DATADOG_MCP_URL",
+        ),
         has_connector=True,
     ),
     "github": ServiceMeta(
@@ -66,8 +83,12 @@ REGISTRY: dict[str, ServiceMeta] = {
         name="google",
         display="Google Workspace",
         auth="oauth",
-        secret_vars=("GOOGLE_CLIENT_SECRET_CRED",),
-        config_vars=("GOOGLE_CLIENT_ID", "USER_GOOGLE_EMAIL", "WORKSPACE_MCP_CREDENTIALS_DIR"),
+        secret_vars=("GOOGLE_CLIENT_ID_CRED", "GOOGLE_CLIENT_SECRET_CRED"),
+        config_vars=(
+            "USER_GOOGLE_EMAIL",
+            "GOOGLE_CREDENTIALS_FILE",
+            "GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR",
+        ),
         has_connector=True,
         has_login_fn=True,
     ),
@@ -76,8 +97,8 @@ REGISTRY: dict[str, ServiceMeta] = {
         display="Looker",
         auth="token",
         mint_url=None,  # instance-specific; admin UI → Users → <you> → Edit Keys
-        secret_vars=("LOOKER_CLIENT_SECRET_CRED",),
-        config_vars=("LOOKER_SITE", "LOOKER_CLIENT_ID", "LOOKER_VERIFY_SSL"),
+        secret_vars=("LOOKER_CLIENT_ID_CRED", "LOOKER_CLIENT_SECRET_CRED"),
+        config_vars=("LOOKER_BASE_URL", "LOOKER_VERIFY_SSL", "LOOKER_TIMEOUT"),
         has_connector=True,
     ),
     "mixpanel": ServiceMeta(
@@ -100,7 +121,7 @@ REGISTRY: dict[str, ServiceMeta] = {
         auth="token",
         mint_url=None,
         secret_vars=("OKTA_APP_CLIENT_SECRET_CRED",),
-        config_vars=("OKTA_APP_CLIENT_ID", "OKTA_REDIRECT_URLS_LOCAL"),
+        config_vars=("OKTA_APP_CLIENT_ID", "OKTA_ISSUER", "OKTA_REDIRECT_URLS_LOCAL"),
     ),
     "slack": ServiceMeta(
         name="slack",
@@ -111,7 +132,7 @@ REGISTRY: dict[str, ServiceMeta] = {
             "SLACK_APP_CONFIG_ACCESS_TOKEN_CRED",
             "SLACK_APP_CONFIG_REFRESH_TOKEN_CRED",
         ),
-        config_vars=("SLACK_CLIENT_ID",),
+        config_vars=("SLACK_APP_ID", "SLACK_CLIENT_ID", "SLACK_CREDENTIALS_FILE"),
         has_connector=True,
         has_login_fn=True,
         rotate_script="rotate.sh",
@@ -122,7 +143,11 @@ REGISTRY: dict[str, ServiceMeta] = {
         auth="token",
         mint_url=None,
         secret_vars=("SNOWFLAKE_ACCESS_TOKEN_CRED",),
-        config_vars=("SNOWFLAKE_HOME", "SNOWFLAKE_CONNECTION_NAME"),
+        config_vars=(
+            "SNOWFLAKE_HOME",
+            "SNOWFLAKE_CONNECTION_NAME",
+            "SNOWFLAKE_SERVICE_CONFIG_FILE",
+        ),
         has_connector=True,
     ),
     "statsig": ServiceMeta(

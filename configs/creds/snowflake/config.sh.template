@@ -1,9 +1,0 @@
-# snowflake — non-secret config. Sourced by ~/.config/creds/loader.sh.
-#
-# connections.toml under $SNOWFLAKE_HOME holds account / user / warehouse / role
-# per the Snowflake CLI/Python connector convention. Pick the block name with
-# $SNOWFLAKE_CONNECTION_NAME (default "adk", matching the agents-devkit MCP).
-
-export SNOWFLAKE_HOME="$HOME/.config/creds/snowflake"
-export SNOWFLAKE_CONNECTION_NAME=adk
-export SNOWFLAKE_SERVICE_CONFIG_FILE="$HOME/.config/creds/snowflake/service-config.yaml"

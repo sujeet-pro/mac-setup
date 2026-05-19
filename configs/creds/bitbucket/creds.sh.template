@@ -1,0 +1,7 @@
+# bitbucket — credentials + config. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600. Never commit.
+#
+# Create an App Password at https://bitbucket.org/account/settings/app-passwords/
+# (Pipelines, Repositories: read are usually enough for read-only use).
+
+export BITBUCKET_TOKEN_CRED=PLACEHOLDER_FILL_ME

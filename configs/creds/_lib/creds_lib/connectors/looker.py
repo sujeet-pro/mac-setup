@@ -22,11 +22,11 @@ def _verify_ssl() -> bool:
 
 
 def validate() -> Result:
-    env, missing = required_env("LOOKER_SITE", "LOOKER_CLIENT_ID", "LOOKER_CLIENT_SECRET_CRED")
+    env, missing = required_env("LOOKER_BASE_URL", "LOOKER_CLIENT_ID_CRED", "LOOKER_CLIENT_SECRET_CRED")
     if missing:
         return Result(NAME, "MISCONFIGURED", "missing env", missing=missing)
 
-    site = env["LOOKER_SITE"].rstrip("/")
+    site = env["LOOKER_BASE_URL"].rstrip("/")
     base = f"{site}/api/4.0" if not site.endswith("/api/4.0") else site
     verify = _verify_ssl()
 
@@ -37,13 +37,13 @@ def validate() -> Result:
     status, _h, body = _http.request(
         "POST",
         f"{base}/login",
-        data={"client_id": env["LOOKER_CLIENT_ID"], "client_secret": env["LOOKER_CLIENT_SECRET_CRED"]},
+        data={"client_id": env["LOOKER_CLIENT_ID_CRED"], "client_secret": env["LOOKER_CLIENT_SECRET_CRED"]},
         verify_ssl=verify,
         timeout=timeout,
     )
     j = _http.json_or_text(body)
     if status == 404:
-        return Result(NAME, "FAIL", "/api/4.0/login returned 404 — check LOOKER_SITE host")
+        return Result(NAME, "FAIL", "/api/4.0/login returned 404 — check LOOKER_BASE_URL host")
     if status >= 400 or not isinstance(j, dict) or not j.get("access_token"):
         return Result(NAME, "FAIL", f"/api/4.0/login HTTP {status} — {body[:200]}")
     token = j["access_token"]

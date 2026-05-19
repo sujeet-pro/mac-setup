@@ -1,9 +1,0 @@
-# datadog — non-secret config. Sourced by ~/.config/creds/loader.sh.
-#
-# Sites: datadoghq.com (US1), datadoghq.eu, us3.datadoghq.com,
-# us5.datadoghq.com, ap1.datadoghq.com.
-# DD_MCP_URL = hosted MCP endpoint matching the site.
-
-export DD_SITE=datadoghq.com
-export DATADOG_SITE="$DD_SITE"
-export DD_MCP_URL=https://mcp.datadoghq.com/api/unstable/mcp-server/mcp

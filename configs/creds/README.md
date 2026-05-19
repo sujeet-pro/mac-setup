@@ -3,61 +3,69 @@
 Source of truth: `mac-setup/configs/creds/`. The `creds` Ansible role
 scaffolds `~/.config/creds/` from these templates on every `make setup`.
 
+Since 2026-05-19 the layout is **single-file per service**: every key —
+secret and non-secret — lives in `<svc>/creds.sh`, mode 0600. The
+former `config.sh` was retired; a one-time migration helper at
+`configs/creds/_lib/consolidate_to_creds_sh.py` folds any leftover
+`config.sh` into `creds.sh` in place (idempotent).
+
 ```
 ~/.config/creds/
 ├── loader.sh                 → symlink to mac-setup/configs/creds/loader.sh
 │                              (sourced from ~/.zshenv; walks every <svc>/
-│                              folder and sources config.sh then creds.sh)
+│                              and sources creds.sh)
 ├── _lib/                     → symlink to mac-setup/configs/creds/_lib/
 │   ├── creds_lib/            (Python validators + OAuth login flows)
-│   ├── bin/                  (creds_login_*, creds_validate; symlinked to
-│   │                          ~/.local/bin via the Ansible role)
-│   └── merge_template.py     (the never-overwrite merger used by the role)
+│   ├── bin/                  (creds, creds_login_*, creds_validate;
+│   │                          symlinked to ~/.local/bin via the role)
+│   ├── merge_template.py     (the never-overwrite merger used by the role)
+│   ├── inspect_keys.py       (read-only key-name dumper — never echoes values)
+│   └── consolidate_to_creds_sh.py  (one-time migration; idempotent)
 ├── anthropic/
-│   └── creds.sh              (ANTHROPIC_API_KEY_CRED)
+│   └── creds.sh              (ANTHROPIC_API_KEY_CRED + ANTHROPIC_API_KEY alias)
 ├── atlassian/
-│   ├── creds.sh              (ATLASSIAN_API_TOKEN_CRED)
-│   └── config.sh             (ATLASSIAN_SITE, ATLASSIAN_USERNAME)
+│   └── creds.sh              (ATLASSIAN_API_TOKEN_CRED, ATLASSIAN_SITE, ATLASSIAN_USERNAME)
+├── bitbucket/
+│   └── creds.sh              (BITBUCKET_TOKEN_CRED)
 ├── datadog/
-│   ├── creds.sh              (DATADOG_API_KEY_CRED, DATADOG_APP_KEY_CRED)
-│   └── config.sh             (DD_SITE, DATADOG_SITE, DD_MCP_URL)
+│   └── creds.sh              (DATADOG_API_KEY_CRED, DATADOG_APP_KEY_CRED,
+│                              DATADOG_API_KEY_ID, DATADOG_APP_KEY_ID,
+│                              DATADOG_SITE, DATADOG_MCP_URL,
+│                              + DD_* tool-compat aliases)
 ├── github/
-│   └── creds.sh              (GITHUB_TOKEN_CRED, alias → GITHUB_TOKEN)
+│   └── creds.sh              (GITHUB_TOKEN_CRED + GITHUB_TOKEN alias)
 ├── google/
-│   ├── creds.sh              (GOOGLE_CLIENT_SECRET_CRED)
-│   ├── config.sh             (GOOGLE_CLIENT_ID, USER_GOOGLE_EMAIL, …)
-│   ├── app.json              (OAuth scope superset — copied once, never
-│   │                          overwritten by the role)
-│   ├── google.token.json     (refresh token, written by creds_login_google)
-│   └── scripts/              → symlink to repo
-│       └── login.sh          (thin wrapper → creds_login_google)
+│   ├── creds.sh              (GOOGLE_CLIENT_ID_CRED, GOOGLE_CLIENT_SECRET_CRED,
+│   │                          USER_GOOGLE_EMAIL, GOOGLE_CREDENTIALS_FILE,
+│   │                          GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR,
+│   │                          + GOOGLE_OAUTH_*/WORKSPACE_MCP_CREDENTIALS_DIR aliases)
+│   ├── app.json              (OAuth scope superset — copied once)
+│   ├── google.token.json     (refresh token, from `creds login google`)
+│   └── scripts/              → repo (login.sh)
 ├── looker/
-│   ├── creds.sh              (LOOKER_CLIENT_SECRET_CRED)
-│   └── config.sh             (LOOKER_SITE, LOOKER_CLIENT_ID, …)
+│   └── creds.sh              (LOOKER_CLIENT_ID_CRED, LOOKER_CLIENT_SECRET_CRED,
+│                              LOOKER_BASE_URL, LOOKER_VERIFY_SSL, LOOKER_TIMEOUT,
+│                              + LOOKER_CLIENT_ID/SECRET tool-compat aliases)
 ├── mixpanel/
-│   └── config.sh             (MIXPANEL_PROJECT_ID, MIXPANEL_REGION)
-│                              (auth is OAuth in the hosted MCP — no creds.sh)
+│   └── creds.sh              (MIXPANEL_PROJECT_ID, MIXPANEL_REGION)
+│                              (hosted OAuth — no secrets in this file)
 ├── npm/
-│   └── creds.sh              (NPM_TOKEN_CRED, alias → NPM_TOKEN)
+│   └── creds.sh              (NPM_TOKEN_CRED + NPM_TOKEN alias)
 ├── okta/
-│   ├── creds.sh              (OKTA_APP_CLIENT_SECRET_CRED)
-│   └── config.sh             (OKTA_APP_CLIENT_ID, OKTA_REDIRECT_URLS_LOCAL)
+│   └── creds.sh              (OKTA_APP_CLIENT_SECRET_CRED, OKTA_APP_CLIENT_ID,
+│                              OKTA_ISSUER, OKTA_REDIRECT_URLS_LOCAL)
 ├── slack/
 │   ├── creds.sh              (SLACK_CLIENT_SECRET_CRED,
-│   │                           SLACK_APP_CONFIG_{ACCESS,REFRESH}_TOKEN_CRED)
-│   ├── config.sh             (SLACK_CLIENT_ID, SLACK_CREDENTIALS_FILE)
+│   │                          SLACK_APP_CONFIG_{ACCESS,REFRESH}_TOKEN_CRED,
+│   │                          SLACK_APP_ID, SLACK_CLIENT_ID, SLACK_CREDENTIALS_FILE)
 │   ├── app.json              (OAuth scopes + redirect_uri)
-│   ├── slack.token.json      (bot + user tokens, from creds_login_slack)
-│   └── scripts/              → symlink to repo
-│       ├── login.sh          (wrapper → creds_login_slack)
-│       └── rotate.{sh,py}    (POSTs SLACK_APP_CONFIG_REFRESH_TOKEN_CRED to
-│                              tooling.tokens.rotate and writes both new
-│                              tokens back into creds.sh, in place)
+│   ├── slack.token.json      (bot + user tokens, from `creds login slack`)
+│   └── scripts/              → repo (login.sh, rotate.{sh,py})
 ├── snowflake/
-│   ├── creds.sh              (SNOWFLAKE_ACCESS_TOKEN_CRED)
-│   ├── config.sh             (SNOWFLAKE_HOME, SNOWFLAKE_CONNECTION_NAME, …)
-│   ├── connections.toml      (account/user/warehouse/role; user-managed)
-│   └── service-config.yaml   (snowflake-labs-mcp tool allow-list; user-managed)
+│   ├── creds.sh              (SNOWFLAKE_ACCESS_TOKEN_CRED, SNOWFLAKE_HOME,
+│   │                          SNOWFLAKE_CONNECTION_NAME, SNOWFLAKE_SERVICE_CONFIG_FILE)
+│   ├── connections.toml      (user-managed)
+│   └── service-config.yaml   (user-managed)
 ├── statsig/
 │   └── creds.sh              (STATSIG_CONSOLE_API_KEY_CRED)
 └── logs/                     (rotation/login/validate logs, auto-pruned
@@ -67,22 +75,38 @@ scaffolds `~/.config/creds/` from these templates on every `make setup`.
 ## Naming convention
 
 - **`<VAR>_CRED`** — every secret-bearing env var carries the `_CRED`
-  suffix so `grep _CRED ~/.zshenv ~/.config/creds/**/creds.sh` lists every
-  credential at a glance.
+  suffix so `grep _CRED ~/.config/creds/**/creds.sh` lists every
+  credential at a glance. The user's rule: anything that must be kept
+  secret (API keys, OAuth client secrets, refresh tokens, PATs) ends
+  with `_CRED`. Anything that doesn't is non-secret and lives in the
+  same file without the suffix.
 - **Tool-compat aliases** — when a third-party tool reads a specific
-  un-suffixed env var (e.g. `gh` reads `GITHUB_TOKEN`, the Anthropic SDK
-  reads `ANTHROPIC_API_KEY`, `npm` reads `NPM_TOKEN`), the matching
-  `creds.sh` exports BOTH: `export X_CRED=...; export X="$X_CRED"`.
-- **Non-secret vars** (URLs, usernames, client IDs, region pins) do
-  NOT carry `_CRED`. They live in `config.sh`, not `creds.sh`.
+  un-suffixed env var (e.g. `gh` reads `GITHUB_TOKEN`, the Anthropic
+  SDK reads `ANTHROPIC_API_KEY`, the Datadog SDK reads `DD_API_KEY`,
+  the Google workspace-mcp reads `GOOGLE_OAUTH_CLIENT_ID`), the
+  matching `creds.sh` exports BOTH: `export X_CRED=...; export X="$X_CRED"`.
+- **Non-secret vars** (URLs, usernames, client IDs without `_CRED`,
+  region pins) live in the same `creds.sh` as the secrets — just
+  without the suffix. The file is still 0600 because it contains
+  secrets too.
+
+## Diagnostic helpers
+
+```bash
+python3 ~/.config/creds/_lib/inspect_keys.py            # JSON: every key + classification
+python3 ~/.config/creds/_lib/inspect_keys.py --human    # tabular
+python3 ~/.config/creds/_lib/consolidate_to_creds_sh.py --dry-run   # preview migration
+python3 ~/.config/creds/_lib/consolidate_to_creds_sh.py             # run it
+```
+
+Both helpers operate on key NAMES only — never echo a credential value.
 
 ## Setup behaviour
 
 The Ansible role (`roles/creds/`) is **never-overwrite**:
 
-1. On first install: each `<svc>/{creds,config}.sh.template` is copied to
-   `~/.config/creds/<svc>/{creds,config}.sh` with the right mode (0600
-   for `creds.sh`, 0644 for `config.sh`).
+1. On first install: each `<svc>/creds.sh.template` is copied to
+   `~/.config/creds/<svc>/creds.sh` with mode 0600.
 2. On every subsequent run: the merger (`_lib/merge_template.py`)
    - never touches an existing value,
    - appends any new keys from the template that aren't in the live

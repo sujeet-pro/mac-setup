@@ -93,19 +93,10 @@
   when: "(creds_templates.files | selectattr('path', 'search', '/' ~ item ~ '/creds.sh.template') | list | length) > 0"
   tags: [creds]
 
-- name: Merge config.sh.template into ~/.config/creds/<svc>/config.sh (mode 0644)
-  ansible.builtin.command:
-    cmd: >-
-      python3 {{ repo_dir }}/configs/creds/_lib/merge_template.py
-      {{ repo_dir }}/configs/creds/{{ item }}/config.sh.template
-      {{ home_dir }}/.config/creds/{{ item }}/config.sh
-      --mode 0644 --quiet
-  loop: "{{ creds_services }}"
-  register: creds_merge_config
-  changed_when: "'created' in creds_merge_config.stdout or 'updated' in creds_merge_config.stdout"
-  failed_when: creds_merge_config.rc != 0
-  when: "(creds_templates.files | selectattr('path', 'search', '/' ~ item ~ '/config.sh.template') | list | length) > 0"
-  tags: [creds]
+# Single-file layout (since 2026-05-19): every key — secret AND non-secret —
+# lives in creds.sh, mode 0600. Any leftover ~/.config/creds/<svc>/config.sh
+# from the pre-consolidation layout can be merged in place with
+# configs/creds/_lib/consolidate_to_creds_sh.py (idempotent).
 
 # --- Per-3P scripts/ (login.sh, rotate.sh, ...) ------------------------------
 

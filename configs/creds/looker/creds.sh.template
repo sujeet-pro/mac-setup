@@ -1,9 +1,21 @@
-# looker — credentials. Sourced by ~/.config/creds/loader.sh.
+# looker — credentials + config. Sourced by ~/.config/creds/loader.sh.
 # Mode 0600. Never commit.
 #
 # Mint API3 credentials in Looker → Admin → Users → <you> → Edit Keys.
+# Both CLIENT_ID and CLIENT_SECRET are treated as secrets here — the ID
+# alone is enough to impersonate the user against /login.
 
+export LOOKER_CLIENT_ID_CRED=PLACEHOLDER_FILL_ME
 export LOOKER_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
 
-# Tool-compat alias (Looker SDK + adk-mcp-looker read LOOKER_CLIENT_SECRET).
+# LOOKER_BASE_URL = https://<host>  (no /api/4.0 suffix; the connector appends it).
+# LOOKER_VERIFY_SSL = false to disable TLS verification (self-signed proxies).
+# LOOKER_TIMEOUT seconds for the validator probe.
+export LOOKER_BASE_URL=https://your-looker-host
+export LOOKER_VERIFY_SSL=true
+export LOOKER_TIMEOUT=120
+
+# Tool-compat aliases (Looker SDK + adk-mcp-looker read LOOKER_CLIENT_ID /
+# LOOKER_CLIENT_SECRET unsuffixed).
+export LOOKER_CLIENT_ID="$LOOKER_CLIENT_ID_CRED"
 export LOOKER_CLIENT_SECRET="$LOOKER_CLIENT_SECRET_CRED"

@@ -53,7 +53,7 @@ def _token_path():
 
 
 def login() -> Result:
-    env, missing = required_env("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET_CRED")
+    env, missing = required_env("GOOGLE_CLIENT_ID_CRED", "GOOGLE_CLIENT_SECRET_CRED")
     if missing:
         return Result(NAME, "MISCONFIGURED", "Cannot start login.", missing=missing)
 
@@ -64,7 +64,7 @@ def login() -> Result:
             name="Google",
             auth_url="https://accounts.google.com/o/oauth2/v2/auth",
             token_url="https://oauth2.googleapis.com/token",
-            client_id=env["GOOGLE_CLIENT_ID"],
+            client_id=env["GOOGLE_CLIENT_ID_CRED"],
             client_secret=env["GOOGLE_CLIENT_SECRET_CRED"],
             scope=scope,
             extra_authorize={"access_type": "offline", "prompt": "consent", "include_granted_scopes": "true"},
@@ -85,7 +85,7 @@ def login() -> Result:
         {
             "refresh_token": refresh,
             "scope": tok.get("scope"),
-            "client_id": env["GOOGLE_CLIENT_ID"],
+            "client_id": env["GOOGLE_CLIENT_ID_CRED"],
             "client_secret": env["GOOGLE_CLIENT_SECRET_CRED"],
             "generated_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         },
@@ -117,8 +117,10 @@ def _mcp_env_warning() -> str:
     mcp_missing: list[str] = []
     if not os.environ.get("USER_GOOGLE_EMAIL"):
         mcp_missing.append("USER_GOOGLE_EMAIL")
-    if not os.environ.get("WORKSPACE_MCP_CREDENTIALS_DIR"):
-        mcp_missing.append("WORKSPACE_MCP_CREDENTIALS_DIR")
+    # Accept either the new canonical name or the legacy alias.
+    if not (os.environ.get("GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR")
+            or os.environ.get("WORKSPACE_MCP_CREDENTIALS_DIR")):
+        mcp_missing.append("GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR")
     if mcp_missing:
         return f"  [adk-mcp-google missing: {', '.join(mcp_missing)}]"
     return ""
@@ -128,13 +130,13 @@ def validate() -> Result:
     path = _token_path()
     data = store.load(path)
     refresh = data.get("refresh_token")
-    cid = data.get("client_id") or required_env("GOOGLE_CLIENT_ID")[0].get("GOOGLE_CLIENT_ID")
+    cid = data.get("client_id") or required_env("GOOGLE_CLIENT_ID_CRED")[0].get("GOOGLE_CLIENT_ID_CRED")
     csec = data.get("client_secret") or required_env("GOOGLE_CLIENT_SECRET_CRED")[0].get("GOOGLE_CLIENT_SECRET_CRED")
     if not refresh or not cid or not csec:
         return Result(
             NAME,
             "MISCONFIGURED",
-            f"no refresh_token at {path}; run `creds_login_google` first",
+            f"no refresh_token at {path}; run `creds login google` first",
         )
 
     access = _exchange_refresh(refresh, cid, csec)

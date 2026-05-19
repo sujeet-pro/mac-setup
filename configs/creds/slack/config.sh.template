@@ -1,4 +1,0 @@
-# slack — non-secret config. Sourced by ~/.config/creds/loader.sh.
-
-export SLACK_CLIENT_ID=PLACEHOLDER_FILL_ME
-export SLACK_CREDENTIALS_FILE="$HOME/.config/creds/slack/slack.token.json"

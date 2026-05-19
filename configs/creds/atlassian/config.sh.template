@@ -1,4 +1,0 @@
-# atlassian — non-secret config. Sourced by ~/.config/creds/loader.sh.
-
-export ATLASSIAN_SITE=https://YOUR-ORG.atlassian.net
-export ATLASSIAN_USERNAME=you@example.com

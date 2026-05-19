@@ -6,4 +6,6 @@
 # CI / pre-commit hooks.
 
 export NPM_TOKEN_CRED=PLACEHOLDER_FILL_ME
+
+# Tool-compat alias.
 export NPM_TOKEN="$NPM_TOKEN_CRED"

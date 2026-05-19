@@ -2,14 +2,14 @@
 CLIs work even when invoked from a non-login context (cron, GUI launchers,
 IDE runners) where zsh has not exported variables yet.
 
-Layout (since 2026-05-19):
+Layout (since 2026-05-19, single-file):
     ~/.zshenv                       — identity + pointer to creds loader.
-    ~/.config/creds/<svc>/config.sh — per-service non-secret config (mode 644).
-    ~/.config/creds/<svc>/creds.sh  — per-service secrets (mode 600).
-    Both are sourced by ~/.config/creds/loader.sh via a `for f in *; do
-    source $f; done` loop, which the regex parser cannot follow — so we
-    glob+load them separately here. config.sh first (URLs, hosts) so
-    creds.sh aliases like `export X="$BASE_URL"` can resolve.
+    ~/.config/creds/<svc>/creds.sh  — per-service config + secrets in one
+                                       file (mode 600). Sourced by
+                                       ~/.config/creds/loader.sh via a
+                                       `for f in *; do source $f; done`
+                                       loop that the regex parser cannot
+                                       follow — so we glob+load it here.
 
 We only read simple `export FOO=BAR` / `export FOO="BAR"` / `FOO=BAR`
 assignments. Anything with command substitution or conditionals is ignored —
@@ -27,7 +27,7 @@ from pathlib import Path
 
 _LINE = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
 
-CREDS_GLOBS = ("*/config.sh", "*/creds.sh")
+CREDS_GLOBS = ("*/creds.sh",)
 
 
 def _expand(value: str) -> str:

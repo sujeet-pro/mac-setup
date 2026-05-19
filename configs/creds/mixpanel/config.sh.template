@@ -1,8 +1,0 @@
-# mixpanel — non-secret config. Sourced by ~/.config/creds/loader.sh.
-#
-# The Mixpanel MCP is hosted (mcp.mixpanel.com) and auth happens via OAuth
-# in the MCP client on first connect — so there is no creds.sh for this
-# service. Only the canonical project pin is tracked here.
-
-export MIXPANEL_PROJECT_ID=PLACEHOLDER_FILL_ME
-export MIXPANEL_REGION=us

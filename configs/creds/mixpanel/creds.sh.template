@@ -1,0 +1,6 @@
+# mixpanel — config only. Sourced by ~/.config/creds/loader.sh.
+# Mode 0600 (uniform with every other creds.sh, even though this file
+# has no secrets — auth is OAuth handled by the hosted MCP).
+
+export MIXPANEL_PROJECT_ID=PLACEHOLDER_FILL_ME
+export MIXPANEL_REGION=us

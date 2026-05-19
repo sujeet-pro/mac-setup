@@ -2,9 +2,10 @@
 # Mode 0600. Never commit.
 #
 # Mint API key at https://console.anthropic.com/settings/keys
-#
 # The Anthropic SDK reads ANTHROPIC_API_KEY natively, so we also export
 # the un-suffixed alias for SDK compatibility.
 
 export ANTHROPIC_API_KEY_CRED=PLACEHOLDER_FILL_ME
+
+# Tool-compat alias.
 export ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY_CRED"

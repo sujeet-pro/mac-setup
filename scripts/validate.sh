@@ -150,7 +150,8 @@ check_symlink "$HOME/.local/bin/creds_validate" "~/.local/bin/creds_validate (le
 check_symlink "$HOME/.local/bin/creds_login_google" "~/.local/bin/creds_login_google (legacy)"
 check_symlink "$HOME/.local/bin/creds_login_slack" "~/.local/bin/creds_login_slack (legacy)"
 
-# Per-service file modes — creds.sh must be 0600, config.sh 0644.
+# Single-file layout: every <svc>/creds.sh must be 0600. Any leftover
+# <svc>/config.sh is a sign the consolidation step was skipped.
 for _csh in "$HOME/.config/creds"/*/creds.sh; do
   [ -f "$_csh" ] || continue
   _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
@@ -161,17 +162,12 @@ for _csh in "$HOME/.config/creds"/*/creds.sh; do
     fail "$_rel mode=$_mode (expected 0600)"
   fi
 done
-for _csh in "$HOME/.config/creds"/*/config.sh; do
-  [ -f "$_csh" ] || continue
-  _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
-  _rel="${_csh#$HOME/.config/}"
-  if [ "$_mode" = "644" ]; then
-    pass "$_rel mode=0644"
-  else
-    fail "$_rel mode=$_mode (expected 0644)"
-  fi
+for _stale in "$HOME/.config/creds"/*/config.sh; do
+  [ -f "$_stale" ] || continue
+  _rel="${_stale#$HOME/.config/}"
+  fail "$_rel still present — run configs/creds/_lib/consolidate_to_creds_sh.py to merge it into creds.sh"
 done
-unset _csh _mode _rel
+unset _csh _stale _mode _rel
 
 # --- Env vars ---
 echo ""
