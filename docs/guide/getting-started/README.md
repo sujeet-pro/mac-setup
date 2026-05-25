@@ -54,7 +54,7 @@ After setup completes, do these before anything else:
      ```
    - `SSH_KEY` -- filename of the single SSH key used everywhere (defaults to `id_ed25519`)
 
-   API tokens / MCP configs are NOT set in `~/.zshenv`. They live under `~/.config/creds/<svc>/{creds.sh,config.sh}` and are auto-sourced by `~/.config/creds/loader.sh`. After `make setup`, those files are scaffolded with placeholders — fill them in per service as you need them.
+   API tokens / MCP configs are NOT set in `~/.zshenv`. They live under `$CREDS_HOME/<svc>/{creds.sh,config.sh}` and are auto-sourced by `$CREDS_HOME/loader.sh`. After `make setup`, those files are scaffolded with placeholders — fill them in per service as you need them.
 
 2. **Generate SSH keys** if you have not already:
    ```bash

@@ -2,7 +2,7 @@
 """Slack app-config token rotation — see rotate.sh for prose.
 
 Reads:   $SLACK_APP_CONFIG_REFRESH_TOKEN_CRED   (from creds.sh / loader)
-Writes:  ~/.config/creds/slack/creds.sh         (values for ACCESS + REFRESH)
+Writes:  $CREDS_HOME/slack/creds.sh         (values for ACCESS + REFRESH)
 
 Idempotent only in the sense that re-running consumes the new refresh token
 once it has been rotated; calling rotate.py twice in a row WILL succeed the

@@ -7,7 +7,7 @@
 #   1. POSTs the current $SLACK_APP_CONFIG_REFRESH_TOKEN_CRED to
 #      https://slack.com/api/tooling.tokens.rotate
 #   2. Parses the new access + refresh tokens from the response.
-#   3. Writes BOTH back into ~/.config/creds/slack/creds.sh in place
+#   3. Writes BOTH back into $CREDS_HOME/slack/creds.sh in place
 #      (preserves every other key + comment + ordering).
 #
 # Exit codes:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""reorder_creds.py — rewrite every ~/.config/creds/<svc>/creds.sh so:
+"""reorder_creds.py — rewrite every $CREDS_HOME/<svc>/creds.sh so:
 
   * all comment lines and blank lines are dropped
   * every `export KEY=VALUE` is kept verbatim (value bytes untouched)

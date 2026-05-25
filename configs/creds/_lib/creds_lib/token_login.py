@@ -1,7 +1,7 @@
 """Guided token-mint login for services that use long-lived API tokens.
 
 For each *_CRED variable the service owns, prompt the user with no-echo
-(`getpass.getpass`) and write the value into ~/.config/creds/<svc>/creds.sh
+(`getpass.getpass`) and write the value into $CREDS_HOME/<svc>/creds.sh
 in place via `creds_sh_io.set_value`. The value never enters stdout/stderr
 or any agent's context — only the boolean outcome does.
 """

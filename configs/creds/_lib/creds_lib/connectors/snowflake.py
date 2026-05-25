@@ -2,7 +2,7 @@
 
 Aligned with `agents-devkit/mcp/adk-mcp-snowflake.json` since 2026-05-19:
 
-    SNOWFLAKE_HOME              ~/.config/creds/snowflake (Snowflake's native
+    SNOWFLAKE_HOME              $CREDS_HOME/snowflake (Snowflake's native
                                  config root; holds connections.toml)
     SNOWFLAKE_CONNECTION_NAME   selects the [<name>] block in connections.toml
                                  (default: "adk", matching the MCP wrapper)

@@ -3,7 +3,7 @@
 login() runs the standard loopback OAuth dance with `offline_access` so
 Okta returns a refresh_token, then writes everything (refresh_token,
 client_id, client_secret, discovered token+userinfo URLs) to
-~/.config/creds/okta.token.json.
+$CREDS_HOME/okta.token.json.
 
 validate() reads that file, exchanges the refresh_token for a fresh
 access_token, and hits the OIDC /userinfo endpoint to surface

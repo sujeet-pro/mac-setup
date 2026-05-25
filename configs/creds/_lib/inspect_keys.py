@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """inspect_keys.py — print the env-var KEY NAMES declared under
-~/.config/creds/<svc>/{creds,config}.sh.
+$CREDS_HOME/<svc>/{creds,config}.sh.
 
 Never prints VALUES. Only key names + their classification:
   - SECRET    : key ends with _CRED  (must live in creds.sh)

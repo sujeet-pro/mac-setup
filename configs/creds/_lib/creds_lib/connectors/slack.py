@@ -4,7 +4,7 @@ Login flow follows the reference impl in ConnectorsService.ts:
     https://slack.com/oauth/v2/authorize   →   https://slack.com/api/oauth.v2.access
 Requests BOTH `scope=` (bot) and `user_scope=` (user) so the resulting
 token file holds an `xoxb-…` bot token AND an `xoxp-…` user token. The
-scope superset is sourced from `~/.config/creds/slack/app.json` (override
+scope superset is sourced from `$CREDS_HOME/slack/app.json` (override
 path via $SLACK_APP_CONFIG_FILE), so the same file feeds both this
 login flow and the agents-devkit Slack MCP wrapper.
 """

@@ -86,7 +86,7 @@ export GIT_ORGS="sujeet-pro:~/personal:sujeet@personal.com,Quince-Engineering:~/
 
 ### Optional Variables (configure later)
 
-Secret env vars all carry the `_CRED` suffix and live in per-service files under `~/.config/creds/<svc>/creds.sh` — never in `~/.zshenv`. Non-secret per-service config lives next to them in `~/.config/creds/<svc>/config.sh`. Both are auto-sourced by `~/.config/creds/loader.sh` (which `~/.zshenv` sources at the end). The currently-configured services are: anthropic, atlassian, datadog, github, google, looker, mixpanel, npm, okta, slack, snowflake, statsig.
+Secret env vars all carry the `_CRED` suffix and live in per-service files under `$CREDS_HOME/<svc>/creds.sh` — never in `~/.zshenv`. Non-secret per-service config lives next to them in `$CREDS_HOME/<svc>/config.sh`. Both are auto-sourced by `$CREDS_HOME/loader.sh` (which `~/.zshenv` sources at the end). The currently-configured services are: anthropic, atlassian, datadog, github, google, looker, mixpanel, npm, okta, slack, snowflake, statsig.
 
 See `configs/creds/README.md` for the layout and the per-service env-var matrix.
 

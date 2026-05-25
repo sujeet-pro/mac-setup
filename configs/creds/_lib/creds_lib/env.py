@@ -1,12 +1,12 @@
-"""Best-effort loader for `~/.zshenv` + `~/.config/creds/<svc>/creds.sh` so the
+"""Best-effort loader for `~/.zshenv` + `$CREDS_HOME/<svc>/creds.sh` so the
 CLIs work even when invoked from a non-login context (cron, GUI launchers,
 IDE runners) where zsh has not exported variables yet.
 
 Layout (since 2026-05-19, single-file):
     ~/.zshenv                       — identity + pointer to creds loader.
-    ~/.config/creds/<svc>/creds.sh  — per-service config + secrets in one
+    $CREDS_HOME/<svc>/creds.sh  — per-service config + secrets in one
                                        file (mode 600). Sourced by
-                                       ~/.config/creds/loader.sh via a
+                                       $CREDS_HOME/loader.sh via a
                                        `for f in *; do source $f; done`
                                        loop that the regex parser cannot
                                        follow — so we glob+load it here.
@@ -72,7 +72,7 @@ def _load_file(p: Path) -> dict[str, str]:
 
 
 def load_zshenv(path: Path | None = None) -> dict[str, str]:
-    """Parse `~/.zshenv` + every `~/.config/creds/<svc>/creds.sh` and merge
+    """Parse `~/.zshenv` + every `$CREDS_HOME/<svc>/creds.sh` and merge
     into os.environ without overwriting already-set vars. Returns the dict of
     values it set (useful for debugging)."""
     p = path or Path.home() / ".zshenv"

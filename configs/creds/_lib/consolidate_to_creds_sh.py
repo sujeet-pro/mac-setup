@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """consolidate_to_creds_sh.py — one-time migration: fold every
-~/.config/creds/<svc>/config.sh into the same directory's creds.sh, then
+$CREDS_HOME/<svc>/config.sh into the same directory's creds.sh, then
 delete config.sh.
 
 Safety:

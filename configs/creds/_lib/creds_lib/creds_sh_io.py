@@ -1,4 +1,4 @@
-"""Safe read/write helpers for ~/.config/creds/<svc>/creds.sh files.
+"""Safe read/write helpers for $CREDS_HOME/<svc>/creds.sh files.
 
 We never echo a credential value to stdout/stderr. `set_value()` reads the
 file into memory, replaces the value of a specific `export KEY=...` line,

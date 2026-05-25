@@ -94,7 +94,7 @@ into `~/.local/bin/` automatically (Ansible `user-scripts` role, or
 |------------------------------------------|---------------------------------------|-------------------------------------------------------------------------------|
 | `git-rewrite-emails`                     | `user_scripts/git-rewrite-emails/`    | Bulk-rewrite git author/committer emails across a repo's history              |
 | `git-status-all`                         | `user_scripts/git-status-all/`        | Multi-repo git status summary                                                 |
-| `creds_login_slack` / `creds_login_google` | `configs/creds/_lib/bin/`           | OAuth login for Slack / Google; saves tokens under `~/.config/creds/<svc>/`   |
+| `creds_login_slack` / `creds_login_google` | `configs/creds/_lib/bin/`           | OAuth login for Slack / Google; saves tokens under `$CREDS_HOME/<svc>/`   |
 | `creds_validate`                         | `configs/creds/_lib/bin/`             | Probe every credentials connector (Slack, Google, Atlassian, Datadog, Looker, Mixpanel, Snowflake, Statsig) and report **OK / MISCONFIGURED / FAIL** with a sampled list-API entry as evidence |
 
 See [`configs/creds/README.md`](https://github.com/sujeet-pro/mac-setup/blob/main/configs/creds/README.md) for the full env-var matrix and exit-code semantics.

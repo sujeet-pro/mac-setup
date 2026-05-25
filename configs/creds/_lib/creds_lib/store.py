@@ -1,4 +1,4 @@
-"""Read/write JSON credential files under `~/.config/creds/`."""
+"""Read/write JSON credential files under `$CREDS_HOME/`."""
 
 from __future__ import annotations
 

@@ -66,6 +66,6 @@ Core environment variables are set in `~/.zshenv` so they are available in all c
 | `GIT_USER_NAME`                                | Used by Ansible templates to render `~/.gitconfig`                               |
 | `GIT_ORGS`                                     | CSV `<org>:<folder>:<email>` — drives per-org includeIf in `~/.gitconfig`        |
 | `SSH_KEY`                                      | Filename of the single SSH key (default: `id_ed25519`)                           |
-| `*_CRED` (per service)                         | Secrets — set in `~/.config/creds/<svc>/creds.sh`, not in `~/.zshenv` directly   |
+| `*_CRED` (per service)                         | Secrets — set in `$CREDS_HOME/<svc>/creds.sh`, not in `~/.zshenv` directly   |
 
 See `configs/shell/.zshenv.example` and the [Configuration guide](/mac-setup/guide/configuration) for the full list. `~/.zshenv` itself is **never committed**.

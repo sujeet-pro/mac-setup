@@ -1,14 +1,14 @@
 """Run-log capture for the `creds_*` CLIs.
 
 All CLI invocations tee stdout + stderr into a timestamped file under
-`~/.config/creds/logs/` and prune anything older than `RETENTION_DAYS`
+`$CREDS_HOME/logs/` and prune anything older than `RETENTION_DAYS`
 (default: 7). Override via the `CREDS_LOG_RETENTION_DAYS` env var.
 
-Why under `~/.config/creds/` and not `/tmp`?
+Why under `$CREDS_HOME/` and not `/tmp`?
   * macOS routinely wipes `/tmp` on reboot; logs would disappear before
     you could read them.
   * Other connector state (token files) already lives in
-    `~/.config/creds/`; keeping logs alongside avoids a second hidden
+    `$CREDS_HOME/`; keeping logs alongside avoids a second hidden
     location.
 The 7-day prune keeps the directory from growing without bound.
 """

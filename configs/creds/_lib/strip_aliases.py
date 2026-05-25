@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """strip_aliases.py — remove tool-compat alias lines from every
-~/.config/creds/<svc>/creds.sh in place.
+$CREDS_HOME/<svc>/creds.sh in place.
 
 An "alias" here is a line of the form:
 
@@ -8,7 +8,7 @@ An "alias" here is a line of the form:
 
 i.e. the RHS is exactly one variable reference. Path constants like
 
-    export GOOGLE_CREDENTIALS_FILE="$HOME/.config/creds/google/google.token.json"
+    export GOOGLE_CREDENTIALS_FILE="$CREDS_HOME/google/google.token.json"
 
 are NOT touched (their RHS combines `$HOME` with a path suffix, so the
 regex won't match).

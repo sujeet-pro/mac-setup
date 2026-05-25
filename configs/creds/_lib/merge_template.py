@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Merge a creds template into a live creds file without overwriting values.
 
-Used by `roles/creds/` to install / refresh `~/.config/creds/<svc>/creds.sh`
-and `~/.config/creds/<svc>/config.sh` from the per-3P templates under
+Used by `roles/creds/` to install / refresh `$CREDS_HOME/<svc>/creds.sh`
+and `$CREDS_HOME/<svc>/config.sh` from the per-3P templates under
 `mac-setup/configs/creds/<svc>/`.
 
 Behaviour:
@@ -121,7 +121,7 @@ def _merge(source_text: str, target_text: str) -> tuple[str, list[str], list[str
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     p.add_argument("source", type=Path, help="Path to template file (in repo).")
-    p.add_argument("target", type=Path, help="Path to live file (under ~/.config/creds/<svc>/).")
+    p.add_argument("target", type=Path, help="Path to live file (under $CREDS_HOME/<svc>/).")
     p.add_argument(
         "--mode",
         type=lambda s: int(s, 8),

@@ -36,13 +36,13 @@ def login_main(name: str, argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
         prog=f"creds_login_{name}",
         description=f"Run the OAuth login flow for the `{name}` connector "
-        f"and save the resulting credentials under ~/.config/creds/. "
-        f"A timestamped run log is written under ~/.config/creds/logs/.",
+        f"and save the resulting credentials under $CREDS_HOME/. "
+        f"A timestamped run log is written under $CREDS_HOME/logs/.",
     )
     p.add_argument(
         "--no-log",
         action="store_true",
-        help="Don't tee output to ~/.config/creds/logs/.",
+        help="Don't tee output to $CREDS_HOME/logs/.",
     )
     args = p.parse_args(argv)
 
@@ -59,7 +59,7 @@ def validate_main(argv: list[str] | None = None) -> int:
         prog="creds_validate",
         description="Validate every configured credentials connector. "
         "Each connector reports OK / MISCONFIGURED / FAIL. A timestamped "
-        "run log is written under ~/.config/creds/logs/ (auto-pruned "
+        "run log is written under $CREDS_HOME/logs/ (auto-pruned "
         "after 7 days; override with CREDS_LOG_RETENTION_DAYS).",
     )
     p.add_argument(
@@ -68,7 +68,7 @@ def validate_main(argv: list[str] | None = None) -> int:
         help=f"Optional subset; default = all of: {', '.join(_connectors.NAMES)}",
     )
     p.add_argument("--list", action="store_true", help="Print known connectors and exit")
-    p.add_argument("--no-log", action="store_true", help="Don't tee output to ~/.config/creds/logs/.")
+    p.add_argument("--no-log", action="store_true", help="Don't tee output to $CREDS_HOME/logs/.")
     args = p.parse_args(argv)
 
     if args.list:

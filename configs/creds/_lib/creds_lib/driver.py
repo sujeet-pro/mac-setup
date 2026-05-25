@@ -181,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
         prog="creds",
         description=(
-            "Unified CLI for the ~/.config/creds/ credential layout. "
+            "Unified CLI for the $CREDS_HOME/ credential layout. "
             "Service names accept aliases (jira→atlassian, gh→github, dd→datadog, …). "
             "Run `creds status` to see them all."
         ),
@@ -198,11 +198,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print all services + aliases as JSON (for shell completion / /adk-setup --check)",
     )
-    pv.add_argument("--no-log", action="store_true", help="Don't tee output to ~/.config/creds/logs/")
+    pv.add_argument("--no-log", action="store_true", help="Don't tee output to $CREDS_HOME/logs/")
 
     pl = sub.add_parser("login", help="Run login flow for one service")
     pl.add_argument("service", help="Service name (canonical or alias)")
-    pl.add_argument("--no-log", action="store_true", help="Don't tee output to ~/.config/creds/logs/")
+    pl.add_argument("--no-log", action="store_true", help="Don't tee output to $CREDS_HOME/logs/")
 
     sub.add_parser("status", help="Print services table (default when no subcommand given)")
     sub.add_parser("list", help="Alias for `status`")

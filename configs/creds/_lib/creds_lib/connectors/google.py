@@ -1,6 +1,6 @@
 """Google connector — OAuth (offline access) login + Drive validate.
 
-Scope superset is sourced from `~/.config/creds/google/app.json`
+Scope superset is sourced from `$CREDS_HOME/google/app.json`
 (override path via $GOOGLE_APP_CONFIG_FILE), with a fallback to a
 minimal Drive+Docs read-only set if the file is missing. The OAuth
 dance asks for `access_type=offline` + `prompt=consent` so Google

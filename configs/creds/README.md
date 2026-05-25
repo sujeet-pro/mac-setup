@@ -1,7 +1,7 @@
-# `~/.config/creds/` — credentials layout
+# `$CREDS_HOME/` — credentials layout
 
 Source of truth: `mac-setup/configs/creds/`. The `creds` Ansible role
-scaffolds `~/.config/creds/` from these templates on every `make setup`.
+scaffolds `$CREDS_HOME/` from these templates on every `make setup`.
 
 Since 2026-05-19 the layout is **single-file per service**: every key —
 secret and non-secret — lives in `<svc>/creds.sh`, mode 0600. The
@@ -10,7 +10,7 @@ former `config.sh` was retired; a one-time migration helper at
 `config.sh` into `creds.sh` in place (idempotent).
 
 ```
-~/.config/creds/
+$CREDS_HOME/
 ├── loader.sh                 → symlink to mac-setup/configs/creds/loader.sh
 │                              (sourced from ~/.zshenv; walks every <svc>/
 │                              and sources creds.sh)
@@ -75,7 +75,7 @@ former `config.sh` was retired; a one-time migration helper at
 ## Naming convention
 
 - **`<VAR>_CRED`** — every secret-bearing env var carries the `_CRED`
-  suffix so `grep _CRED ~/.config/creds/**/creds.sh` lists every
+  suffix so `grep _CRED $CREDS_HOME/**/creds.sh` lists every
   credential at a glance. The user's rule: anything that must be kept
   secret (API keys, OAuth client secrets, refresh tokens, PATs) ends
   with `_CRED`. Anything that doesn't is non-secret and lives in the
@@ -93,10 +93,10 @@ former `config.sh` was retired; a one-time migration helper at
 ## Diagnostic helpers
 
 ```bash
-python3 ~/.config/creds/_lib/inspect_keys.py            # JSON: every key + classification
-python3 ~/.config/creds/_lib/inspect_keys.py --human    # tabular
-python3 ~/.config/creds/_lib/consolidate_to_creds_sh.py --dry-run   # preview migration
-python3 ~/.config/creds/_lib/consolidate_to_creds_sh.py             # run it
+python3 $CREDS_HOME/_lib/inspect_keys.py            # JSON: every key + classification
+python3 $CREDS_HOME/_lib/inspect_keys.py --human    # tabular
+python3 $CREDS_HOME/_lib/consolidate_to_creds_sh.py --dry-run   # preview migration
+python3 $CREDS_HOME/_lib/consolidate_to_creds_sh.py             # run it
 ```
 
 Both helpers operate on key NAMES only — never echo a credential value.
@@ -106,7 +106,7 @@ Both helpers operate on key NAMES only — never echo a credential value.
 The Ansible role (`roles/creds/`) is **never-overwrite**:
 
 1. On first install: each `<svc>/creds.sh.template` is copied to
-   `~/.config/creds/<svc>/creds.sh` with mode 0600.
+   `$CREDS_HOME/<svc>/creds.sh` with mode 0600.
 2. On every subsequent run: the merger (`_lib/merge_template.py`)
    - never touches an existing value,
    - appends any new keys from the template that aren't in the live
@@ -138,7 +138,7 @@ creds login slack                           # OAuth — bot/user-token flow
 creds login github                          # token — opens mint URL, prompts with no echo, writes to creds.sh
 creds login jira                            # token — alias resolution works on login too
 
-creds rotate slack                          # invokes ~/.config/creds/slack/scripts/rotate.sh
+creds rotate slack                          # invokes $CREDS_HOME/slack/scripts/rotate.sh
 ```
 
 Run `creds` with no subcommand on a TTY for an interactive textual TUI
@@ -159,7 +159,7 @@ The legacy entrypoints stay for muscle memory and back-compat:
 
 The guided `creds login <token-svc>` flow uses `getpass.getpass` — the
 value is read with no echo and written directly to
-`~/.config/creds/<svc>/creds.sh` (0600). The value never enters
+`$CREDS_HOME/<svc>/creds.sh` (0600). The value never enters
 stdout/stderr, never appears in the log file, and is not exposed to
 any agent reading the conversation.
 
@@ -175,7 +175,7 @@ any agent reading the conversation.
 ## Rotation flow
 
 1. Mint the new secret in the provider console.
-2. Edit `~/.config/creds/<svc>/creds.sh` and replace the value (the
+2. Edit `$CREDS_HOME/<svc>/creds.sh` and replace the value (the
    file is `0600`; the merger never overwrites you).
 3. `source ~/.zshenv` to reload (or open a new shell).
 4. For OAuth services, re-run `creds login <svc>` (or the legacy

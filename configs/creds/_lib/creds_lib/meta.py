@@ -8,7 +8,7 @@ prompt for the right secrets without coupling that flow to per-connector
 code.
 
 Single-file layout (since 2026-05-19): every key (secret + non-secret)
-lives in ~/.config/creds/<svc>/creds.sh. `secret_vars` and `config_vars`
+lives in $CREDS_HOME/<svc>/creds.sh. `secret_vars` and `config_vars`
 remain logically distinct so the guided-login flow only prompts for the
 former — but they share one file.
 """
@@ -30,7 +30,7 @@ class ServiceMeta:
     has_connector: bool = False
     # Does that connector also expose an OAuth login() function?
     has_login_fn: bool = False
-    # Filename under ~/.config/creds/<svc>/scripts/ if rotation is supported.
+    # Filename under $CREDS_HOME/<svc>/scripts/ if rotation is supported.
     rotate_script: str | None = None
 
 
