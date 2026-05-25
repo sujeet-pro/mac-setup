@@ -39,7 +39,8 @@ def _app_config_path() -> Path:
     override = os.environ.get("SLACK_APP_CONFIG_FILE")
     if override:
         return Path(os.path.expandvars(os.path.expanduser(override)))
-    return Path.home() / ".config" / "creds" / "slack" / "app.json"
+    from .. import CREDS_DIR
+    return CREDS_DIR / "slack" / "app.json"
 
 
 def _load_app_config() -> dict:

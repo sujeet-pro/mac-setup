@@ -34,7 +34,8 @@ def _app_config_path() -> Path:
     override = os.environ.get("GOOGLE_APP_CONFIG_FILE")
     if override:
         return Path(os.path.expandvars(os.path.expanduser(override)))
-    return Path.home() / ".config" / "creds" / "google" / "app.json"
+    from .. import CREDS_DIR
+    return CREDS_DIR / "google" / "app.json"
 
 
 def _load_scopes() -> str:

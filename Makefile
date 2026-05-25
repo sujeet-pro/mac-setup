@@ -1,5 +1,5 @@
 SHELL := /bin/zsh
-.PHONY: setup update check validate test test-vm cleanup help install-creds uninstall-creds
+.PHONY: setup update check validate test test-vm cleanup help install-creds uninstall-creds repair-perms migrate-to-synced
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -36,10 +36,16 @@ test-vm-debug: ## Same as test-vm but keeps VM alive for debugging
 CREDS_BIN_DIR := $(HOME)/.local/bin
 CREDS_REPO_BIN := $(CURDIR)/configs/creds/_lib/bin
 
-install-creds: ## Run only the creds Ansible role (scaffolds ~/.config/creds + ~/.local/bin/creds*)
+install-creds: ## Run only the creds Ansible role (scaffolds $CREDS_HOME + ~/.local/bin/creds*)
 	@ansible-playbook setup.yml --tags creds
 
-uninstall-creds: ## Remove every creds-related symlink from ~/.local/bin (leaves ~/.config/creds/ in place)
+repair-perms: ## Re-chmod synced creds + ssh (idempotent; fixes Google Drive stripping)
+	@ansible-playbook setup.yml --tags synced-data
+
+migrate-to-synced: ## One-shot migration: move creds/adk/ssh to ~/user-synced-data (run BEFORE first `make setup`)
+	@bash scripts/migrate-to-synced.sh
+
+uninstall-creds: ## Remove every creds-related symlink from ~/.local/bin (leaves $CREDS_HOME in place)
 	@for f in $(CREDS_REPO_BIN)/*; do \
 		name=$$(basename $$f); \
 		target=$(CREDS_BIN_DIR)/$$name; \

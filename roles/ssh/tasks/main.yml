@@ -6,33 +6,34 @@
     mode: "0700"
   tags: [ssh]
 
+- name: Require SSH_KEYS_HOME
+  ansible.builtin.fail:
+    msg: "SSH_KEYS_HOME unset — set it in ~/.zshenv (see configs/shell/.zshenv.example)."
+  when: lookup('env','SSH_KEYS_HOME') == ''
+  tags: [ssh]
+
+- name: Discover synced ssh files
+  ansible.builtin.find:
+    paths: "{{ lookup('env','SSH_KEYS_HOME') }}"
+    file_type: file
+    patterns: 'id_*,*.pem,config.local,known_hosts'
+  register: ssh_synced_files
+  tags: [ssh]
+
+- name: Symlink each synced ssh file into ~/.ssh/
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "{{ home_dir }}/.ssh/{{ item.path | basename }}"
+    state: link
+    force: true
+  loop: "{{ ssh_synced_files.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  tags: [ssh]
+
 - name: Render SSH config from template
   ansible.builtin.template:
     src: ssh_config.j2
     dest: "{{ home_dir }}/.ssh/config"
     mode: "0600"
-  tags: [ssh]
-
-- name: Check if config.local exists
-  ansible.builtin.stat:
-    path: "{{ home_dir }}/.ssh/config.local"
-  register: ssh_config_local
-  tags: [ssh]
-
-- name: Create empty config.local for personal hosts
-  ansible.builtin.copy:
-    dest: "{{ home_dir }}/.ssh/config.local"
-    content: |
-      # ~/.ssh/config.local — Personal SSH hosts
-      #
-      # Add your personal hosts here (EC2 instances, etc.)
-      # This file is included by ~/.ssh/config and is not tracked by git.
-      #
-      # Example:
-      #   Host my-server
-      #       HostName 1.2.3.4
-      #       User ubuntu
-      #       IdentityFile ~/.ssh/my-key.pem
-    mode: "0600"
-  when: not ssh_config_local.stat.exists
   tags: [ssh]

@@ -32,25 +32,30 @@
     force: true
   tags: [shell, starship]
 
-- name: Check if .zshenv exists
+- name: Require ~/user-synced-data/mac-setup/zshenv to exist
   ansible.builtin.stat:
-    path: "{{ home_dir }}/.zshenv"
-  register: zshenv_check
+    path: "{{ home_dir }}/user-synced-data/mac-setup/zshenv"
+  register: zshenv_synced
   tags: [shell, zshenv]
 
-- name: Copy .zshenv.example to ~/.zshenv if missing
-  ansible.builtin.copy:
-    src: "{{ repo_dir }}/configs/shell/.zshenv.example"
+- name: Fail if synced zshenv missing
+  ansible.builtin.fail:
+    msg: "Run scripts/migrate-to-synced.sh first (synced zshenv missing at ~/user-synced-data/mac-setup/zshenv)."
+  when: not zshenv_synced.stat.exists
+  tags: [shell, zshenv]
+
+- name: Symlink ~/.zshenv → synced zshenv
+  ansible.builtin.file:
+    src: "{{ home_dir }}/user-synced-data/mac-setup/zshenv"
     dest: "{{ home_dir }}/.zshenv"
-    mode: "0600"
-  when: not zshenv_check.stat.exists
+    state: link
+    force: true
   tags: [shell, zshenv]
 
-- name: Warn user to fill in .zshenv
-  ansible.builtin.debug:
-    msg: >
-      WARNING: ~/.zshenv was just created from the example template.
-      Please edit ~/.zshenv and fill in your personal values (name, email, etc.)
-      before running the playbook again.
-  when: not zshenv_check.stat.exists
+- name: Ensure ~/.zshenv.local exists
+  ansible.builtin.copy:
+    dest: "{{ home_dir }}/.zshenv.local"
+    content: "# Per-machine overrides for ~/.zshenv. Never synced.\n"
+    mode: '0600'
+    force: false
   tags: [shell, zshenv]

@@ -1,0 +1,67 @@
+---
+# synced-data — chmod-repair for synced creds + ssh directories.
+# Idempotent; safe to run at any time via `make repair-perms`.
+# Google Drive may strip restrictive modes on sync; this role restores them.
+
+- name: Resolve synced home dirs
+  ansible.builtin.set_fact:
+    creds_home: "{{ lookup('env','CREDS_HOME') }}"
+    ssh_home: "{{ lookup('env','SSH_KEYS_HOME') }}"
+    adk_config_home: "{{ lookup('env','ADK_CONFIG_HOME') }}"
+  tags: [synced-data, perms]
+
+- name: Require CREDS_HOME, SSH_KEYS_HOME, ADK_CONFIG_HOME
+  ansible.builtin.fail:
+    msg: "{{ item.name }} unset — set it in ~/.zshenv (see configs/shell/.zshenv.example)."
+  when: item.val == ''
+  loop:
+    - { name: CREDS_HOME, val: "{{ creds_home }}" }
+    - { name: SSH_KEYS_HOME, val: "{{ ssh_home }}" }
+    - { name: ADK_CONFIG_HOME, val: "{{ adk_config_home }}" }
+  loop_control:
+    label: "{{ item.name }}"
+  tags: [synced-data, perms]
+
+# --- creds perms ---
+- name: chmod 700 on $CREDS_HOME
+  ansible.builtin.file:
+    path: "{{ creds_home }}"
+    state: directory
+    mode: '0700'
+  tags: [synced-data, perms]
+
+- name: chmod 600 on creds.sh + token files; 644 on app.json
+  ansible.builtin.shell: |
+    set -e
+    find "{{ creds_home }}" -name creds.sh -type f -exec chmod 600 {} +
+    find "{{ creds_home }}" -name '*.token.json' -type f -exec chmod 600 {} +
+    find "{{ creds_home }}" -name 'app.json' -type f -exec chmod 644 {} +
+  changed_when: false
+  tags: [synced-data, perms]
+
+# --- ssh perms ---
+- name: chmod 700 on $SSH_KEYS_HOME
+  ansible.builtin.file:
+    path: "{{ ssh_home }}"
+    state: directory
+    mode: '0700'
+  tags: [synced-data, perms]
+
+- name: chmod 600 on private keys, pem files, and config.local
+  ansible.builtin.shell: |
+    set -e
+    cd "{{ ssh_home }}"
+    chmod 600 id_ed25519 2>/dev/null || true
+    chmod 600 *.pem 2>/dev/null || true
+    chmod 600 config.local 2>/dev/null || true
+  changed_when: false
+  tags: [synced-data, perms]
+
+- name: chmod 644 on pub keys and known_hosts
+  ansible.builtin.shell: |
+    set -e
+    cd "{{ ssh_home }}"
+    chmod 644 id_ed25519.pub 2>/dev/null || true
+    chmod 644 known_hosts 2>/dev/null || true
+  changed_when: false
+  tags: [synced-data, perms]

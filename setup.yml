@@ -48,8 +48,13 @@
       when: lookup('env', item) == ''
       loop:
         - GIT_USER_NAME
-        - GIT_ORGS
-        - SSH_KEY
+        - CREDS_HOME
+        - ADK_CONFIG_HOME
+        - ADK_DATA_HOME
+        - ADK_MEMORY_HOME
+        - SSH_KEYS_HOME
+        - MAC_SETUP_HOME
+        - ADK_REPO_HOME
       tags: [always]
 
   roles:
@@ -65,6 +70,8 @@
       tags: [ssh, config]
     - role: creds
       tags: [creds, config]
+    - role: synced-data
+      tags: [synced-data, perms]
     - role: apps
       tags: [apps, config]
     - role: aws

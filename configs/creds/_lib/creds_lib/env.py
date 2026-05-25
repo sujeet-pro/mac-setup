@@ -78,7 +78,7 @@ def load_zshenv(path: Path | None = None) -> dict[str, str]:
     p = path or Path.home() / ".zshenv"
     out: dict[str, str] = _load_file(p)
 
-    creds_root = Path(os.environ.get("CREDS_DIR") or (Path.home() / ".config" / "creds"))
+    creds_root = Path(os.environ.get("CREDS_HOME") or os.environ.get("CREDS_DIR") or (Path.home() / ".config" / "creds"))
     if creds_root.is_dir():
         for pattern in CREDS_GLOBS:
             for f in sorted(creds_root.glob(pattern)):

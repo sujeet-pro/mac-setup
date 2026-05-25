@@ -1,40 +1,35 @@
 ---
-# Installs the credentials layout under ~/.config/creds/.
+# Installs the credentials layout under $CREDS_HOME.
 #
 # Source of truth: mac-setup/configs/creds/. Per-3P templates live under
 # configs/creds/<svc>/*.template; the shared loader + Python lib live under
 # configs/creds/{loader.sh,_lib/}. This role:
 #
-#   1. Symlinks the loader + lib + per-service script helpers into
-#      ~/.config/creds/ so updates flow through without re-running merges.
-#   2. Symlinks the bin/ entrypoints into ~/.local/bin/ (PATH).
-#   3. For each per-svc template, runs configs/creds/_lib/merge_template.py
-#      against the live ~/.config/creds/<svc>/<file> — never overwriting
+#   1. Symlinks the bin/ entrypoints into ~/.local/bin/ (PATH).
+#      The loader is sourced directly from $MAC_SETUP_HOME via ~/.zshenv —
+#      no ~/.config/creds/ symlinks are needed.
+#   2. For each per-svc template, runs configs/creds/_lib/merge_template.py
+#      against the live $CREDS_HOME/<svc>/<file> — never overwriting
 #      existing values, only adding missing keys + tagging untracked ones.
-#   4. Copies app.json templates once on first install; never overwrites
+#   3. Copies app.json templates once on first install; never overwrites
 #      after that (the user may have edited their scope superset).
 
-- name: Ensure ~/.config/creds exists
+- name: Resolve CREDS_HOME
+  ansible.builtin.set_fact:
+    creds_home: "{{ lookup('env','CREDS_HOME') }}"
+  tags: [creds]
+
+- name: Require CREDS_HOME
+  ansible.builtin.fail:
+    msg: "CREDS_HOME unset — set it in ~/.zshenv (see configs/shell/.zshenv.example)"
+  when: creds_home == ''
+  tags: [creds]
+
+- name: Ensure $CREDS_HOME exists (mode 0700)
   ansible.builtin.file:
-    path: "{{ home_dir }}/.config/creds"
+    path: "{{ creds_home }}"
     state: directory
     mode: "0700"
-  tags: [creds]
-
-- name: Symlink loader.sh into ~/.config/creds/
-  ansible.builtin.file:
-    src: "{{ repo_dir }}/configs/creds/loader.sh"
-    dest: "{{ home_dir }}/.config/creds/loader.sh"
-    state: link
-    force: true
-  tags: [creds]
-
-- name: Symlink _lib/ into ~/.config/creds/
-  ansible.builtin.file:
-    src: "{{ repo_dir }}/configs/creds/_lib"
-    dest: "{{ home_dir }}/.config/creds/_lib"
-    state: link
-    force: true
   tags: [creds]
 
 - name: Ensure ~/.local/bin exists
@@ -71,20 +66,20 @@
     creds_services: "{{ creds_templates.files | map(attribute='path') | map('dirname') | map('basename') | unique | sort | reject('equalto', '_lib') | list }}"
   tags: [creds]
 
-- name: Ensure per-svc directories exist under ~/.config/creds/
+- name: Ensure per-svc directories exist under $CREDS_HOME
   ansible.builtin.file:
-    path: "{{ home_dir }}/.config/creds/{{ item }}"
+    path: "{{ creds_home }}/{{ item }}"
     state: directory
     mode: "0700"
   loop: "{{ creds_services }}"
   tags: [creds]
 
-- name: Merge creds.sh.template into ~/.config/creds/<svc>/creds.sh (mode 0600)
+- name: Merge creds.sh.template into $CREDS_HOME/<svc>/creds.sh (mode 0600)
   ansible.builtin.command:
     cmd: >-
       python3 {{ repo_dir }}/configs/creds/_lib/merge_template.py
       {{ repo_dir }}/configs/creds/{{ item }}/creds.sh.template
-      {{ home_dir }}/.config/creds/{{ item }}/creds.sh
+      {{ creds_home }}/{{ item }}/creds.sh
       --mode 0600 --quiet
   loop: "{{ creds_services }}"
   register: creds_merge_secrets
@@ -94,7 +89,7 @@
   tags: [creds]
 
 # Single-file layout (since 2026-05-19): every key — secret AND non-secret —
-# lives in creds.sh, mode 0600. Any leftover ~/.config/creds/<svc>/config.sh
+# lives in creds.sh, mode 0600. Any leftover $CREDS_HOME/<svc>/config.sh
 # from the pre-consolidation layout can be merged in place with
 # configs/creds/_lib/consolidate_to_creds_sh.py (idempotent).
 
@@ -110,10 +105,10 @@
   register: creds_scripts_dirs
   tags: [creds]
 
-- name: Symlink per-svc scripts/ into ~/.config/creds/<svc>/scripts
+- name: Symlink per-svc scripts/ into $CREDS_HOME/<svc>/scripts
   ansible.builtin.file:
     src: "{{ item.path }}"
-    dest: "{{ home_dir }}/.config/creds/{{ item.path | dirname | basename }}/scripts"
+    dest: "{{ creds_home }}/{{ item.path | dirname | basename }}/scripts"
     state: link
     force: true
   loop: "{{ creds_scripts_dirs.files }}"
@@ -132,7 +127,7 @@
 
 - name: Stat live app.json files
   ansible.builtin.stat:
-    path: "{{ home_dir }}/.config/creds/{{ item.path | dirname | basename }}/app.json"
+    path: "{{ creds_home }}/{{ item.path | dirname | basename }}/app.json"
   loop: "{{ creds_appjson_templates.files }}"
   register: creds_appjson_stat
   tags: [creds]
@@ -140,7 +135,7 @@
 - name: Install app.json from template (only if absent)
   ansible.builtin.copy:
     src: "{{ item.0.path }}"
-    dest: "{{ home_dir }}/.config/creds/{{ item.0.path | dirname | basename }}/app.json"
+    dest: "{{ creds_home }}/{{ item.0.path | dirname | basename }}/app.json"
     mode: "0644"
   loop: "{{ creds_appjson_templates.files | zip(creds_appjson_stat.results) | list }}"
   when: not item.1.stat.exists
