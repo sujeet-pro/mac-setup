@@ -41,6 +41,7 @@ REGISTRY: dict[str, ServiceMeta] = {
         auth="token",
         mint_url="https://console.anthropic.com/settings/keys",
         secret_vars=("ANTHROPIC_API_KEY_CRED",),
+        has_connector=True,
     ),
     "atlassian": ServiceMeta(
         name="atlassian",
@@ -57,6 +58,8 @@ REGISTRY: dict[str, ServiceMeta] = {
         auth="token",
         mint_url="https://bitbucket.org/account/settings/app-passwords/",
         secret_vars=("BITBUCKET_TOKEN_CRED",),
+        config_vars=("BITBUCKET_URL", "BITBUCKET_USERNAME", "BITBUCKET_WORKSPACE"),
+        has_connector=True,
     ),
     "datadog": ServiceMeta(
         name="datadog",
@@ -78,6 +81,7 @@ REGISTRY: dict[str, ServiceMeta] = {
         auth="token",
         mint_url="https://github.com/settings/tokens",
         secret_vars=("GITHUB_TOKEN_CRED",),
+        has_connector=True,
     ),
     "google": ServiceMeta(
         name="google",
@@ -114,14 +118,17 @@ REGISTRY: dict[str, ServiceMeta] = {
         auth="token",
         mint_url="https://www.npmjs.com/settings/~/tokens",
         secret_vars=("NPM_TOKEN_CRED",),
+        has_connector=True,
     ),
     "okta": ServiceMeta(
         name="okta",
-        display="Okta (sample-app OAuth)",
-        auth="token",
+        display="Okta (OIDC)",
+        auth="oauth",
         mint_url=None,
         secret_vars=("OKTA_APP_CLIENT_SECRET_CRED",),
         config_vars=("OKTA_APP_CLIENT_ID", "OKTA_ISSUER", "OKTA_REDIRECT_URLS_LOCAL"),
+        has_connector=True,
+        has_login_fn=True,
     ),
     "slack": ServiceMeta(
         name="slack",

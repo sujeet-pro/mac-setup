@@ -13,12 +13,17 @@ from types import ModuleType
 
 # Order matters — printed in this order by `creds_validate`.
 NAMES: list[str] = [
-    "slack",
-    "google",
+    "anthropic",
     "atlassian",
+    "bitbucket",
     "datadog",
+    "github",
+    "google",
     "looker",
     "mixpanel",
+    "npm",
+    "okta",
+    "slack",
     "snowflake",
     "statsig",
 ]

@@ -35,6 +35,11 @@ class OAuthConfig:
     callback_path: str = "/oauth/callback"
     port: int = 0              # 0 -> pick a free port
     timeout_sec: int = 300
+    # Hostname used in the redirect_uri sent to the IdP. Defaults to
+    # 127.0.0.1, but some providers (Okta) require an exact-string match
+    # against the registered callback, which often uses "localhost".
+    # The HTTP server still binds to 127.0.0.1; "localhost" resolves to it.
+    redirect_host: str = "127.0.0.1"
 
 
 def _free_port() -> int:
@@ -48,7 +53,7 @@ def _free_port() -> int:
 def run(cfg: OAuthConfig) -> dict[str, Any]:
     """Run the OAuth dance. Returns the token-endpoint JSON or raises."""
     port = cfg.port or _free_port()
-    redirect_uri = f"http://127.0.0.1:{port}{cfg.callback_path}"
+    redirect_uri = f"http://{cfg.redirect_host}:{port}{cfg.callback_path}"
     state = secrets.token_urlsafe(24)
 
     params = {

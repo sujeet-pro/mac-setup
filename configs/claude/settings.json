@@ -21,7 +21,7 @@
       "Bash",
       "mcp__*"
     ],
-    "defaultMode": "default",
+    "deny": [],
     "ask": [
       "Bash(rm:*)",
       "Bash(sudo:*)",
@@ -60,23 +60,22 @@
       "Bash(mkfs:*)",
       "Bash(dd:*)",
       "Bash(chmod -R:*)",
-      "Bash(chown -R:*)"
+      "Bash(chown -R:*)",
+      "mcp__adk-mcp-statsig__Create_Dynamic_Config",
+      "mcp__adk-mcp-statsig__Create_Experiment",
+      "mcp__adk-mcp-statsig__Create_Gate",
+      "mcp__adk-mcp-statsig__Create_Layer",
+      "mcp__adk-mcp-statsig__Create_Segment",
+      "mcp__adk-mcp-statsig__Start_Experiment_Code_Cleanup",
+      "mcp__adk-mcp-statsig__Start_Gate_Code_Cleanup",
+      "mcp__adk-mcp-statsig__Update_Dynamic_Config_Entirely",
+      "mcp__adk-mcp-statsig__Update_Experiment_Entirely",
+      "mcp__adk-mcp-statsig__Update_Gate_Entirely",
+      "mcp__adk-mcp-statsig__Update_Layer_Entirely",
+      "mcp__adk-mcp-statsig__Update_Segment"
     ],
-    "deny": []
+    "defaultMode": "default"
   },
-  "enabledPlugins": {
-    "adk@sujeet-pro-adk": true
-  },
-  "extraKnownMarketplaces": {
-    "sujeet-pro-adk": {
-      "source": {
-        "source": "directory",
-        "path": "/Users/sujeet/personal/agents-devkit"
-      }
-    }
-  },
-  "autoUpdatesChannel": "latest",
-  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "PostToolUse": [
       {
@@ -85,6 +84,15 @@
           {
             "type": "prompt",
             "prompt": "Lightweight post-write check.\n\nIf the edited file path matches `*/skills/<skill>/SKILL.md`:\n  - Verify the YAML frontmatter has `name:` and `description:` fields.\n  - Verify `name:` value equals the folder basename (segment after `skills/` and before `/SKILL.md`).\n  - On mismatch, return {\"ok\":false,\"reason\":\"...\"}; otherwise {\"ok\":true}.\n\nIf the edited file path is under `.temp/<task-slug>/`:\n  - Append the current ISO-8601 UTC timestamp to a file `.temp/<task-slug>/.last-modified` (create if missing) so monitor tools can detect activity.\n  - Return {\"ok\":true}.\n\nIf the edited file path is `~/.config/adk/overrides.yaml`:\n  - Run a regex check that no line contains a raw token-looking value (`/^[A-Z_]+\\s*:\\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?$/` outside the `${VAR}` interpolation pattern).\n  - On match, return {\"ok\":false,\"reason\":\"raw token detected \u2014 use ${ENV_VAR} instead\"}.\n\nOtherwise: {\"ok\":true}."
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Lightweight post-write check.\n\nIf the edited file path matches `*/skills/<skill>/SKILL.md`:\n  - Verify the YAML frontmatter has `name:` and `description:` fields.\n  - Verify `name:` value equals the folder basename (segment after `skills/` and before `/SKILL.md`).\n  - On mismatch, return {\"ok\":false,\"reason\":\"...\"}; otherwise {\"ok\":true}.\n\nIf the edited file path is under `.temp/<task-slug>/`:\n  - Append the current ISO-8601 UTC timestamp to a file `.temp/<task-slug>/.last-modified` (create if missing) so monitor tools can detect activity.\n  - Return {\"ok\":true}.\n\nIf the edited file path is `~/.agents-devkit/config/core.yaml` or `~/.agents-devkit/config/connectors/*.md` (frontmatter section between the leading `---` lines) or `~/.agents-devkit/config/adk-cli.json5`:\n  - Run a regex check that no line contains a raw token-looking value (`/^[A-Z_]+\\s*:\\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?$/` outside the `${VAR}` interpolation pattern).\n  - On match, return {\"ok\":false,\"reason\":\"raw token detected \u2014 use ${ENV_VAR} instead\"}.\n\nOtherwise: {\"ok\":true}."
           }
         ],
         "_adk_managed": true
@@ -101,6 +109,24 @@
         "_adk_managed": true
       }
     ]
+  },
+  "enabledPlugins": {
+    "adk@sujeet-pro-adk": true
+  },
+  "extraKnownMarketplaces": {
+    "sujeet-pro-adk": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/sujeet/personal/agents-devkit"
+      }
+    }
+  },
+  "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true,
+  "agentPushNotifEnabled": true,
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/sujeet/.claude/statusline-command.sh"
   },
   "_adkManagedPermissions": {
     "allow": [
@@ -158,7 +184,19 @@
       "Bash(mkfs:*)",
       "Bash(dd:*)",
       "Bash(chmod -R:*)",
-      "Bash(chown -R:*)"
+      "Bash(chown -R:*)",
+      "mcp__adk-mcp-statsig__Create_Dynamic_Config",
+      "mcp__adk-mcp-statsig__Create_Experiment",
+      "mcp__adk-mcp-statsig__Create_Gate",
+      "mcp__adk-mcp-statsig__Create_Layer",
+      "mcp__adk-mcp-statsig__Create_Segment",
+      "mcp__adk-mcp-statsig__Start_Experiment_Code_Cleanup",
+      "mcp__adk-mcp-statsig__Start_Gate_Code_Cleanup",
+      "mcp__adk-mcp-statsig__Update_Dynamic_Config_Entirely",
+      "mcp__adk-mcp-statsig__Update_Experiment_Entirely",
+      "mcp__adk-mcp-statsig__Update_Gate_Entirely",
+      "mcp__adk-mcp-statsig__Update_Layer_Entirely",
+      "mcp__adk-mcp-statsig__Update_Segment"
     ],
     "deny": [],
     "defaultMode__previous": "bypassPermissions"
