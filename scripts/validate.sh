@@ -140,41 +140,52 @@ echo "VS Code:"
 VSCODE_DIR="$HOME/Library/Application Support/Code/User"
 check_symlink "$VSCODE_DIR/settings.json" "VS Code settings.json"
 
-# --- Credentials system (~/.config/creds) ---
+# --- Credentials system ($CREDS_HOME) ---
 echo ""
 echo "Credentials system:"
-check_symlink "$HOME/.config/creds/loader.sh" "creds/loader.sh"
-check_symlink "$HOME/.config/creds/_lib" "creds/_lib"
-check_symlink "$HOME/.local/bin/creds" "~/.local/bin/creds"
-check_symlink "$HOME/.local/bin/creds_validate" "~/.local/bin/creds_validate (legacy)"
-check_symlink "$HOME/.local/bin/creds_login_google" "~/.local/bin/creds_login_google (legacy)"
-check_symlink "$HOME/.local/bin/creds_login_slack" "~/.local/bin/creds_login_slack (legacy)"
+_creds_home="${CREDS_HOME:-}"
+if [ -z "$_creds_home" ]; then
+  fail "CREDS_HOME not set — creds checks skipped"
+else
+  check_file "$_creds_home" "\$CREDS_HOME dir"
+  check_symlink "$HOME/.local/bin/creds" "~/.local/bin/creds"
+  check_symlink "$HOME/.local/bin/creds_validate" "~/.local/bin/creds_validate"
+  check_symlink "$HOME/.local/bin/creds_login_google" "~/.local/bin/creds_login_google"
+  check_symlink "$HOME/.local/bin/creds_login_slack" "~/.local/bin/creds_login_slack"
 
-# Single-file layout: every <svc>/creds.sh must be 0600. Any leftover
-# <svc>/config.sh is a sign the consolidation step was skipped.
-for _csh in "$HOME/.config/creds"/*/creds.sh; do
-  [ -f "$_csh" ] || continue
-  _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
-  _rel="${_csh#$HOME/.config/}"
-  if [ "$_mode" = "600" ]; then
-    pass "$_rel mode=0600"
-  else
-    fail "$_rel mode=$_mode (expected 0600)"
-  fi
-done
-for _stale in "$HOME/.config/creds"/*/config.sh; do
-  [ -f "$_stale" ] || continue
-  _rel="${_stale#$HOME/.config/}"
-  fail "$_rel still present — run configs/creds/_lib/consolidate_to_creds_sh.py to merge it into creds.sh"
-done
-unset _csh _stale _mode _rel
+  # Single-file layout: every <svc>/creds.sh must be 0600.
+  for _csh in "$_creds_home"/*/creds.sh; do
+    [ -f "$_csh" ] || continue
+    _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
+    _svc="$(basename "$(dirname "$_csh")")"
+    if [ "$_mode" = "600" ]; then
+      pass "creds/$_svc/creds.sh mode=0600"
+    else
+      fail "creds/$_svc/creds.sh mode=$_mode (expected 0600)"
+    fi
+  done
+  for _stale in "$_creds_home"/*/config.sh; do
+    [ -f "$_stale" ] || continue
+    _svc="$(basename "$(dirname "$_stale")")"
+    fail "creds/$_svc/config.sh still present — merge into creds.sh"
+  done
+  unset _csh _stale _mode _svc
+fi
+unset _creds_home
 
 # --- Env vars ---
 echo ""
 echo "Environment variables:"
 check_env GIT_USER_NAME
-check_env GIT_ORGS
-check_env SSH_KEY
+check_env GIT_PERSONAL_EMAIL
+check_env SSH_PERSONAL_KEY
+check_env CREDS_HOME
+check_env ADK_CONFIG_HOME
+check_env ADK_DATA_HOME
+check_env ADK_MEMORY_HOME
+check_env SSH_KEYS_HOME
+check_env MAC_SETUP_HOME
+check_env ADK_REPO_HOME
 
 # --- Git config resolution ---
 echo ""
