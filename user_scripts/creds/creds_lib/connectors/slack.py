@@ -18,6 +18,7 @@ import random
 import urllib.parse
 from pathlib import Path
 
+from .. import creds_sh_io
 from .. import http as _http
 from .. import store
 from ..oauth import OAuthConfig, run as oauth_run
@@ -131,6 +132,11 @@ def login() -> Result:
             "generated_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         },
     )
+    sh_path = creds_sh_io.creds_sh_path(NAME)
+    if bot_token:
+        creds_sh_io.set_value(sh_path, "SLACK_BOT_TOKEN_CRED", bot_token)
+    if user_token:
+        creds_sh_io.set_value(sh_path, "SLACK_USER_TOKEN_CRED", user_token)
     team_name = (tok.get("team") or {}).get("name", "?")
     kinds = ", ".join(k for k, present in [("bot", bot_token), ("user", user_token)] if present)
     return Result(NAME, "OK", f"saved {kinds} token(s) for team={team_name} → {path}")
@@ -146,7 +152,7 @@ def validate() -> Result:
         return Result(
             NAME,
             "MISCONFIGURED",
-            f"no token at {path}; run `creds_login_slack` first",
+            f"no token at {path}; run `userscripts creds login slack` first",
         )
 
     # list, then pick a random one
@@ -166,3 +172,44 @@ def validate() -> Result:
         return Result(NAME, "OK", "token works but user is in 0 channels")
     pick = random.choice(channels)
     return Result(NAME, "OK", "conversations.list ok", sample=f"#{pick.get('name')} ({pick.get('id')})")
+
+
+def rotate() -> Result:
+    refresh = os.environ.get("SLACK_APP_CONFIG_REFRESH_TOKEN_CRED")
+    if not refresh or refresh.startswith("PLACEHOLDER"):
+        return Result(
+            NAME,
+            "MISCONFIGURED",
+            "SLACK_APP_CONFIG_REFRESH_TOKEN_CRED is unset or still a placeholder. "
+            "Mint the initial pair at https://api.slack.com/authentication/config-tokens "
+            "and paste both tokens into creds.sh.",
+        )
+
+    status, _h, body = _http.request(
+        "POST",
+        "https://slack.com/api/tooling.tokens.rotate",
+        data={"refresh_token": refresh},
+    )
+    parsed = _http.json_or_text(body)
+    if not isinstance(parsed, dict) or parsed.get("ok") is not True:
+        err = parsed.get("error") if isinstance(parsed, dict) else body[:200]
+        return Result(NAME, "FAIL", f"slack rejected rotate: {err}")
+
+    new_access = parsed.get("token")
+    new_refresh = parsed.get("refresh_token")
+    if not new_access or not new_refresh:
+        return Result(NAME, "FAIL", f"rotate response missing tokens: keys={list(parsed)}")
+
+    sh_path = creds_sh_io.creds_sh_path(NAME)
+    updated: list[str] = []
+    if creds_sh_io.set_value(sh_path, "SLACK_APP_CONFIG_ACCESS_TOKEN_CRED", new_access):
+        updated.append("SLACK_APP_CONFIG_ACCESS_TOKEN_CRED")
+    if creds_sh_io.set_value(sh_path, "SLACK_APP_CONFIG_REFRESH_TOKEN_CRED", new_refresh):
+        updated.append("SLACK_APP_CONFIG_REFRESH_TOKEN_CRED")
+
+    return Result(
+        NAME,
+        "OK",
+        f"rotated app-config tokens; new token expires at unix {parsed.get('exp')} "
+        "— run `source ~/.zshenv` to reload",
+    )

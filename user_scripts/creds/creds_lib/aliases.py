@@ -1,7 +1,7 @@
 """Alias resolution for service names.
 
-Lets the user type `creds login jira` or `creds validate dd gh` and have
-both resolved to the canonical service name. Aliases are case-insensitive.
+Lets the user type `userscripts creds login jira` or `userscripts creds validate dd gh`
+and have both resolved to the canonical service name. Aliases are case-insensitive.
 """
 
 from __future__ import annotations

@@ -1,12 +1,10 @@
 ---
-# Symlinks user_scripts/ entries to ~/.local/bin/ so they're available globally.
+# Symlinks user_scripts/userscripts → ~/.local/bin/userscripts.
 #
-# Supports three patterns:
-#   - user_scripts/<name>.sh        → symlink as ~/.local/bin/<name>
-#   - user_scripts/<name>/index.sh  → symlink as ~/.local/bin/<name>
-#   - user_scripts/<name>/index.py  → symlink as ~/.local/bin/<name>
-#   - user_scripts/<name>/bin/*     → symlink every file under bin/ as ~/.local/bin/<basename>
-#                                     (use for multi-binary tools like `creds_*`)
+# This is the single entry point for every script under user_scripts/.
+# Subdirectories with `index.sh` or `index.py` are exposed as namespaces:
+#   userscripts <namespace> [args ...]
+# See user_scripts/userscripts --help.
 
 - name: Ensure ~/.local/bin directory exists
   ansible.builtin.file:
@@ -15,91 +13,19 @@
     mode: "0755"
   tags: [user-scripts]
 
-- name: Ensure ~/.config/user_scripts directory exists
+- name: Symlink the userscripts dispatcher into ~/.local/bin
   ansible.builtin.file:
-    path: "{{ home_dir }}/.config/user_scripts"
-    state: directory
-    mode: "0755"
-  tags: [user-scripts]
-
-# --- Single-file scripts (user_scripts/*.sh, *.py) ---
-
-- name: Find single-file user scripts
-  ansible.builtin.find:
-    paths: "{{ repo_dir }}/user_scripts"
-    patterns: ["*.sh", "*.py"]
-    depth: 1
-  register: single_file_scripts
-  tags: [user-scripts]
-
-- name: Symlink single-file user scripts
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ home_dir }}/.local/bin/{{ item.path | basename | regex_replace('\\.(sh|py)$', '') }}"
+    src: "{{ repo_dir }}/user_scripts/userscripts"
+    dest: "{{ home_dir }}/.local/bin/userscripts"
     state: link
     force: true
-  loop: "{{ single_file_scripts.files }}"
   tags: [user-scripts]
 
-# --- Folder-based scripts (user_scripts/<name>/index.sh or index.py) ---
-
-- name: Find folder-based user scripts (index.sh)
-  ansible.builtin.find:
-    paths: "{{ repo_dir }}/user_scripts"
-    patterns: "index.sh"
-    recurse: true
-    depth: 2
-  register: folder_scripts_sh
-  tags: [user-scripts]
-
-- name: Find folder-based user scripts (index.py)
-  ansible.builtin.find:
-    paths: "{{ repo_dir }}/user_scripts"
-    patterns: "index.py"
-    recurse: true
-    depth: 2
-  register: folder_scripts_py
-  tags: [user-scripts]
-
-- name: Symlink folder-based user scripts (index.sh)
+- name: Remove obsolete bare bins (now invoked via `userscripts <name>`)
   ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ home_dir }}/.local/bin/{{ item.path | dirname | basename }}"
-    state: link
-    force: true
-  loop: "{{ folder_scripts_sh.files }}"
-  tags: [user-scripts]
-
-- name: Symlink folder-based user scripts (index.py)
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ home_dir }}/.local/bin/{{ item.path | dirname | basename }}"
-    state: link
-    force: true
-  loop: "{{ folder_scripts_py.files }}"
-  tags: [user-scripts]
-
-# --- Multi-binary scripts (user_scripts/<name>/bin/*) ---
-
-- name: Find multi-binary user scripts (bin/*)
-  ansible.builtin.find:
-    paths: "{{ repo_dir }}/user_scripts"
-    patterns: "*"
-    file_type: file
-    recurse: true
-    # depth: 3 → user_scripts/<name>/bin/<file>
-    depth: 3
-    use_regex: false
-  register: multi_bin_candidates
-  tags: [user-scripts]
-
-- name: Symlink multi-binary user scripts (bin/*)
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ home_dir }}/.local/bin/{{ item.path | basename }}"
-    state: link
-    force: true
-  # Only files that live in a `<script-name>/bin/` directory.
-  when: (item.path | dirname | basename) == "bin"
-  loop: "{{ multi_bin_candidates.files }}"
+    path: "{{ home_dir }}/.local/bin/{{ item }}"
+    state: absent
+  loop:
+    - git-rewrite-emails
+    - git-status-all
   tags: [user-scripts]

@@ -3,7 +3,7 @@
 The connector modules under `creds_lib/connectors/` are about validation
 logic — what URL to hit, how to parse the response. This file is about
 WHO each service is: display name, auth flavor, where to mint a token,
-which env-var keys it owns. The `creds login <svc>` flow uses this to
+which env-var keys it owns. The `userscripts creds login <svc>` flow uses this to
 prompt for the right secrets without coupling that flow to per-connector
 code.
 
@@ -30,7 +30,9 @@ class ServiceMeta:
     has_connector: bool = False
     # Does that connector also expose an OAuth login() function?
     has_login_fn: bool = False
-    # Filename under $CREDS_HOME/<svc>/scripts/ if rotation is supported.
+    # Truthy iff the connector module exposes a rotate() function.
+    # Historical name (was once a filename under $CREDS_HOME/<svc>/scripts/);
+    # rotation logic now lives in-module on each connector.
     rotate_script: str | None = None
 
 

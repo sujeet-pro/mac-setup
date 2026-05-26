@@ -148,10 +148,16 @@ if [ -z "$_creds_home" ]; then
   fail "CREDS_HOME not set — creds checks skipped"
 else
   check_file "$_creds_home" "\$CREDS_HOME dir"
-  check_symlink "$HOME/.local/bin/creds" "~/.local/bin/creds"
-  check_symlink "$HOME/.local/bin/creds_validate" "~/.local/bin/creds_validate"
-  check_symlink "$HOME/.local/bin/creds_login_google" "~/.local/bin/creds_login_google"
-  check_symlink "$HOME/.local/bin/creds_login_slack" "~/.local/bin/creds_login_slack"
+  check_symlink "$HOME/.local/bin/userscripts" "~/.local/bin/userscripts"
+  if command -v userscripts &>/dev/null; then
+    if userscripts creds validate --list &>/dev/null; then
+      pass "userscripts creds validate --list"
+    else
+      warn "userscripts creds validate --list — non-zero exit (connectors may not be configured yet)"
+    fi
+  else
+    fail "userscripts — not found in PATH"
+  fi
 
   # Single-file layout: every <svc>/creds.sh must be 0600.
   for _csh in "$_creds_home"/*/creds.sh; do

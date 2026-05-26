@@ -5,14 +5,14 @@
 # configs/creds/<svc>/*.template; the shared loader + Python lib live under
 # configs/creds/{loader.sh,_lib/}. This role:
 #
-#   1. Symlinks the bin/ entrypoints into ~/.local/bin/ (PATH).
-#      The loader is sourced directly from $MAC_SETUP_HOME via ~/.zshenv —
-#      no ~/.config/creds/ symlinks are needed.
-#   2. For each per-svc template, runs configs/creds/_lib/merge_template.py
+#   1. For each per-svc template, runs configs/creds/_lib/merge_template.py
 #      against the live $CREDS_HOME/<svc>/<file> — never overwriting
 #      existing values, only adding missing keys + tagging untracked ones.
-#   3. Copies app.json templates once on first install; never overwrites
+#   2. Copies app.json templates once on first install; never overwrites
 #      after that (the user may have edited their scope superset).
+#
+# Bin entrypoints are no longer managed here — see roles/user-scripts which
+# installs the unified `userscripts` dispatcher into ~/.local/bin/.
 
 - name: Resolve CREDS_HOME
   ansible.builtin.set_fact:
@@ -39,14 +39,15 @@
     mode: "0755"
   tags: [creds]
 
-- name: Symlink bin entrypoints into ~/.local/bin
+- name: Remove obsolete legacy creds bins from ~/.local/bin
   ansible.builtin.file:
-    src: "{{ item }}"
-    dest: "{{ home_dir }}/.local/bin/{{ item | basename }}"
-    state: link
-    force: true
-  with_fileglob:
-    - "{{ repo_dir }}/configs/creds/_lib/bin/*"
+    path: "{{ home_dir }}/.local/bin/{{ item }}"
+    state: absent
+  loop:
+    - creds
+    - creds_login_slack
+    - creds_login_google
+    - creds_validate
   tags: [creds]
 
 # --- Per-3P templates --------------------------------------------------------
@@ -74,6 +75,13 @@
   loop: "{{ creds_services }}"
   tags: [creds]
 
+- name: Remove obsolete per-svc scripts symlinks under $CREDS_HOME
+  ansible.builtin.file:
+    path: "{{ creds_home }}/{{ item }}/scripts"
+    state: absent
+  loop: "{{ creds_services }}"
+  tags: [creds]
+
 - name: Merge creds.sh.template into $CREDS_HOME/<svc>/creds.sh (mode 0600)
   ansible.builtin.command:
     cmd: >-
@@ -92,27 +100,6 @@
 # lives in creds.sh, mode 0600. Any leftover $CREDS_HOME/<svc>/config.sh
 # from the pre-consolidation layout can be merged in place with
 # configs/creds/_lib/consolidate_to_creds_sh.py (idempotent).
-
-# --- Per-3P scripts/ (login.sh, rotate.sh, ...) ------------------------------
-
-- name: Discover per-svc scripts/ directories
-  ansible.builtin.find:
-    paths: "{{ repo_dir }}/configs/creds"
-    patterns: "scripts"
-    file_type: directory
-    recurse: true
-    depth: 2
-  register: creds_scripts_dirs
-  tags: [creds]
-
-- name: Symlink per-svc scripts/ into $CREDS_HOME/<svc>/scripts
-  ansible.builtin.file:
-    src: "{{ item.path }}"
-    dest: "{{ creds_home }}/{{ item.path | dirname | basename }}/scripts"
-    state: link
-    force: true
-  loop: "{{ creds_scripts_dirs.files }}"
-  tags: [creds]
 
 # --- Per-3P static JSON (app.json) — copy once, never overwrite -------------
 

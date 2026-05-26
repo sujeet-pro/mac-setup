@@ -155,7 +155,7 @@ def validate() -> Result:
         return Result(
             NAME,
             "MISCONFIGURED",
-            f"no usable token at {path}; run `creds login okta` first",
+            f"no usable token at {path}; run `userscripts creds login okta` first",
         )
 
     if not userinfo_url:

@@ -11,7 +11,7 @@ from __future__ import annotations
 from importlib import import_module
 from types import ModuleType
 
-# Order matters — printed in this order by `creds_validate`.
+# Order matters — printed in this order by `userscripts creds validate`.
 NAMES: list[str] = [
     "anthropic",
     "atlassian",

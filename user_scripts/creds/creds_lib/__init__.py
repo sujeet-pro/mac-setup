@@ -1,7 +1,7 @@
-"""Stdlib-only helpers for the `creds_*` CLIs.
+"""Stdlib-only helpers for the `userscripts creds` CLI.
 
-This package powers:
-    creds_login_slack    creds_login_google    creds_validate
+This package powers `userscripts creds {validate, login, status, rotate, ...}`
+(entry point at user_scripts/creds/index.py).
 
 All connector tokens / refresh-tokens live under $CREDS_HOME;
 per-connector env vars (e.g. `SLACK_CREDENTIALS_FILE`,

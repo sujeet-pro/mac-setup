@@ -70,6 +70,8 @@
       tags: [ssh, config]
     - role: creds
       tags: [creds, config]
+    - role: user-scripts
+      tags: [user-scripts, config]
     - role: synced-data
       tags: [synced-data, perms]
     - role: apps

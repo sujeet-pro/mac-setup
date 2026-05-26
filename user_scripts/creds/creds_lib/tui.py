@@ -1,7 +1,7 @@
-"""Interactive textual TUI for `creds`.
+"""Interactive textual TUI for `userscripts creds`.
 
-Runs when the user invokes `creds` with no subcommand AND textual is
-installed. Falls back to the plain `creds status` table otherwise.
+Runs when the user invokes `userscripts creds` with no subcommand AND textual is
+installed. Falls back to the plain `userscripts creds status` table otherwise.
 
 Layout (single screen):
   Header
@@ -15,7 +15,7 @@ Bindings:
   v   validate selected
   V   validate all (capital v)
   l   login selected (OAuth → connector.login(); token → guided getpass)
-  r   refresh service list (re-runs `creds validate --json` for all)
+  r   refresh service list (re-runs `userscripts creds validate --json` for all)
   q   quit
 
 Token-login flows that need keyboard input run by suspending the TUI
@@ -53,14 +53,14 @@ def run() -> int:
             "    uv tool install textual\n"
             "    pipx install textual\n"
             "    pip install --user textual\n"
-            "Falling back to `creds status`.\n\n"
+            "Falling back to `userscripts creds status`.\n\n"
         )
         from .driver import _services_table
         print(_services_table())
         return 0
 
     if not sys.stdin.isatty() or not sys.stdout.isatty():
-        sys.stderr.write("creds TUI requires a TTY. Falling back to `creds status`.\n\n")
+        sys.stderr.write("creds TUI requires a TTY. Falling back to `userscripts creds status`.\n\n")
         from .driver import _services_table
         print(_services_table())
         return 0

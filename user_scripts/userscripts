@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""userscripts — single entry point for every script under user_scripts/.
+
+Usage:
+  userscripts <namespace> [args ...]
+  userscripts list                  # list available namespaces
+  userscripts help [namespace]      # general help, or forward --help to a namespace
+
+A "namespace" is a subdirectory of user_scripts/ that contains an
+`index.sh` or `index.py`. `userscripts <ns> [args ...]` execs that
+file with the remaining args.
+
+The dispatcher itself lives at user_scripts/userscripts and is the
+only file symlinked into ~/.local/bin/. Symlink-friendly:
+Path(__file__).resolve() follows the link back to the repo, so the
+namespace registry is always discoverable.
+"""
+
+from __future__ import annotations
+
+import os
+import pathlib
+import sys
+
+_INDEX_NAMES = ("index.sh", "index.py")
+
+
+def _registry_dir() -> pathlib.Path:
+    return pathlib.Path(__file__).resolve().parent
+
+
+def _find_entry(ns: str) -> pathlib.Path | None:
+    base = _registry_dir() / ns
+    if not base.is_dir():
+        return None
+    for name in _INDEX_NAMES:
+        cand = base / name
+        if cand.is_file():
+            return cand
+    return None
+
+
+def _namespaces() -> list[str]:
+    base = _registry_dir()
+    out: list[str] = []
+    for entry in sorted(base.iterdir()):
+        if not entry.is_dir():
+            continue
+        if entry.name.startswith((".", "_")):
+            continue
+        if _find_entry(entry.name):
+            out.append(entry.name)
+    return out
+
+
+def _print_usage() -> None:
+    print(__doc__.strip(), file=sys.stderr)
+    namespaces = _namespaces()
+    if namespaces:
+        print("\nAvailable namespaces:", file=sys.stderr)
+        for n in namespaces:
+            print(f"  {n}", file=sys.stderr)
+
+
+def _list() -> int:
+    namespaces = _namespaces()
+    if not namespaces:
+        print(f"userscripts: no namespaces with index.sh/index.py under {_registry_dir()}", file=sys.stderr)
+        return 1
+    for n in namespaces:
+        print(n)
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    if not argv or argv[0] in ("-h", "--help"):
+        _print_usage()
+        return 0 if argv else 64
+
+    if argv[0] == "list":
+        return _list()
+
+    if argv[0] == "help":
+        if len(argv) < 2:
+            _print_usage()
+            return 0
+        entry = _find_entry(argv[1])
+        if entry is None:
+            print(f"userscripts: unknown namespace {argv[1]!r}", file=sys.stderr)
+            return 64
+        os.execv(str(entry), [str(entry), "--help"])
+        return 1  # unreachable
+
+    ns = argv[0]
+    entry = _find_entry(ns)
+    if entry is None:
+        print(f"userscripts: unknown namespace {ns!r}", file=sys.stderr)
+        print("            run `userscripts list` to see available namespaces.", file=sys.stderr)
+        return 64
+
+    os.execv(str(entry), [str(entry), *argv[1:]])
+    return 1  # unreachable
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

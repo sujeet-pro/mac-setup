@@ -5,3 +5,6 @@ export USER_GOOGLE_EMAIL=you@example.com
 # Mint OAuth Desktop client: https://console.cloud.google.com/apis/credentials
 export GOOGLE_CLIENT_ID_CRED=PLACEHOLDER_FILL_ME.apps.googleusercontent.com
 export GOOGLE_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME
+
+# OAuth refresh token (set by `userscripts creds login google`)
+export GOOGLE_REFRESH_TOKEN_CRED=PLACEHOLDER_FILL_ME

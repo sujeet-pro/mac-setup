@@ -15,10 +15,8 @@ from __future__ import annotations
 import argparse
 import json
 import shlex
-import subprocess
 import sys
 
-from . import CREDS_DIR
 from . import aliases as _aliases
 from . import connectors as _connectors
 from . import meta as _meta
@@ -33,7 +31,7 @@ def _resolve_or_exit(name: str) -> str:
         return _aliases.resolve(name)
     except KeyError as e:
         print(f"error: {e}", file=sys.stderr)
-        print("       run `creds status` to see all services + aliases.", file=sys.stderr)
+        print("       run `userscripts creds status` to see all services + aliases.", file=sys.stderr)
         sys.exit(64)
 
 
@@ -166,24 +164,33 @@ compdef _creds creds
 
 
 def _do_rotate(svc: str) -> int:
-    m = _meta.get(svc)
-    if not m.rotate_script:
-        print(f"{svc}: no rotation script defined.", file=sys.stderr)
+    load_zshenv()
+    try:
+        mod = _connectors.load(svc)
+    except KeyError as e:
+        print(f"error: {e}", file=sys.stderr)
         return 64
-    path = CREDS_DIR / svc / "scripts" / m.rotate_script
-    if not path.is_file():
-        print(f"{svc}: rotation script missing at {path}", file=sys.stderr)
+    rotate = getattr(mod, "rotate", None)
+    if rotate is None:
+        print(f"{svc}: no rotation flow available", file=sys.stderr)
+        return 64
+    try:
+        result = rotate()
+    except Exception as e:  # noqa: BLE001
+        import traceback
+        traceback.print_exc()
+        print(f"FAIL: {e}", file=sys.stderr)
         return 1
-    return subprocess.call([str(path)])
+    return render([result])
 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
-        prog="creds",
+        prog="userscripts creds",
         description=(
             "Unified CLI for the $CREDS_HOME/ credential layout. "
             "Service names accept aliases (jira→atlassian, gh→github, dd→datadog, …). "
-            "Run `creds status` to see them all."
+            "Run `userscripts creds status` to see them all."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )

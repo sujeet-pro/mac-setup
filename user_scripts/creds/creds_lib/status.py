@@ -1,4 +1,4 @@
-"""Per-connector status records used by `creds_validate`."""
+"""Per-connector status records used by `userscripts creds validate`."""
 
 from __future__ import annotations
 

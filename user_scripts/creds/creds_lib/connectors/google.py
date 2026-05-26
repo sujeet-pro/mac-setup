@@ -17,6 +17,7 @@ import os
 import random
 from pathlib import Path
 
+from .. import creds_sh_io
 from .. import http as _http
 from .. import store
 from ..oauth import OAuthConfig, run as oauth_run
@@ -91,6 +92,8 @@ def login() -> Result:
             "generated_at": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z",
         },
     )
+    sh_path = creds_sh_io.creds_sh_path(NAME)
+    creds_sh_io.set_value(sh_path, "GOOGLE_REFRESH_TOKEN_CRED", refresh)
     return Result(NAME, "OK", f"refresh_token saved → {path}")
 
 
@@ -135,7 +138,7 @@ def validate() -> Result:
         return Result(
             NAME,
             "MISCONFIGURED",
-            f"no refresh_token at {path}; run `creds login google` first",
+            f"no refresh_token at {path}; run `userscripts creds login google` first",
         )
 
     access = _exchange_refresh(refresh, cid, csec)

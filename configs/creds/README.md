@@ -15,9 +15,6 @@ $CREDS_HOME/
 │                              (sourced from ~/.zshenv; walks every <svc>/
 │                              and sources creds.sh)
 ├── _lib/                     → symlink to mac-setup/configs/creds/_lib/
-│   ├── creds_lib/            (Python validators + OAuth login flows)
-│   ├── bin/                  (creds, creds_login_*, creds_validate;
-│   │                          symlinked to ~/.local/bin via the role)
 │   ├── merge_template.py     (the never-overwrite merger used by the role)
 │   ├── inspect_keys.py       (read-only key-name dumper — never echoes values)
 │   └── consolidate_to_creds_sh.py  (one-time migration; idempotent)
@@ -40,8 +37,7 @@ $CREDS_HOME/
 │   │                          GOOGLE_WORKSPACE_MCP_CREDENTIALS_DIR,
 │   │                          + GOOGLE_OAUTH_*/WORKSPACE_MCP_CREDENTIALS_DIR aliases)
 │   ├── app.json              (OAuth scope superset — copied once)
-│   ├── google.token.json     (refresh token, from `creds login google`)
-│   └── scripts/              → repo (login.sh)
+│   └── google.token.json     (refresh token, from `userscripts creds login google`)
 ├── looker/
 │   └── creds.sh              (LOOKER_CLIENT_ID_CRED, LOOKER_CLIENT_SECRET_CRED,
 │                              LOOKER_BASE_URL, LOOKER_VERIFY_SSL, LOOKER_TIMEOUT,
@@ -59,8 +55,7 @@ $CREDS_HOME/
 │   │                          SLACK_APP_CONFIG_{ACCESS,REFRESH}_TOKEN_CRED,
 │   │                          SLACK_APP_ID, SLACK_CLIENT_ID, SLACK_CREDENTIALS_FILE)
 │   ├── app.json              (OAuth scopes + redirect_uri)
-│   ├── slack.token.json      (bot + user tokens, from `creds login slack`)
-│   └── scripts/              → repo (login.sh, rotate.{sh,py})
+│   └── slack.token.json      (bot + user tokens, from `userscripts creds login slack`)
 ├── snowflake/
 │   ├── creds.sh              (SNOWFLAKE_ACCESS_TOKEN_CRED, SNOWFLAKE_HOME,
 │   │                          SNOWFLAKE_CONNECTION_NAME, SNOWFLAKE_SERVICE_CONFIG_FILE)
@@ -71,6 +66,8 @@ $CREDS_HOME/
 └── logs/                     (rotation/login/validate logs, auto-pruned
                                after CREDS_LOG_RETENTION_DAYS, default 7d)
 ```
+
+The unified CLI now lives at `user_scripts/creds/` and is invoked as `userscripts creds <subcmd>`.
 
 ## Naming convention
 
@@ -93,10 +90,10 @@ $CREDS_HOME/
 ## Diagnostic helpers
 
 ```bash
-python3 $CREDS_HOME/_lib/inspect_keys.py            # JSON: every key + classification
-python3 $CREDS_HOME/_lib/inspect_keys.py --human    # tabular
-python3 $CREDS_HOME/_lib/consolidate_to_creds_sh.py --dry-run   # preview migration
-python3 $CREDS_HOME/_lib/consolidate_to_creds_sh.py             # run it
+python3 $MAC_SETUP_HOME/configs/creds/_lib/inspect_keys.py            # JSON: every key + classification
+python3 $MAC_SETUP_HOME/configs/creds/_lib/inspect_keys.py --human    # tabular
+python3 $MAC_SETUP_HOME/configs/creds/_lib/consolidate_to_creds_sh.py --dry-run   # preview migration
+python3 $MAC_SETUP_HOME/configs/creds/_lib/consolidate_to_creds_sh.py             # run it
 ```
 
 Both helpers operate on key NAMES only — never echo a credential value.
@@ -119,29 +116,29 @@ The Ansible role (`roles/creds/`) is **never-overwrite**:
 
 ## Commands
 
-The unified `creds` CLI is the preferred entry point. Service names
-accept aliases — `creds login jira` resolves to `atlassian`, `creds
-validate dd gh` resolves to `datadog` + `github`. Run `creds status`
-(or just `creds`) to see every service alongside its aliases.
+The unified `userscripts creds` CLI is the preferred entry point. Service names
+accept aliases — `userscripts creds login jira` resolves to `atlassian`, `userscripts creds
+validate dd gh` resolves to `datadog` + `github`. Run `userscripts creds status`
+(or just `userscripts creds`) to see every service alongside its aliases.
 
 ```bash
-creds                                       # status table (services × auth × aliases)
-creds status                                # same as above
-creds validate                              # probe every service that has a connector
-creds validate slack google                 # probe a subset
-creds validate jira --json                  # JSON output (alias resolves to atlassian)
-creds validate --list                       # connector names, one per line
-creds validate --list-json                  # all services + aliases (shell completion / /adk-setup --check)
+userscripts creds                                       # status table (services × auth × aliases)
+userscripts creds status                                # same as above
+userscripts creds validate                              # probe every service that has a connector
+userscripts creds validate slack google                 # probe a subset
+userscripts creds validate jira --json                  # JSON output (alias resolves to atlassian)
+userscripts creds validate --list                       # connector names, one per line
+userscripts creds validate --list-json                  # all services + aliases (shell completion / /adk-setup --check)
 
-creds login google                          # OAuth — refresh-token flow
-creds login slack                           # OAuth — bot/user-token flow
-creds login github                          # token — opens mint URL, prompts with no echo, writes to creds.sh
-creds login jira                            # token — alias resolution works on login too
+userscripts creds login google                          # OAuth — refresh-token flow
+userscripts creds login slack                           # OAuth — bot/user-token flow
+userscripts creds login github                          # token — opens mint URL, prompts with no echo, writes to creds.sh
+userscripts creds login jira                            # token — alias resolution works on login too
 
-creds rotate slack                          # invokes $CREDS_HOME/slack/scripts/rotate.sh
+userscripts creds rotate slack                          # rotation logic in connectors/slack.py::rotate()
 ```
 
-Run `creds` with no subcommand on a TTY for an interactive textual TUI
+Run `userscripts creds` with no subcommand on a TTY for an interactive textual TUI
 (services table + login/validate/refresh actions + streaming log).
 Requires `textual`:
 
@@ -151,19 +148,16 @@ pipx install textual       # alternative
 pip install --user textual # last resort
 ```
 
-If `textual` isn't installed, `creds` falls back to the same table that
-`creds status` prints.
+If `textual` isn't installed, `userscripts creds` falls back to the same table that
+`userscripts creds status` prints.
 
-The legacy entrypoints stay for muscle memory and back-compat:
-`creds_validate`, `creds_login_google`, `creds_login_slack`.
-
-The guided `creds login <token-svc>` flow uses `getpass.getpass` — the
+The guided `userscripts creds login <token-svc>` flow uses `getpass.getpass` — the
 value is read with no echo and written directly to
 `$CREDS_HOME/<svc>/creds.sh` (0600). The value never enters
 stdout/stderr, never appears in the log file, and is not exposed to
 any agent reading the conversation.
 
-## Exit codes (`creds validate` and legacy `creds_validate`)
+## Exit codes (`userscripts creds validate`)
 
 | code | meaning                                                  |
 | ---- | -------------------------------------------------------- |
@@ -178,11 +172,10 @@ any agent reading the conversation.
 2. Edit `$CREDS_HOME/<svc>/creds.sh` and replace the value (the
    file is `0600`; the merger never overwrites you).
 3. `source ~/.zshenv` to reload (or open a new shell).
-4. For OAuth services, re-run `creds login <svc>` (or the legacy
-   `creds_login_<svc>` wrapper).
-5. `creds validate <svc>` to confirm green.
+4. For OAuth services, re-run `userscripts creds login <svc>`.
+5. `userscripts creds validate <svc>` to confirm green.
 
-For Slack app-config tokens specifically, `scripts/rotate.sh` performs
-the entire flow programmatically (uses the current refresh token to
-mint a fresh pair, then rewrites the two relevant lines in `creds.sh`
-without touching anything else).
+For Slack app-config tokens specifically, `userscripts creds rotate slack` performs
+the entire flow programmatically — the rotation logic lives in `connectors/slack.py::rotate()`.
+It uses the current refresh token to mint a fresh access/refresh pair and writes both back
+into `slack/creds.sh` without touching anything else.
