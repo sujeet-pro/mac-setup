@@ -11,6 +11,14 @@ homebrew_formulae:
   - git
   - git-filter-repo
 
+  # GNU userland (macOS catch-up — installed as g-prefixed: gls, gcp, gsed, ...)
+  - coreutils
+  - findutils
+  - gawk
+  - gnu-sed
+  - gnu-tar
+  - grep
+
   # Modern CLI replacements
   - bat
   - eza
