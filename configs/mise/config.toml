@@ -1,7 +1,7 @@
 [tools]
 bun = "latest"
 go = "latest"
-java = "temurin-17"
+java = "temurin-21"
 node = "lts"
 python = "3.12"
 uv = "latest"

@@ -4,77 +4,10 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
-    "allow": [
-      "Read",
-      "Glob",
-      "Grep",
-      "LS",
-      "NotebookRead",
-      "WebSearch",
-      "WebFetch",
-      "Edit",
-      "Write",
-      "MultiEdit",
-      "NotebookEdit",
-      "TodoWrite",
-      "Task",
-      "Bash",
-      "mcp__*"
-    ],
+    "allow": [],
     "deny": [],
-    "ask": [
-      "Bash(rm:*)",
-      "Bash(sudo:*)",
-      "Bash(git push:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push --force-with-lease:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean:*)",
-      "Bash(git rebase:*)",
-      "Bash(git restore:*)",
-      "Bash(git revert:*)",
-      "Bash(git checkout --:*)",
-      "Bash(git stash drop:*)",
-      "Bash(git branch -D:*)",
-      "Bash(git tag -d:*)",
-      "Bash(npm publish:*)",
-      "Bash(yarn publish:*)",
-      "Bash(pnpm publish:*)",
-      "Bash(pip uninstall:*)",
-      "Bash(brew uninstall:*)",
-      "Bash(brew cleanup:*)",
-      "Bash(docker system prune:*)",
-      "Bash(docker volume rm:*)",
-      "Bash(docker rmi:*)",
-      "Bash(kubectl delete:*)",
-      "Bash(kubectl apply:*)",
-      "Bash(helm uninstall:*)",
-      "Bash(helm upgrade:*)",
-      "Bash(terraform apply:*)",
-      "Bash(terraform destroy:*)",
-      "Bash(aws s3 rm:*)",
-      "Bash(aws s3 sync:*)",
-      "Bash(gcloud:* delete:*)",
-      "Bash(shutdown:*)",
-      "Bash(reboot:*)",
-      "Bash(mkfs:*)",
-      "Bash(dd:*)",
-      "Bash(chmod -R:*)",
-      "Bash(chown -R:*)",
-      "mcp__adk-mcp-statsig__Create_Dynamic_Config",
-      "mcp__adk-mcp-statsig__Create_Experiment",
-      "mcp__adk-mcp-statsig__Create_Gate",
-      "mcp__adk-mcp-statsig__Create_Layer",
-      "mcp__adk-mcp-statsig__Create_Segment",
-      "mcp__adk-mcp-statsig__Start_Experiment_Code_Cleanup",
-      "mcp__adk-mcp-statsig__Start_Gate_Code_Cleanup",
-      "mcp__adk-mcp-statsig__Update_Dynamic_Config_Entirely",
-      "mcp__adk-mcp-statsig__Update_Experiment_Entirely",
-      "mcp__adk-mcp-statsig__Update_Gate_Entirely",
-      "mcp__adk-mcp-statsig__Update_Layer_Entirely",
-      "mcp__adk-mcp-statsig__Update_Segment"
-    ],
-    "defaultMode": "default"
+    "ask": [],
+    "defaultMode": "bypassPermissions"
   },
   "hooks": {
     "PostToolUse": [
@@ -83,7 +16,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Lightweight post-write check.\n\nIf the edited file path matches `*/skills/<skill>/SKILL.md`:\n  - Verify the YAML frontmatter has `name:` and `description:` fields.\n  - Verify `name:` value equals the folder basename (segment after `skills/` and before `/SKILL.md`).\n  - On mismatch, return {\"ok\":false,\"reason\":\"...\"}; otherwise {\"ok\":true}.\n\nIf the edited file path is under `.temp/<task-slug>/`:\n  - Append the current ISO-8601 UTC timestamp to a file `.temp/<task-slug>/.last-modified` (create if missing) so monitor tools can detect activity.\n  - Return {\"ok\":true}.\n\nIf the edited file path is `~/.config/adk/overrides.yaml`:\n  - Run a regex check that no line contains a raw token-looking value (`/^[A-Z_]+\\s*:\\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?$/` outside the `${VAR}` interpolation pattern).\n  - On match, return {\"ok\":false,\"reason\":\"raw token detected \u2014 use ${ENV_VAR} instead\"}.\n\nOtherwise: {\"ok\":true}."
+            "prompt": "Lightweight post-write check.\n\nIf the edited file path matches `*/skills/<skill>/SKILL.md`:\n  - Verify the YAML frontmatter has `name:` and `description:` fields.\n  - Verify `name:` value equals the folder basename (segment after `skills/` and before `/SKILL.md`).\n  - On mismatch, return {\"ok\":false,\"reason\":\"...\"}; otherwise {\"ok\":true}.\n\nIf the edited file path is under `.temp/<task-slug>/`:\n  - Append the current ISO-8601 UTC timestamp to a file `.temp/<task-slug>/.last-modified` (create if missing) so monitor tools can detect activity.\n  - Return {\"ok\":true}.\n\nIf the edited file path is `~/.config/adk/overrides.yaml`:\n  - Run a regex check that no line contains a raw token-looking value (`/^[A-Z_]+\\s*:\\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?$/` outside the `${VAR}` interpolation pattern).\n  - On match, return {\"ok\":false,\"reason\":\"raw token detected — use ${ENV_VAR} instead\"}.\n\nOtherwise: {\"ok\":true}."
           }
         ]
       },
@@ -92,29 +25,28 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Lightweight post-write check.\n\nIf the edited file path matches `*/skills/<skill>/SKILL.md`:\n  - Verify the YAML frontmatter has `name:` and `description:` fields.\n  - Verify `name:` value equals the folder basename (segment after `skills/` and before `/SKILL.md`).\n  - On mismatch, return {\"ok\":false,\"reason\":\"...\"}; otherwise {\"ok\":true}.\n\nIf the edited file path is under `.temp/<task-slug>/`:\n  - Append the current ISO-8601 UTC timestamp to a file `.temp/<task-slug>/.last-modified` (create if missing) so monitor tools can detect activity.\n  - Return {\"ok\":true}.\n\nIf the edited file path is `~/.agents-devkit/config/core.yaml` or `~/.agents-devkit/config/connectors/*.md` (frontmatter section between the leading `---` lines) or `~/.agents-devkit/config/adk-cli.json5`:\n  - Run a regex check that no line contains a raw token-looking value (`/^[A-Z_]+\\s*:\\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?$/` outside the `${VAR}` interpolation pattern).\n  - On match, return {\"ok\":false,\"reason\":\"raw token detected \u2014 use ${ENV_VAR} instead\"}.\n\nOtherwise: {\"ok\":true}."
+            "prompt": "Lightweight post-write check.\n\nIf the edited file path matches `*/skills/<skill>/SKILL.md`:\n  - Verify the YAML frontmatter has `name:` and `description:` fields.\n  - Verify `name:` value equals the folder basename (segment after `skills/` and before `/SKILL.md`).\n  - On mismatch, return {\"ok\":false,\"reason\":\"...\"}; otherwise {\"ok\":true}.\n\nIf the edited file path is under `.temp/<task-slug>/`:\n  - Append the current ISO-8601 UTC timestamp to a file `.temp/<task-slug>/.last-modified` (create if missing) so monitor tools can detect activity.\n  - Return {\"ok\":true}.\n\nIf the edited file path is `~/.agents-devkit/config/core.yaml` or `~/.agents-devkit/config/connectors/*.md` (frontmatter section between the leading `---` lines) or `~/.agents-devkit/config/adk-cli.json5`:\n  - Run a regex check that no line contains a raw token-looking value (`/^[A-Z_]+\\s*:\\s*['\"]?[a-zA-Z0-9_-]{20,}['\"]?$/` outside the `${VAR}` interpolation pattern).\n  - On match, return {\"ok\":false,\"reason\":\"raw token detected — use ${ENV_VAR} instead\"}.\n\nOtherwise: {\"ok\":true}."
           }
-        ],
-        "_adk_managed": true
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"/Users/sujeet/personal/agents-devkit/hooks/banner.sh\""
-          }
-        ],
-        "_adk_managed": true
+        ]
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/sujeet/.claude/statusline-command.sh"
+  },
   "enabledPlugins": {
-    "adk@sujeet-pro-adk": true
+    "adk@sujeet-pro-adk": true,
+    "adk@agents-devkit": true
   },
   "extraKnownMarketplaces": {
     "sujeet-pro-adk": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/sujeet/personal/agents-devkit"
+      }
+    },
+    "agents-devkit": {
       "source": {
         "source": "directory",
         "path": "/Users/sujeet/personal/agents-devkit"
@@ -123,82 +55,5 @@
   },
   "autoUpdatesChannel": "latest",
   "skipDangerousModePermissionPrompt": true,
-  "agentPushNotifEnabled": true,
-  "statusLine": {
-    "type": "command",
-    "command": "bash /Users/sujeet/.claude/statusline-command.sh"
-  },
-  "_adkManagedPermissions": {
-    "allow": [
-      "Read",
-      "Glob",
-      "Grep",
-      "LS",
-      "NotebookRead",
-      "WebSearch",
-      "WebFetch",
-      "Edit",
-      "Write",
-      "MultiEdit",
-      "NotebookEdit",
-      "TodoWrite",
-      "Task",
-      "Bash",
-      "mcp__*"
-    ],
-    "ask": [
-      "Bash(rm:*)",
-      "Bash(sudo:*)",
-      "Bash(git push:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push --force-with-lease:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean:*)",
-      "Bash(git rebase:*)",
-      "Bash(git restore:*)",
-      "Bash(git revert:*)",
-      "Bash(git checkout --:*)",
-      "Bash(git stash drop:*)",
-      "Bash(git branch -D:*)",
-      "Bash(git tag -d:*)",
-      "Bash(npm publish:*)",
-      "Bash(yarn publish:*)",
-      "Bash(pnpm publish:*)",
-      "Bash(pip uninstall:*)",
-      "Bash(brew uninstall:*)",
-      "Bash(brew cleanup:*)",
-      "Bash(docker system prune:*)",
-      "Bash(docker volume rm:*)",
-      "Bash(docker rmi:*)",
-      "Bash(kubectl delete:*)",
-      "Bash(kubectl apply:*)",
-      "Bash(helm uninstall:*)",
-      "Bash(helm upgrade:*)",
-      "Bash(terraform apply:*)",
-      "Bash(terraform destroy:*)",
-      "Bash(aws s3 rm:*)",
-      "Bash(aws s3 sync:*)",
-      "Bash(gcloud:* delete:*)",
-      "Bash(shutdown:*)",
-      "Bash(reboot:*)",
-      "Bash(mkfs:*)",
-      "Bash(dd:*)",
-      "Bash(chmod -R:*)",
-      "Bash(chown -R:*)",
-      "mcp__adk-mcp-statsig__Create_Dynamic_Config",
-      "mcp__adk-mcp-statsig__Create_Experiment",
-      "mcp__adk-mcp-statsig__Create_Gate",
-      "mcp__adk-mcp-statsig__Create_Layer",
-      "mcp__adk-mcp-statsig__Create_Segment",
-      "mcp__adk-mcp-statsig__Start_Experiment_Code_Cleanup",
-      "mcp__adk-mcp-statsig__Start_Gate_Code_Cleanup",
-      "mcp__adk-mcp-statsig__Update_Dynamic_Config_Entirely",
-      "mcp__adk-mcp-statsig__Update_Experiment_Entirely",
-      "mcp__adk-mcp-statsig__Update_Gate_Entirely",
-      "mcp__adk-mcp-statsig__Update_Layer_Entirely",
-      "mcp__adk-mcp-statsig__Update_Segment"
-    ],
-    "deny": [],
-    "defaultMode__previous": "bypassPermissions"
-  }
+  "agentPushNotifEnabled": true
 }
