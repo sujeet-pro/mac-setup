@@ -1,4 +1,0 @@
-# Colima default profile
-# Keep Docker as the runtime and auto-switch docker context on startup.
-runtime: docker
-autoActivate: true

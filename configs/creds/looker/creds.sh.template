@@ -1,7 +1,0 @@
-export LOOKER_BASE_URL=https://your-looker-host
-export LOOKER_TIMEOUT=120
-export LOOKER_VERIFY_SSL=true
-
-# Mint API3 keys in Looker → Admin → Users → <you> → Edit Keys
-export LOOKER_CLIENT_ID_CRED=PLACEHOLDER_FILL_ME
-export LOOKER_CLIENT_SECRET_CRED=PLACEHOLDER_FILL_ME

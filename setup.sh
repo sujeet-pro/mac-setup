@@ -1,273 +1,191 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# =============================================================================
+# setup.sh — Personal Home Mac Setup & Configuration Manager
+#
+# Prerequisites (see MANUAL-SETUP.md):
+#   1. Xcode Command Line Tools (xcode-select --install)
+#   2. Homebrew (/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)")
+#
+# Usage:
+#   ./setup.sh                    # Full setup (Brewfile, Junie CLI, dotfiles, mise, macOS defaults)
+#   ./setup.sh --link             # Symlink dotfiles into $HOME only
+#   ./setup.sh --macos-defaults   # Apply macOS system defaults only
+#   ./setup.sh --validate         # Run system validation checks
+#   ./setup.sh --dump             # Dump installed brew packages to Brewfile.local
+#   ./setup.sh --no-brew          # Skip Homebrew bundle installation
+#   ./setup.sh --dry-run          # Preview actions without executing
+# =============================================================================
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CLEANUP_ONLY=false
+set -euo pipefail
 
-# Parse flags
-for arg in "$@"; do
-  case "$arg" in
-    --cleanup) CLEANUP_ONLY=true ;;
-    --help|-h)
-      echo "Usage: ./setup.sh [--cleanup]"
-      echo ""
-      echo "  (no args)   Full setup: bootstrap + install + configure + cleanup check"
-      echo "  --cleanup   Only run the cleanup check (detect unmanaged packages)"
-      exit 0
-      ;;
-  esac
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MODE="full"
+DRY_RUN=false
+NO_BREW=false
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --link|link)
+            MODE="link"
+            shift
+            ;;
+        --macos-defaults|macos-defaults)
+            MODE="macos-defaults"
+            shift
+            ;;
+        --validate|--doctor|validate|doctor)
+            MODE="validate"
+            shift
+            ;;
+        --dump|dump)
+            MODE="dump"
+            shift
+            ;;
+        --no-brew)
+            NO_BREW=true
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: ./setup.sh [--link] [--macos-defaults] [--validate] [--dump] [--no-brew] [--dry-run]"
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument: $1" >&2
+            echo "Run ./setup.sh --help for usage." >&2
+            exit 1
+            ;;
+    esac
 done
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-BOLD='\033[1m'
-NC='\033[0m'
+echo "=============================================="
+echo " macOS Personal Setup — Mode: [$MODE]"
+echo "=============================================="
 
-# ──────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────
+# Helper invocation options
+DRY_ARG=""
+if [[ "$DRY_RUN" = true ]]; then
+    DRY_ARG="--dry-run"
+fi
 
-# Extract YAML list items from a vars file between a start marker and the next
-# top-level key. Usage: parse_yaml_list <file> <list_name>
-parse_yaml_list() {
-  local file="$1" key="$2"
-  awk -v key="${key}:" '
-    $0 ~ "^"key { found=1; next }
-    found && /^[a-zA-Z_]/ { exit }
-    found && /^  - / { sub(/^  - /, ""); sub(/[[:space:]]*#.*$/, ""); if ($0 != "") print }
-  ' "$file"
-}
+# Mode: Validate only
+if [[ "$MODE" == "validate" ]]; then
+    bash "$SCRIPT_DIR/scripts/validate.sh"
+    exit 0
+fi
 
-# Append an item to a YAML list in a vars file.
-# Usage: add_to_yaml_list <file> <list_name> <item>
-add_to_yaml_list() {
-  local file="$1" key="$2" item="$3"
-  awk -v key="${key}:" -v item="  - ${item}" '
-    $0 ~ "^"key { found=1; print; next }
-    found && /^[a-zA-Z_]/ { print item; found=0 }
-    found && /^$/ { print item; found=0 }
-    { print }
-    END { if (found) print item }
-  ' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
-}
+# Mode: Dump only
+if [[ "$MODE" == "dump" ]]; then
+    echo "Dumping installed Homebrew packages to Brewfile.local..."
+    if [[ "$DRY_RUN" = true ]]; then
+        echo "[Dry-Run] brew bundle dump --file='$SCRIPT_DIR/Brewfile.local' --force"
+    else
+        brew bundle dump --file="$SCRIPT_DIR/Brewfile.local" --force
+        echo "✓ Exported to $SCRIPT_DIR/Brewfile.local"
+    fi
+    exit 0
+fi
 
-if [ "$CLEANUP_ONLY" = false ]; then
+# Mode: Link dotfiles only
+if [[ "$MODE" == "link" ]]; then
+    bash "$SCRIPT_DIR/scripts/helpers/link-dotfiles.sh" $DRY_ARG
+    bash "$SCRIPT_DIR/scripts/helpers/setup-zshenv.sh" $DRY_ARG
+    exit 0
+fi
 
-# ──────────────────────────────────────────────
-# Bootstrap
-# ──────────────────────────────────────────────
+# Mode: macOS defaults only
+if [[ "$MODE" == "macos-defaults" ]]; then
+    bash "$SCRIPT_DIR/scripts/helpers/macos-defaults.sh" $DRY_ARG
+    exit 0
+fi
 
-echo ""
-echo "=========================================="
-echo "  Mac Setup"
-echo "=========================================="
-echo ""
-
-# 1. Xcode CLI tools
+# Verify manual prerequisites before running full setup
 if ! xcode-select -p &>/dev/null; then
-  echo -e "${YELLOW}Installing Xcode Command Line Tools...${NC}"
-  xcode-select --install
-  echo "Please wait for Xcode CLI tools to finish installing, then re-run this script."
-  exit 1
-else
-  echo -e "${GREEN}✓ Xcode CLI tools installed${NC}"
+    echo "Error: Xcode Command Line Tools are not installed." >&2
+    echo "Run: xcode-select --install (see MANUAL-SETUP.md)" >&2
+    exit 1
 fi
 
-# 2. Homebrew
-if ! command -v brew &>/dev/null; then
-  echo -e "${YELLOW}Installing Homebrew...${NC}"
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-else
-  echo -e "${GREEN}✓ Homebrew installed${NC}"
+if [[ "$NO_BREW" = false ]] && ! command -v brew &>/dev/null; then
+    echo "Error: Homebrew is not installed or not in PATH." >&2
+    echo "See MANUAL-SETUP.md for Homebrew installation instructions." >&2
+    exit 1
 fi
 
-# 3. Ansible
-if ! command -v ansible-playbook &>/dev/null; then
-  echo -e "${YELLOW}Installing Ansible...${NC}"
-  brew install ansible
-else
-  echo -e "${GREEN}✓ Ansible installed${NC}"
+# Full Setup Mode:
+# 1. Install Homebrew Packages
+if [[ "$NO_BREW" = false ]]; then
+    echo ""
+    echo "1. Installing Homebrew Packages..."
+
+    install_bundle() {
+        local file="$1"
+        if [[ -f "$file" ]]; then
+            echo "  Applying $file..."
+            if [[ "$DRY_RUN" = true ]]; then
+                echo "  [Dry-Run] brew bundle --file='$file'"
+            else
+                brew bundle --file="$file" || true
+            fi
+        fi
+    }
+
+    install_bundle "$SCRIPT_DIR/Brewfile"
+
+    # Machine-local additions if present
+    if [[ -f "$SCRIPT_DIR/Brewfile.local" ]]; then
+        echo "  Applying machine-local Brewfile.local..."
+        install_bundle "$SCRIPT_DIR/Brewfile.local"
+    fi
 fi
 
-# 3b. Ansible community.general collection (provides homebrew, osx_defaults modules)
-if ! ansible-galaxy collection list 2>/dev/null | grep -q community.general; then
-  echo -e "${YELLOW}Installing Ansible community.general collection...${NC}"
-  ansible-galaxy collection install community.general
-else
-  echo -e "${GREEN}✓ Ansible community.general collection installed${NC}"
-fi
-
-# 4. ~/.zshenv
-if [ ! -f "$HOME/.zshenv" ]; then
-  echo -e "${YELLOW}Creating ~/.zshenv from example template...${NC}"
-  cp "$SCRIPT_DIR/configs/shell/.zshenv.example" "$HOME/.zshenv"
-  echo ""
-  echo -e "${RED}ACTION REQUIRED:${NC}"
-  echo "  Edit ~/.zshenv and fill in your personal values (name, email, SSH keys, etc.)"
-  echo "  Then re-run this script."
-  echo ""
-  echo "  vim ~/.zshenv"
-  exit 1
-else
-  echo -e "${GREEN}✓ ~/.zshenv exists${NC}"
-fi
-
-# 5. Source .zshenv
-echo "Sourcing ~/.zshenv..."
-source "$HOME/.zshenv"
-
-# Verify required vars
-MISSING_VARS=()
-for var in GIT_USER_NAME GIT_ORGS SSH_KEY; do
-  if [ -z "${!var:-}" ]; then
-    MISSING_VARS+=("$var")
-  fi
-done
-
-if [ ${#MISSING_VARS[@]} -gt 0 ]; then
-  echo -e "${RED}Error: The following required variables are not set in ~/.zshenv:${NC}"
-  for var in "${MISSING_VARS[@]}"; do
-    echo -e "  ${RED}-${NC} $var"
-  done
-  echo ""
-  echo "Please edit ~/.zshenv and fill in your values, then re-run this script."
-  echo "  vim ~/.zshenv"
-  exit 1
-fi
-
-echo -e "${GREEN}✓ Environment variables loaded${NC}"
+# 2. Install Junie CLI
 echo ""
+echo "2. Installing Junie CLI..."
+if command -v junie &>/dev/null; then
+    echo "  ✓ Junie CLI already installed: $(command -v junie)"
+elif [[ "$DRY_RUN" = true ]]; then
+    echo "  [Dry-Run] curl -fsSL https://junie.jetbrains.com/install.sh | bash"
+else
+    curl -fsSL https://junie.jetbrains.com/install.sh | bash
+fi
 
-# ──────────────────────────────────────────────
-# Run Ansible playbook (install + configure)
-# ──────────────────────────────────────────────
-
-echo "Running Ansible playbook..."
+# 3. Link Dotfiles & Configurations
 echo ""
-cd "$SCRIPT_DIR"
-ansible-playbook setup.yml --ask-become-pass
+echo "3. Linking Dotfiles & App Configurations..."
+bash "$SCRIPT_DIR/scripts/helpers/link-dotfiles.sh" $DRY_ARG
 
-fi # end CLEANUP_ONLY check
+# 4. Configure ~/.zshenv
+echo ""
+echo "4. Configuring Environment..."
+bash "$SCRIPT_DIR/scripts/helpers/setup-zshenv.sh" $DRY_ARG
 
-# ──────────────────────────────────────────────
-# Cleanup: detect unmanaged packages
-# ──────────────────────────────────────────────
+# 5. Install Language Runtimes (mise)
+echo ""
+echo "5. Installing Language Runtimes (mise)..."
+if command -v mise &>/dev/null; then
+    if [[ "$DRY_RUN" = true ]]; then
+        echo "  [Dry-Run] mise install"
+    else
+        mise install
+    fi
+else
+    echo "  ⚠ mise not found; skipping runtime installation."
+fi
+
+# 6. Apply macOS System Defaults
+echo ""
+echo "6. Applying macOS System Defaults..."
+bash "$SCRIPT_DIR/scripts/helpers/macos-defaults.sh" $DRY_ARG
 
 echo ""
-echo "=========================================="
-echo "  Cleanup Check"
-echo "=========================================="
-echo ""
-
-HOMEBREW_VARS="$SCRIPT_DIR/roles/homebrew/vars/main.yml"
-APPS_VARS="$SCRIPT_DIR/roles/apps/vars/main.yml"
-UNMANAGED_FOUND=false
-
-# Generic review function for unmanaged items.
-# Usage: review_unmanaged <label> <yaml_file> <yaml_key> <uninstall_cmd> <items...>
-#   label:         Display name (e.g. "Homebrew formulae")
-#   yaml_file:     Path to the vars YAML file
-#   yaml_key:      YAML list key to add to (e.g. "homebrew_formulae")
-#   uninstall_cmd: Command prefix to remove an item (e.g. "brew uninstall")
-#   items:         Newline-separated list of unmanaged items
-review_unmanaged() {
-  local label="$1" yaml_file="$2" yaml_key="$3" uninstall_cmd="$4" items="$5"
-
-  local count
-  count=$(echo "$items" | wc -l | tr -d ' ')
-  echo -e "${YELLOW}Found $count $label not tracked by mac-setup:${NC}"
-  echo "$items" | while read -r item; do
-    echo -e "  ${BLUE}-${NC} $item"
-  done
-  echo ""
-  echo -e "${BOLD}What would you like to do?${NC}"
-  echo "  [a] Add all to mac-setup config ($yaml_key)"
-  echo "  [r] Remove all from system"
-  echo "  [i] Review individually"
-  echo "  [s] Skip"
-  read -r -p "> " choice </dev/tty
-  case "$choice" in
-    a|A)
-      while IFS= read -r item; do
-        add_to_yaml_list "$yaml_file" "$yaml_key" "$item"
-      done <<< "$items"
-      echo -e "${GREEN}Added to $yaml_file — commit when ready.${NC}"
-      ;;
-    r|R)
-      while IFS= read -r item; do
-        echo -e "  Removing ${RED}$item${NC}..."
-        $uninstall_cmd "$item" 2>/dev/null || true
-      done <<< "$items"
-      ;;
-    i|I)
-      while IFS= read -r item; do
-        echo ""
-        echo -e "  ${BLUE}$item${NC}"
-        echo "    [a] Add to mac-setup  [r] Remove  [s] Skip"
-        read -r -p "    > " action </dev/tty
-        case "$action" in
-          a|A)
-            add_to_yaml_list "$yaml_file" "$yaml_key" "$item"
-            echo -e "    ${GREEN}Added to config${NC}"
-            ;;
-          r|R)
-            $uninstall_cmd "$item" 2>/dev/null || true
-            echo -e "    ${RED}Removed${NC}"
-            ;;
-          *) echo "    Skipped" ;;
-        esac
-      done <<< "$items"
-      ;;
-    *) echo "Skipped." ;;
-  esac
-  echo ""
-}
-
-# --- Homebrew formulae ---
-# Use `brew leaves` to get only explicitly installed formulae (not deps).
-CONFIGURED_FORMULAE=$(parse_yaml_list "$HOMEBREW_VARS" "homebrew_formulae" | sort)
-INSTALLED_FORMULAE=$(brew leaves 2>/dev/null | sort)
-
-UNMANAGED_FORMULAE=$(comm -23 <(echo "$INSTALLED_FORMULAE") <(echo "$CONFIGURED_FORMULAE"))
-
-if [ -n "$UNMANAGED_FORMULAE" ]; then
-  UNMANAGED_FOUND=true
-  review_unmanaged "Homebrew formulae" "$HOMEBREW_VARS" "homebrew_formulae" "brew uninstall" "$UNMANAGED_FORMULAE"
-fi
-
-# --- Homebrew casks ---
-CONFIGURED_CASKS=$(parse_yaml_list "$HOMEBREW_VARS" "homebrew_casks" | sort)
-INSTALLED_CASKS=$(brew list --cask 2>/dev/null | sort)
-
-UNMANAGED_CASKS=$(comm -23 <(echo "$INSTALLED_CASKS") <(echo "$CONFIGURED_CASKS"))
-
-if [ -n "$UNMANAGED_CASKS" ]; then
-  UNMANAGED_FOUND=true
-  review_unmanaged "Homebrew casks" "$HOMEBREW_VARS" "homebrew_casks" "brew uninstall --cask" "$UNMANAGED_CASKS"
-fi
-
-# --- VS Code extensions ---
-if command -v code &>/dev/null; then
-  CONFIGURED_EXTENSIONS=$(parse_yaml_list "$APPS_VARS" "vscode_extensions" | tr '[:upper:]' '[:lower:]' | sort)
-  INSTALLED_EXTENSIONS=$(code --list-extensions 2>/dev/null | tr '[:upper:]' '[:lower:]' | sort)
-
-  UNMANAGED_EXTENSIONS=$(comm -23 <(echo "$INSTALLED_EXTENSIONS") <(echo "$CONFIGURED_EXTENSIONS"))
-
-  if [ -n "$UNMANAGED_EXTENSIONS" ]; then
-    UNMANAGED_FOUND=true
-    review_unmanaged "VS Code extensions" "$APPS_VARS" "vscode_extensions" "code --uninstall-extension" "$UNMANAGED_EXTENSIONS"
-  fi
-fi
-
-if [ "$UNMANAGED_FOUND" = false ]; then
-  echo -e "${GREEN}✓ All installed packages are tracked by mac-setup${NC}"
-fi
-
-echo ""
-echo "=========================================="
-echo -e "  ${GREEN}Done!${NC} Restart your terminal or run: source ~/.zshrc"
-echo "=========================================="
+echo "=============================================="
+echo " Setup Complete!"
+echo " Next steps:"
+echo "   1. Restart terminal or run: source ~/.zshrc"
+echo "   2. Follow MANUAL-SETUP.md for NordVPN, Warp, JetBrains Toolbox & macOS system commands"
+echo "=============================================="

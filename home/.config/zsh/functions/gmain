@@ -1,0 +1,7 @@
+# gmain - Switch to default main or master branch
+gmain() {
+  local main_branch
+  main_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+  main_branch="${main_branch:-main}"
+  git checkout "$main_branch" && git pull --rebase
+}

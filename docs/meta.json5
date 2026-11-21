@@ -1,5 +1,0 @@
-{
-  displayName: 'Mac Setup',
-  orderBy: 'manual',
-  items: ['guide', 'tools', 'shell', 'reference'],
-}

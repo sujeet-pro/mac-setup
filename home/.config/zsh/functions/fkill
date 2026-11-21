@@ -1,0 +1,8 @@
+# fkill - Fuzzy process killer
+fkill() {
+  local pid
+  pid=$(ps -ef | sed 1d | fzf -m --header='[fkill] Select process to kill (Tab for multi-select)' | awk '{print $2}')
+  if [ -n "$pid" ]; then
+    echo "$pid" | xargs kill -${1:-9}
+  fi
+}

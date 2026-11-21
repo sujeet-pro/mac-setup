@@ -1,0 +1,6 @@
+# fcd - Interactive fuzzy directory jump with tree preview
+fcd() {
+  local dir
+  dir=$(fd --type d --hidden --exclude .git --exclude node_modules 2>/dev/null | fzf --height 50% --reverse --preview 'tree -C -L 2 {} | head -50') || return
+  cd "$dir" || return
+}

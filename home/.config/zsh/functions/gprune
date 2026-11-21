@@ -1,0 +1,7 @@
+# gprune - Delete local branches that have been merged into main/master
+gprune() {
+  local main_branch
+  main_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@')
+  main_branch="${main_branch:-main}"
+  git branch --merged "$main_branch" | grep -v "^\*" | grep -v "$main_branch" | xargs -n 1 git branch -d
+}

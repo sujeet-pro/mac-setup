@@ -1,281 +1,105 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# validate.sh — Validates mac-setup environment, tools, and symlinks
+set -euo pipefail
 
-# Mac Setup Validation Script
-# Checks that all tools are installed, configs are in place, and env vars are set.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-set -u
+echo "=== mac-setup System Validation ==="
+errors=0
+warnings=0
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-PASS=0
-FAIL=0
-WARN=0
-
-pass() {
-  echo -e "  ${GREEN}✓${NC} $1"
-  ((PASS++))
-}
-
-fail() {
-  echo -e "  ${RED}✗${NC} $1"
-  ((FAIL++))
-}
-
-warn() {
-  echo -e "  ${YELLOW}!${NC} $1"
-  ((WARN++))
-}
-
-check_command() {
-  if command -v "$1" &>/dev/null; then
-    pass "$1"
-  else
-    fail "$1 — not found"
-  fi
-}
-
-check_file() {
-  if [ -e "$1" ]; then
-    pass "$2"
-  else
-    fail "$2 — $1 missing"
-  fi
+check_cmd() {
+    local cmd="$1"
+    local required="${2:-true}"
+    if command -v "$cmd" &>/dev/null; then
+        echo "  ✓ $cmd found: $(which "$cmd")"
+    else
+        if [[ "$required" == "true" ]]; then
+            echo "  ✗ $cmd NOT found (required)"
+            errors=$((errors + 1))
+        else
+            echo "  ⚠ $cmd NOT found (optional)"
+            warnings=$((warnings + 1))
+        fi
+    fi
 }
 
 check_symlink() {
-  if [ -L "$1" ]; then
-    pass "$2 (symlink)"
-  elif [ -e "$1" ]; then
-    warn "$2 — exists but not a symlink"
-  else
-    fail "$2 — $1 missing"
-  fi
-}
-
-check_env() {
-  local val="${!1:-}"
-  if [ -n "$val" ]; then
-    pass "$1 is set"
-  else
-    fail "$1 is not set"
-  fi
-}
-
-echo ""
-echo "=========================================="
-echo "  Mac Setup Validation"
-echo "=========================================="
-
-# --- Homebrew formulae ---
-echo ""
-echo "Homebrew CLI tools:"
-for cmd in ansible atuin aws bat btop colima delta difft docker eza fzf gh hurl jq kubectl helm lazygit mise rg shellcheck starship tldr yq zoxide; do
-  check_command "$cmd"
-done
-
-# --- mise runtimes ---
-echo ""
-echo "mise runtime SDKs:"
-check_mise_tool() {
-  if mise which "$1" &>/dev/null; then
-    pass "mise $1"
-  else
-    fail "mise $1 — not installed"
-  fi
-}
-
-for tool in node bun yarn python uv java; do
-  check_mise_tool "$tool"
-done
-
-# --- npm global packages ---
-echo ""
-echo "npm global packages:"
-for pkg in mmdc excalidraw-cli; do
-  if mise exec -- which "$pkg" &>/dev/null; then
-    pass "$pkg"
-  else
-    fail "$pkg — not installed (npm install -g)"
-  fi
-done
-
-# --- Homebrew casks (check apps exist) ---
-echo ""
-echo "Homebrew casks (applications):"
-for app in "Cursor" "Visual Studio Code" "IntelliJ IDEA" "Zed" "Claude" "cmux" "Ghostty" "Bruno" "zoom.us" "Raycast" "Google Chrome" "Firefox" "Notion" "Slack" "WhatsApp"; do
-  if [ -d "/Applications/${app}.app" ]; then
-    pass "$app"
-  else
-    warn "$app — not in /Applications"
-  fi
-done
-
-# --- Config files ---
-echo ""
-echo "Config files:"
-check_symlink "$HOME/.zshrc" ".zshrc"
-check_symlink "$HOME/.config/starship.toml" "starship.toml"
-check_symlink "$HOME/.config/mise/config.toml" "mise/config.toml"
-check_file "$HOME/.gitconfig" ".gitconfig"
-check_file "$HOME/.config/git-configs/personal.gitconfig" "git-configs/personal.gitconfig"
-check_file "$HOME/.config/git-configs/work.gitconfig" "git-configs/work.gitconfig"
-check_file "$HOME/.ssh/config" ".ssh/config"
-check_file "$HOME/.ssh/config.local" ".ssh/config.local"
-check_symlink "$HOME/.aws/config" ".aws/config"
-check_symlink "$HOME/.config/gh/config.yml" "gh/config.yml"
-check_symlink "$HOME/.config/zed/settings.json" "zed/settings.json"
-check_symlink "$HOME/.colima/default.yaml" ".colima/default.yaml"
-check_symlink "$HOME/.config/ghostty/config" "ghostty/config"
-check_symlink "$HOME/.config/btop/btop.conf" "btop/btop.conf"
-check_symlink "$HOME/.claude/settings.json" "claude/settings.json"
-check_file "$HOME/.config/raycast/script-commands" "raycast/script-commands"
-check_file "$HOME/.gitignore-work" ".gitignore-work"
-
-# --- VS Code ---
-echo ""
-echo "VS Code:"
-VSCODE_DIR="$HOME/Library/Application Support/Code/User"
-check_symlink "$VSCODE_DIR/settings.json" "VS Code settings.json"
-
-# --- Credentials system ($CREDS_HOME) ---
-echo ""
-echo "Credentials system:"
-_creds_home="${CREDS_HOME:-}"
-if [ -z "$_creds_home" ]; then
-  fail "CREDS_HOME not set — creds checks skipped"
-else
-  check_file "$_creds_home" "\$CREDS_HOME dir"
-  check_symlink "$HOME/.local/bin/userscripts" "~/.local/bin/userscripts"
-  if command -v userscripts &>/dev/null; then
-    if userscripts creds validate --list &>/dev/null; then
-      pass "userscripts creds validate --list"
+    local target="$1"
+    local label="$2"
+    if [[ -L "$target" ]]; then
+        local dest
+        dest="$(readlink "$target")"
+        if [[ -e "$target" ]]; then
+            echo "  ✓ $label symlinked -> $dest"
+        else
+            echo "  ✗ $label broken symlink -> $dest"
+            errors=$((errors + 1))
+        fi
+    elif [[ -e "$target" ]]; then
+        echo "  ⚠ $label exists but is not a symlink"
+        warnings=$((warnings + 1))
     else
-      warn "userscripts creds validate --list — non-zero exit (connectors may not be configured yet)"
+        echo "  ✗ $label is missing"
+        errors=$((errors + 1))
     fi
-  else
-    fail "userscripts — not found in PATH"
-  fi
-
-  # Single-file layout: every <svc>/creds.sh must be 0600.
-  for _csh in "$_creds_home"/*/creds.sh; do
-    [ -f "$_csh" ] || continue
-    _mode=$(stat -f '%Lp' "$_csh" 2>/dev/null)
-    _svc="$(basename "$(dirname "$_csh")")"
-    if [ "$_mode" = "600" ]; then
-      pass "creds/$_svc/creds.sh mode=0600"
-    else
-      fail "creds/$_svc/creds.sh mode=$_mode (expected 0600)"
-    fi
-  done
-  for _stale in "$_creds_home"/*/config.sh; do
-    [ -f "$_stale" ] || continue
-    _svc="$(basename "$(dirname "$_stale")")"
-    fail "creds/$_svc/config.sh still present — merge into creds.sh"
-  done
-  unset _csh _stale _mode _svc
-fi
-unset _creds_home
-
-# --- Env vars ---
-echo ""
-echo "Environment variables:"
-check_env GIT_USER_NAME
-check_env GIT_PERSONAL_EMAIL
-check_env SSH_PERSONAL_KEY
-check_env CREDS_HOME
-check_env ADK_CONFIG_HOME
-check_env ADK_DATA_HOME
-check_env ADK_MEMORY_HOME
-check_env SSH_KEYS_HOME
-check_env MAC_SETUP_HOME
-check_env ADK_REPO_HOME
-
-# --- Git config resolution ---
-echo ""
-echo "Git config resolution:"
-RESOLVED_NAME=$(git config --global user.name 2>/dev/null || echo "")
-if [ -n "$RESOLVED_NAME" ]; then
-  pass "git user.name = $RESOLVED_NAME"
-else
-  fail "git user.name not set"
-fi
-
-# --- Directories ---
-echo ""
-echo "Directories:"
-check_file "$HOME/personal" "~/personal"
-
-# Check each org's mapped folder (from GIT_ORGS).
-if [ -n "${GIT_ORGS:-}" ]; then
-  IFS=',' read -ra _ORGS <<< "$GIT_ORGS"
-  for entry in "${_ORGS[@]}"; do
-    IFS=':' read -r _name _folder _email <<< "$entry"
-    _folder=$(echo "$_folder" | xargs)
-    [ -z "$_folder" ] && continue
-    expanded_dir="${_folder/#\~/$HOME}"
-    if [ -d "$expanded_dir" ]; then
-      pass "$_folder (org: $(echo "$_name" | xargs))"
-    else
-      warn "$_folder — folder for org '$(echo "$_name" | xargs)' does not exist yet"
-    fi
-  done
-fi
-
-# --- Docker runtime ---
-echo ""
-echo "Docker runtime:"
-DOCKER_CONTEXT=$(docker context show 2>/dev/null || echo "__unknown__")
-if [ "$DOCKER_CONTEXT" = "colima" ]; then
-  pass "docker context = colima"
-else
-  warn "docker context is $DOCKER_CONTEXT (expected colima)"
-fi
-
-# --- Font check ---
-echo ""
-echo "Fonts:"
-if [ -f "$HOME/Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf" ] || \
-   fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font"; then
-  pass "JetBrainsMono Nerd Font installed"
-else
-  warn "JetBrainsMono Nerd Font — not detected"
-fi
-
-# --- macOS defaults ---
-echo ""
-echo "macOS defaults:"
-
-check_default() {
-  local domain="$1" key="$2" expected="$3" label="$4"
-  local actual
-  actual=$(defaults read "$domain" "$key" 2>/dev/null || echo "__unset__")
-  if [ "$actual" = "$expected" ]; then
-    pass "$label = $expected"
-  else
-    warn "$label — expected $expected, got $actual"
-  fi
 }
 
-check_default com.apple.screencapture location "$HOME/screen-captures" "Screenshot location"
-check_default com.apple.dock autohide 1 "Dock autohide"
-check_default com.apple.dock tilesize 36 "Dock tile size"
-check_default com.apple.dock show-recents 0 "Dock show-recents"
-check_default com.apple.finder AppleShowAllFiles 1 "Finder show hidden files"
-check_default NSGlobalDomain KeyRepeat 2 "KeyRepeat"
-check_default NSGlobalDomain InitialKeyRepeat 15 "InitialKeyRepeat"
-check_default com.apple.desktopservices DSDontWriteNetworkStores 1 "No .DS_Store on network"
-check_default com.apple.desktopservices DSDontWriteUSBStores 1 "No .DS_Store on USB"
-
-# --- Summary ---
 echo ""
-echo "=========================================="
-TOTAL=$((PASS + FAIL + WARN))
-echo -e "  ${GREEN}${PASS} passed${NC}  ${RED}${FAIL} failed${NC}  ${YELLOW}${WARN} warnings${NC}  (${TOTAL} total)"
-echo "=========================================="
+echo "1. Checking Core Commands..."
+check_cmd brew true
+check_cmd git true
+check_cmd zsh true
+check_cmd mise true
+check_cmd starship true
+check_cmd rg true
+check_cmd fd true
+check_cmd bat true
+check_cmd eza true
+check_cmd delta true
+check_cmd gh true
+check_cmd jq true
+check_cmd zoxide true
+check_cmd atuin false
+check_cmd junie false
+check_cmd zed false
+check_cmd docker false
 
-if [ "$FAIL" -gt 0 ]; then
-  exit 1
+echo ""
+echo "2. Checking Dotfile Symlinks..."
+check_symlink "${HOME}/.zshrc" "~/.zshrc"
+check_symlink "${HOME}/.zprofile" "~/.zprofile"
+check_symlink "${HOME}/.gitconfig" "~/.gitconfig"
+check_symlink "${HOME}/.config/starship.toml" "~/.config/starship.toml"
+check_symlink "${HOME}/.config/mise/config.toml" "~/.config/mise/config.toml"
+check_symlink "${HOME}/.config/zed/settings.json" "~/.config/zed/settings.json"
+check_symlink "${HOME}/.config/zsh/zshenv.zsh" "~/.config/zsh/zshenv.zsh"
+check_symlink "${HOME}/.config/zsh/aliases.zsh" "~/.config/zsh/aliases.zsh"
+
+echo ""
+echo "3. Checking ~/.zshenv..."
+if [[ -f "${HOME}/.zshenv" ]]; then
+    if grep -q "zshenv.zsh" "${HOME}/.zshenv"; then
+        echo "  ✓ ~/.zshenv correctly loads ~/.config/zsh/zshenv.zsh"
+    else
+        echo "  ⚠ ~/.zshenv does not source ~/.config/zsh/zshenv.zsh"
+        warnings=$((warnings + 1))
+    fi
+else
+    echo "  ✗ ~/.zshenv missing"
+    errors=$((errors + 1))
+fi
+
+echo ""
+echo "=== Validation Summary ==="
+echo "Errors:   $errors"
+echo "Warnings: $warnings"
+
+if [[ $errors -eq 0 ]]; then
+    echo "🎉 System is healthy and well-configured!"
+    exit 0
+else
+    echo "❌ Issues found. Please review the errors above."
+    exit 1
 fi

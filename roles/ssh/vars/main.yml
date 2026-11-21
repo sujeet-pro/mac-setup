@@ -1,4 +1,0 @@
----
-# Single SSH key for the whole machine. Override the filename via $SSH_KEY in
-# ~/.zshenv if your key is named differently.
-ssh_key: "{{ lookup('env', 'SSH_KEY') | default('id_ed25519', true) }}"

@@ -1,6 +1,0 @@
----
-# Global npm packages installed via mise-managed Node (LTS)
-npm_global_packages:
-  - diagramkit
-  - excalidraw-cli
-  - vite-plus

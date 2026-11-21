@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_URL="${MAC_SETUP_REPO_URL:-https://github.com/sujeet-pro/mac-setup.git}"
-DEST_DIR="${MAC_SETUP_DEST_DIR:-$HOME/personal/mac-setup}"
+DEST_DIR="${MAC_SETUP_DEST_DIR:-$HOME/workspace/mac-setup}"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'

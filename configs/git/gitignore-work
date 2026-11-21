@@ -1,4 +1,0 @@
-# mise - personal runtime manager, not shared with team repos
-.mise.toml
-.mise.local.toml
-.mise/

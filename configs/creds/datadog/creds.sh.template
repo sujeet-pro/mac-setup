@@ -1,9 +1,0 @@
-export DATADOG_API_KEY_ID=PLACEHOLDER_FILL_ME
-export DATADOG_APP_KEY_ID=PLACEHOLDER_FILL_ME
-export DATADOG_MCP_URL=https://mcp.datadoghq.com/api/unstable/mcp-server/mcp
-export DATADOG_SITE=datadoghq.com
-
-# Mint API key: https://app.datadoghq.com/organization-settings/api-keys
-# Mint App key: https://app.datadoghq.com/organization-settings/application-keys
-export DATADOG_API_KEY_CRED=PLACEHOLDER_FILL_ME
-export DATADOG_APP_KEY_CRED=PLACEHOLDER_FILL_ME

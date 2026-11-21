@@ -1,6 +1,0 @@
-{
-  displayName: 'Reference',
-  description: 'Detailed reference for system defaults, Ansible roles, and testing.',
-  orderBy: 'manual',
-  items: ['macos-defaults', 'ansible-roles', 'manual-setup', 'testing'],
-}

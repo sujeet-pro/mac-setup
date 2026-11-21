@@ -1,0 +1,39 @@
+[user]
+    name = Sujeet
+    # Email is typically configured locally or in ~/.gitconfig.local
+
+[init]
+    defaultBranch = main
+
+[core]
+    excludesfile = ~/.config/git/ignore
+    editor = zed --wait || vim
+    pager = delta
+    autocrlf = input
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    side-by-side = true
+    line-numbers = true
+
+[pull]
+    rebase = true
+
+[push]
+    autoSetupRemote = true
+    default = simple
+
+[fetch]
+    prune = true
+
+[diff]
+    colorMoved = default
+
+[merge]
+    conflictstyle = zdiff3
+
+[include]
+    path = ~/.gitconfig.local

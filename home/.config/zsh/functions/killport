@@ -1,0 +1,15 @@
+# killport - Find and terminate process listening on a given port
+killport() {
+  if [ -z "$1" ]; then
+    echo "Usage: killport <port>"
+    return 1
+  fi
+  local pids
+  pids=$(lsof -ti tcp:"$1" 2>/dev/null)
+  if [ -n "$pids" ]; then
+    echo "Killing process(es) on port $1 (PID: $pids)..."
+    echo "$pids" | xargs kill -9
+  else
+    echo "No process found running on port $1"
+  fi
+}

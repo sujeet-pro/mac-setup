@@ -1,22 +1,21 @@
-
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
-# Ansible
-*.retry
+# Machine-local brewfile & configs
+Brewfile.local
+*.local
+*.local.sh
+*.local.zsh
 
-# Sensitive files (never commit)
-.zshenv
-.ssh/id_*
-.ssh/known_hosts
-.ssh/config.local
+# Backups
+*.bak-*
+*.bak
+*.old
 
-# Claude machine-specific local settings
-configs/claude/settings.local.json
-
-# Docs build output
-dist/
-node_modules/
-
-# Python build artifacts
-__pycache__/
-*.pyc
+# Credentials and secrets
+*.key
+*.pem
+.env*
