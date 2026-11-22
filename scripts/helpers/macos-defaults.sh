@@ -78,5 +78,11 @@ run_defaults com.apple.screencapture disable-shadow -bool true
 # Use plain text mode for new documents
 run_defaults com.apple.TextEdit RichText -int 0
 
+if [[ "$DRY_RUN" = true ]]; then
+    echo "[Dry-Run] killall Finder Dock"
+else
+    killall Finder Dock 2>/dev/null || true
+fi
+
 echo "macOS defaults applied."
-echo "Note: Some changes may require restarting Finder, Dock, or logging out to take full effect."
+echo "Note: Keyboard/trackpad changes may require logging out and back in to take full effect."

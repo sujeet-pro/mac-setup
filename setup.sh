@@ -110,9 +110,18 @@ if ! xcode-select -p &>/dev/null; then
     exit 1
 fi
 
+# Auto-load Homebrew into PATH on fresh Macs if installed in standard locations
+if ! command -v brew &>/dev/null; then
+    if [[ -x "/opt/homebrew/bin/brew" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [[ -x "/usr/local/bin/brew" ]]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+fi
+
 if [[ "$NO_BREW" = false ]] && ! command -v brew &>/dev/null; then
     echo "Error: Homebrew is not installed or not in PATH." >&2
-    echo "See MANUAL-SETUP.md for Homebrew installation instructions." >&2
+    echo "See README.md or MANUAL-SETUP.md for Homebrew installation instructions." >&2
     exit 1
 fi
 

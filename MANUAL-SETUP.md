@@ -32,18 +32,16 @@ No manual app settings exports are required—start clean after formatting and l
 
 ## 1. Prerequisites (Before Running `./setup.sh`)
 
-Open macOS **Terminal** and install the two manual prerequisites:
+Open macOS **Terminal** and install the two manual prerequisites one by one:
 
+1. **Xcode Command Line Tools** (wait for the GUI popup installer to finish before continuing):
 ```sh
-# 1. Install Xcode Command Line Tools (provides git, clang, make)
 xcode-select --install
-# Wait for the GUI installer to finish before continuing.
+```
 
-# 2. Install Homebrew
+2. **Homebrew**:
+```sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# 3. Add Homebrew to your current shell PATH (Apple Silicon)
-eval "$(/opt/homebrew/bin/brew shellenv)"
 ```
 
 ---
@@ -89,20 +87,19 @@ fdesetup status
 
 ## 3. Clone & Run Automated Setup
 
+Clone the repository and run the full automated setup (Brewfile, Junie CLI, dotfile symlinks, `mise` runtimes, and macOS defaults):
 ```sh
-mkdir -p ~/workspace
-git clone https://github.com/sujeet-pro/mac-setup.git ~/workspace/mac-setup
-cd ~/workspace/mac-setup
+mkdir -p ~/workspace && git clone https://github.com/sujeet-pro/mac-setup.git ~/workspace/mac-setup && cd ~/workspace/mac-setup && ./setup.sh
+```
 
-# Run full setup (Brewfile, Junie CLI, dotfile symlinks, mise runtimes, macOS defaults)
-./setup.sh
-
-# Reload Finder & Dock to apply UI defaults immediately
-killall Finder Dock
-
-# Restart shell and validate
+Reload your shell:
+```sh
 exec zsh
-./setup.sh --validate
+```
+
+Validate the installation:
+```sh
+~/workspace/mac-setup/setup.sh --validate
 ```
 
 ---
@@ -174,28 +171,24 @@ junie
 
 ## 6. Git, GitHub, SSH & Private Environment
 
-### Local Git Email
-Your shared `~/.gitconfig` intentionally omits your email. Set it locally in `~/.gitconfig.local`:
+### Local Git Email & Regenerate SSH Key
+Generate a fresh Ed25519 SSH key for the newly formatted Mac, set your local Git email, and add the key to macOS Keychain (replace `your-email@example.com`):
 ```sh
-git config --file ~/.gitconfig.local user.email "your-email@example.com"
-```
-
-### Regenerate SSH Key & Update GitHub
-Generate a fresh Ed25519 SSH key for the newly formatted Mac, add it to macOS Keychain, and upload it to GitHub:
-```sh
-# 1. Generate a new Ed25519 SSH key
-ssh-keygen -t ed25519 -C "your-email@example.com"
-
-# 2. Start ssh-agent and store passphrase in macOS Keychain
+EMAIL="your-email@example.com"
+git config --file ~/.gitconfig.local user.email "$EMAIL"
+ssh-keygen -t ed25519 -C "$EMAIL"
 eval "$(ssh-agent -s)"
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+```
 
-# 3. Authenticate GitHub CLI and upload the new SSH key
+Authenticate GitHub CLI:
+```sh
 gh auth login
-gh ssh-key add ~/.ssh/id_ed25519.pub --title "Sujeet's MacBook"
+```
 
-# 4. Verify SSH connection to GitHub
-ssh -T git@github.com
+Upload the new SSH key to GitHub and verify the connection:
+```sh
+gh ssh-key add ~/.ssh/id_ed25519.pub --title "Sujeet's MacBook" && ssh -T git@github.com
 ```
 Then open **GitHub → Settings → SSH and GPG keys** and delete the old key from before the format.
 

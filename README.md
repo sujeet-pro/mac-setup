@@ -2,6 +2,90 @@
 
 A clean, minimal macOS development environment setup and dotfile management toolkit for a personal home Mac. No Ansible required.
 
+## Fresh Mac Setup (Copy-Paste Step by Step)
+
+Before formatting, review the [Pre-Format Checklist](./MANUAL-SETUP.md#0-before-formatting-pre-format-checklist). After reinstalling macOS, open **Terminal** and copy-paste each block one by one:
+
+### 1. Install Xcode Command Line Tools
+Wait for the macOS popup installer to finish before moving to Step 2.
+```sh
+xcode-select --install
+```
+
+### 2. Install Homebrew
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+### 3. Configure Mac Name, Firewall & Touch ID for `sudo`
+```sh
+sudo scutil --set ComputerName "Sujeet's MacBook"
+sudo scutil --set LocalHostName "Sujeets-MacBook"
+sudo scutil --set HostName "Sujeets-MacBook"
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "Sujeets-MacBook"
+dscacheutil -flushcache
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
+sed 's/^#auth/auth/' /etc/pam.d/sudo_local.template | sudo tee /etc/pam.d/sudo_local > /dev/null
+```
+
+### 4. Clone & Run Automated Setup
+Installs `Brewfile` apps & CLI tools, **Junie CLI**, symlinks dotfiles, installs `mise` runtimes, and applies macOS defaults:
+```sh
+mkdir -p ~/workspace && git clone https://github.com/sujeet-pro/mac-setup.git ~/workspace/mac-setup && cd ~/workspace/mac-setup && ./setup.sh
+```
+
+### 5. Reload Shell
+```sh
+exec zsh
+```
+
+### 6. Validate Environment
+```sh
+~/workspace/mac-setup/setup.sh --validate
+```
+
+### 7. Set Git Email & Regenerate GitHub SSH Key
+Replace `your-email@example.com` with your email:
+```sh
+EMAIL="your-email@example.com"
+git config --file ~/.gitconfig.local user.email "$EMAIL"
+ssh-keygen -t ed25519 -C "$EMAIL"
+eval "$(ssh-agent -s)"
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+```
+
+Sign in to GitHub CLI:
+```sh
+gh auth login
+```
+
+Upload the new SSH key & verify connection (then delete the old key in **GitHub → Settings → SSH and GPG keys**):
+```sh
+gh ssh-key add ~/.ssh/id_ed25519.pub --title "Sujeet's MacBook" && ssh -T git@github.com
+```
+
+### 8. Authenticate Junie CLI & Add Private Tokens
+```sh
+junie
+```
+
+Add any personal API keys or private tokens to untracked `~/.zshenv`:
+```sh
+zed ~/.zshenv
+```
+
+### 9. Finish GUI App Configuration
+Open **[MANUAL-SETUP.md](./MANUAL-SETUP.md)** for exact click-by-click settings:
+- **NordVPN**: Sign in → Launch at Login → **NordLynx** → **Auto-Connect: Always** → **Internet Kill Switch** ON → **Threat Protection Pro** ON
+- **NordPass**: Sign in → enable macOS **AutoFill & Passwords** + Brave/Chrome extensions
+- **Warp**: Font → `JetBrainsMono Nerd Font`, Prompt → **Honor user's custom prompt (PS1)**
+- **JetBrains Toolbox**: Sign in, install IDEs, enable **Generate shell scripts** (`~/.local/bin`)
+- **Docker Desktop**: Accept license, set CPU/RAM + VirtioFS
+- **Rectangle / Maccy / Logi Options+**: Grant Accessibility / Input Monitoring permissions
+
+---
+
 ## Highlights
 
 - **Single `Brewfile`**: Minimal set of CLI tools, **Warp**, **JetBrains Toolbox**, **Zed**, **Docker Desktop**, **NordVPN + NordPass**, **Brave & Chrome**, **Rectangle/Maccy/Logi Options+**, and **JetBrainsMono Nerd Font**.
@@ -9,26 +93,6 @@ A clean, minimal macOS development environment setup and dotfile management tool
 - **Terminal-Agnostic CLI**: Modular Zsh (`zshenv.zsh`, `aliases.zsh`, `functions/`), **Starship**, `eza`, `bat`, `fzf`, `fd`, `ripgrep`, `zoxide`, `atuin`, `lazygit`, `git-delta`, and `mise` — works identically in Warp, JetBrains integrated terminal, and macOS Terminal.
 - **Safe Dotfile Symlinking**: Mirrors `home/` directly into `$HOME` with timestamped backups of any existing non-symlink files.
 - **Clean `.zshenv` Separation**: Public environment config lives in tracked `home/.config/zsh/zshenv.zsh`; private tokens stay in untracked `~/.zshenv`.
-
----
-
-## Fresh Mac Setup
-
-Follow **[MANUAL-SETUP.md](./MANUAL-SETUP.md)** for the full step-by-step checklist, including:
-1. Pre-format backup checklist (repos, recovery codes, `.env` secrets, personal files)
-2. Manual prerequisites (**Xcode Command Line Tools** & **Homebrew**)
-3. **macOS system configuration commands** (Mac name/hostname, Firewall + Stealth Mode, Touch ID for `sudo`)
-4. Running `./setup.sh`
-5. Always-on system-level **NordVPN** + **NordPass** configuration
-6. **Warp**, **JetBrains Toolbox**, **Junie CLI**, **Docker Desktop**, and fresh GitHub SSH key setup
-
-### Quick Start (After Prerequisites)
-
-```sh
-git clone https://github.com/sujeet-pro/mac-setup.git ~/workspace/mac-setup
-cd ~/workspace/mac-setup
-./setup.sh
-```
 
 ---
 
