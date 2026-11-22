@@ -17,18 +17,18 @@ add_newline = true
 # Maximum time (in milliseconds) starship will spend rendering
 # the prompt for a single command. Keeps things snappy even in
 # large git repos.
-command_timeout = 2000
+command_timeout = 500
 
 # How long to scan the current directory (in milliseconds) to
 # detect language tools / git / etc.
-scan_timeout = 50
+scan_timeout = 30
 
 # Overall prompt format: which "modules" appear and in what order.
 # Here:
-#  - First line: directory, git branch, git status, and language info.
+#  - First line: directory, git branch, git status, AWS profile (only when active), language info, slow cmd duration.
 #  - Second line: prompt character.
 format = """
-$directory$git_branch$git_status$python$nodejs$bun$golang$java$kotlin
+$directory$git_branch$git_status$aws$python$nodejs$bun$golang$java$kotlin$cmd_duration
 $character"""
 
 #################
@@ -117,7 +117,7 @@ symbol = " "
 #   $virtualenv - virtualenv name if active
 format = "[$symbol$version]($style) "
 style = "bold yellow"
-python_binary = "python"
+python_binary = ["python3", "python"]
 
 [nodejs]
 # Shown when package.json, node_modules, etc., are present.
@@ -181,12 +181,10 @@ show_milliseconds = false
 ##########################
 
 [aws]
-# Use this to avoid accidentally running commands under the wrong AWS profile.
-# It picks up AWS_PROFILE / AWS_DEFAULT_PROFILE from your environment.
-format = "[aws:$profile]($style) "
+# Shown only when AWS_PROFILE / AWS_DEFAULT_PROFILE / AWS_VAULT is set.
+format = "[aws:$profile(\\($region\\))]($style) "
 style = "bold blue"
-# Disable by default to avoid clutter; flip to false if you want always-on.
-disabled = true
+disabled = false
 
 #############################
 # Kubernetes context (opt.) #

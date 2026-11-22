@@ -22,8 +22,12 @@
     "light": "Zed (Default)",
     "dark": "Zed (Default)",
   },
-  "base_keymap": "VSCode",
+  "base_keymap": "JetBrains",
   "vim_mode": false,
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
   "session": {
     "trust_all_worktrees": true,
   },
@@ -32,11 +36,11 @@
   "ui_font_family": "JetBrainsMono Nerd Font",
   "ui_font_size": 16,
   "terminal": {
-    "font_family": "JetBrainsMono Nerd Font",
+    "font_family": "JetBrainsMono Nerd Font Mono",
     "font_size": 14,
   },
   "theme": {
-    "mode": "dark",
+    "mode": "system",
     "light": "One Light",
     "dark": "One Dark",
   },

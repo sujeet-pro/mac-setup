@@ -1,15 +1,17 @@
 [user]
-    name = Sujeet
-    # Email is typically configured locally or in ~/.gitconfig.local
+    name = Sujeet Jaiswal
+    # Email is configured locally in ~/.gitconfig.local
 
 [init]
     defaultBranch = main
 
 [core]
     excludesfile = ~/.config/git/ignore
-    editor = zed --wait || vim
+    editor = zed --wait
     pager = delta
     autocrlf = input
+    fsmonitor = true
+    untrackedCache = true
 
 [interactive]
     diffFilter = delta --color-only
@@ -28,12 +30,40 @@
 
 [fetch]
     prune = true
+    pruneTags = true
+    writeCommitGraph = true
+
+[gc]
+    writeCommitGraph = true
 
 [diff]
+    algorithm = histogram
     colorMoved = default
+    renames = true
 
 [merge]
     conflictstyle = zdiff3
+
+[rerere]
+    enabled = true
+    autoupdate = true
+
+[rebase]
+    autoSquash = true
+    autoStash = true
+    updateRefs = true
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = version:refname
+
+[column]
+    ui = auto
+
+[help]
+    autocorrect = prompt
 
 [include]
     path = ~/.gitconfig.local

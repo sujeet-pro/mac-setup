@@ -1,9 +1,6 @@
 # Homebrew Bundle (Brewfile) — Personal Home Mac Development Environment
 # Usage: brew bundle --file Brewfile
 
-# Taps
-tap "homebrew/bundle"
-
 # Shell & Core Prompt
 brew "zsh"
 brew "zsh-autosuggestions"
@@ -35,6 +32,7 @@ brew "tlrc"
 brew "zoxide"
 
 # Developer & Git Tools
+brew "awscli"
 brew "difftastic"
 brew "gh"
 brew "git-delta"
@@ -66,6 +64,7 @@ cask "brave-browser"
 cask "google-chrome"
 
 # Productivity & Utilities
+cask "obsidian"
 cask "rectangle"
 cask "maccy"
 cask "logi-options+"

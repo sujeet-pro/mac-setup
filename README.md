@@ -121,7 +121,6 @@ mac-setup/
 ├── bootstrap-remote.sh          # One-liner remote bootstrap helper
 ├── home/                        # Dotfiles mirrored to $HOME via symlinks
 │   ├── .config/
-│   │   ├── agents/              # Global AGENTS.md guidelines for Junie
 │   │   ├── btop/                # btop monitor config
 │   │   ├── gh/                  # GitHub CLI config
 │   │   ├── git/                 # Global gitignore

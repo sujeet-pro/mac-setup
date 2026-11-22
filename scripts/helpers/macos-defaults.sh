@@ -16,7 +16,7 @@ run_defaults() {
     if [[ "$DRY_RUN" = true ]]; then
         echo "[Dry-Run] defaults write $*"
     else
-        defaults write "$@"
+        defaults write "$@" 2>/dev/null || echo "  ⚠ Skipped sandboxed/restricted domain '$1' (grant Full Disk Access if needed)"
     fi
 }
 
@@ -35,9 +35,14 @@ run_defaults NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
 run_defaults NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 run_defaults NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
-# Expand save panel by default
+# Expand save and print panels by default
 run_defaults NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 run_defaults NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+run_defaults NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+run_defaults NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
+
+# Instant window resize speed
+run_defaults NSGlobalDomain NSWindowResizeTime -float 0.001
 
 # Show all filename extensions
 run_defaults NSGlobalDomain AppleShowAllExtensions -bool true
@@ -46,6 +51,10 @@ run_defaults NSGlobalDomain AppleShowAllExtensions -bool true
 # Show path bar and status bar
 run_defaults com.apple.finder ShowPathbar -bool true
 run_defaults com.apple.finder ShowStatusBar -bool true
+
+# Default to List view and skip extension-change nags
+run_defaults com.apple.finder FXPreferredViewStyle -string "Nlsv"
+run_defaults com.apple.finder FXEnableExtensionChangeWarning -bool false
 
 # Keep folders on top when sorting by name
 run_defaults com.apple.finder _FXSortFoldersFirst -bool true
@@ -58,10 +67,12 @@ run_defaults com.apple.desktopservices DSDontWriteNetworkStores -bool true
 run_defaults com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 # --- Dock ---
-# Automatically hide and show the Dock
+# Automatically hide and show the Dock with snappy animations
 run_defaults com.apple.dock autohide -bool true
 run_defaults com.apple.dock autohide-delay -float 0
-run_defaults com.apple.dock autohide-time-modifier -float 0.3
+run_defaults com.apple.dock autohide-time-modifier -float 0.15
+run_defaults com.apple.dock expose-animation-duration -float 0.1
+run_defaults com.apple.dock launchanim -bool false
 run_defaults com.apple.dock show-recents -bool false
 run_defaults com.apple.dock tilesize -int 48
 
@@ -71,7 +82,12 @@ run_defaults com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool t
 run_defaults com.apple.AppleMultitouchTrackpad Clicking -bool true
 
 # --- Screenshots ---
-# Disable shadow in screenshots
+# Save crisp PNG screenshots without drop shadows into ~/screen-captures
+if [[ "$DRY_RUN" != true ]]; then
+    mkdir -p "${HOME}/screen-captures"
+fi
+run_defaults com.apple.screencapture location -string "${HOME}/screen-captures"
+run_defaults com.apple.screencapture type -string "png"
 run_defaults com.apple.screencapture disable-shadow -bool true
 
 # --- TextEdit ---

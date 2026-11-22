@@ -61,6 +61,10 @@ check_cmd delta true
 check_cmd gh true
 check_cmd jq true
 check_cmd zoxide true
+check_cmd yq false
+check_cmd lazygit false
+check_cmd difft false
+check_cmd aws false
 check_cmd atuin false
 check_cmd junie false
 check_cmd zed false
@@ -71,6 +75,7 @@ echo "2. Checking Dotfile Symlinks..."
 check_symlink "${HOME}/.zshrc" "~/.zshrc"
 check_symlink "${HOME}/.zprofile" "~/.zprofile"
 check_symlink "${HOME}/.gitconfig" "~/.gitconfig"
+check_symlink "${HOME}/.config/gh/config.yml" "~/.config/gh/config.yml"
 check_symlink "${HOME}/.config/starship.toml" "~/.config/starship.toml"
 check_symlink "${HOME}/.config/mise/config.toml" "~/.config/mise/config.toml"
 check_symlink "${HOME}/.config/zed/settings.json" "~/.config/zed/settings.json"
@@ -78,7 +83,7 @@ check_symlink "${HOME}/.config/zsh/zshenv.zsh" "~/.config/zsh/zshenv.zsh"
 check_symlink "${HOME}/.config/zsh/aliases.zsh" "~/.config/zsh/aliases.zsh"
 
 echo ""
-echo "3. Checking ~/.zshenv..."
+echo "3. Checking ~/.zshenv & Local Git Identity..."
 if [[ -f "${HOME}/.zshenv" ]]; then
     if grep -q "zshenv.zsh" "${HOME}/.zshenv"; then
         echo "  ✓ ~/.zshenv correctly loads ~/.config/zsh/zshenv.zsh"
@@ -89,6 +94,23 @@ if [[ -f "${HOME}/.zshenv" ]]; then
 else
     echo "  ✗ ~/.zshenv missing"
     errors=$((errors + 1))
+fi
+
+if [[ -f "${HOME}/.gitconfig.local" ]] && git config --includes --global user.email &>/dev/null; then
+    echo "  ✓ Git user.email configured via ~/.gitconfig.local"
+else
+    echo "  ⚠ ~/.gitconfig.local or user.email missing"
+    warnings=$((warnings + 1))
+fi
+
+if command -v gh &>/dev/null; then
+    gh_proto="$(gh config get git_protocol 2>/dev/null || true)"
+    if [[ "$gh_proto" == "ssh" ]]; then
+        echo "  ✓ gh git_protocol is ssh"
+    else
+        echo "  ⚠ gh git_protocol is '${gh_proto:-unset}' (expected ssh)"
+        warnings=$((warnings + 1))
+    fi
 fi
 
 echo ""

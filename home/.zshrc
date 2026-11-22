@@ -11,7 +11,7 @@ if [ -z "$BREW_PREFIX" ]; then
     fi
 fi
 
-# 1. Shell History
+# 1. Shell History & Navigation Ergonomics
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=50000
 SAVEHIST=50000
@@ -24,8 +24,28 @@ setopt HIST_IGNORE_SPACE         # Don't record commands starting with a leading
 setopt HIST_FIND_NO_DUPS         # Do not display duplicate lines when searching history
 setopt HIST_SAVE_NO_DUPS         # Do not write duplicate lines to the history file
 setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks from history lines
-setopt INC_APPEND_HISTORY        # Write to history file immediately upon command execution
-setopt SHARE_HISTORY             # Share history across concurrent zsh sessions
+setopt SHARE_HISTORY             # Share history across concurrent zsh sessions (implies immediate append)
+
+setopt AUTO_CD                   # Type directory name to cd into it
+setopt AUTO_PUSHD                # Maintain directory stack automatically
+setopt PUSHD_IGNORE_DUPS         # Avoid duplicate entries in directory stack
+setopt PUSHD_SILENT              # Don't print directory stack on pushd/popd
+setopt INTERACTIVE_COMMENTS      # Allow # comments in interactive commands
+
+# Helper: cache tool init scripts and regenerate automatically when binary upgrades
+_zsh_cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+[[ -d "$_zsh_cache_dir" ]] || mkdir -p "$_zsh_cache_dir"
+_zsh_cached_eval() {
+    local name="$1" bin="$2"
+    shift 2
+    local bin_path cache_file
+    bin_path="$(command -v "$bin" 2>/dev/null)" || return 0
+    cache_file="${_zsh_cache_dir}/${name}.zsh"
+    if [[ ! -s "$cache_file" || "$bin_path" -nt "$cache_file" ]]; then
+        "$@" >| "$cache_file" 2>/dev/null
+    fi
+    source "$cache_file"
+}
 
 # 2. Key Bindings (Emacs style default with home/end fixes)
 bindkey -e
@@ -46,17 +66,22 @@ fpath=(
 )
 
 autoload -Uz compinit
-# Cache completions for fast startup
-if [ -n "$(find ~/.zcompdump -mtime +1 2>/dev/null)" ]; then
-    compinit
+# Pure-Zsh glob check (zero subshell forks) — rebuild zcompdump at most once per 24h
+_zcompdump="${HOME}/.zcompdump"
+if [[ ! -f "$_zcompdump" || -n ${_zcompdump}(#qN.mh+24) ]]; then
+    compinit -u -d "$_zcompdump"
+    { [[ -f "$_zcompdump" && ( ! -f "${_zcompdump}.zwc" || "$_zcompdump" -nt "${_zcompdump}.zwc" ) ]] && zcompile "$_zcompdump" } &!
 else
-    compinit -C
+    compinit -C -u -d "$_zcompdump"
 fi
+unset _zcompdump
 
 # Completion Styling
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu select
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${_zsh_cache_dir}/zcompcache"
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*:warnings' format 'No matches for: %d'
 
@@ -71,15 +96,13 @@ fi
 [[ -f "$HOME/.config/zsh/aliases.zsh" ]] && source "$HOME/.config/zsh/aliases.zsh"
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
-# 6. Runtime & Version Manager (mise)
+# 6. Runtime & Version Manager (mise — run live; its output embeds current PATH)
 if command -v mise &>/dev/null; then
     eval "$(mise activate zsh)"
 fi
 
 # 7. Shell History Integration (atuin)
-if command -v atuin &>/dev/null; then
-    eval "$(atuin init zsh)"
-fi
+_zsh_cached_eval atuin-init atuin atuin init zsh
 
 # 8. Interactive Fuzzy Finder (fzf)
 if command -v fzf &>/dev/null; then
@@ -97,12 +120,15 @@ if command -v fzf &>/dev/null; then
     fi
 fi
 
-# 9. Prompt (starship)
-if command -v starship &>/dev/null; then
-    eval "$(starship init zsh)"
+# 9. Prompt (starship — skip under dumb terminals)
+if [[ "${TERM:-}" != "dumb" ]]; then
+    _zsh_cached_eval starship-init starship starship init zsh
 fi
 
-# 10. Zsh Plugins
+# 10. Zsh Plugins (async autosuggestions + syntax highlighting)
+ZSH_AUTOSUGGEST_USE_ASYNC=1
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 if [ -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
     source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
@@ -112,6 +138,4 @@ if [ -f "$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 
 # 11. Directory Jumping (zoxide - MUST be at the end)
-if command -v zoxide &>/dev/null; then
-    eval "$(zoxide init --cmd=cd zsh)"
-fi
+_zsh_cached_eval zoxide-init zoxide zoxide init --cmd=cd zsh

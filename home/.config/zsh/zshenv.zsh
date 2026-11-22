@@ -35,3 +35,5 @@ export LC_ALL="en_US.UTF-8"
 # Tool configs
 export STARSHIP_CONFIG="$HOME/.config/starship.toml"
 export MAC_SETUP_HOME="${MAC_SETUP_HOME:-$HOME/workspace/mac-setup}"
+export HOMEBREW_NO_ENV_HINTS=1
+export SHELL_SESSIONS_DISABLE=1
